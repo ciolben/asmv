@@ -1,0 +1,4 @@
+Show frame by frame a video -> ok
+
+BUG
+On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.
