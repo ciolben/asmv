@@ -1,4 +1,5 @@
 Show frame by frame a video -> ok
 
-BUG
-On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.
+BUG LIST
+FIXED : On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.
+BUG2  :	raw copy create "access violation", change it to memcopy for ffmpeg's frames to QImage.

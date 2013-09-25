@@ -161,7 +161,7 @@ QImage* VideoTools::seekNextFrame()
         return NULL;
     }
 
-    QImage* qImage;
+    QImage* qImage      = NULL;
     AVFrame* frame      = avcodec_alloc_frame();
     AVFrame* frameDst   = avcodec_alloc_frame();
     AVPacket* packet = new AVPacket();
@@ -194,7 +194,7 @@ QImage* VideoTools::seekNextFrame()
             if (pic_ptr == 0) {
                 qDebug("Unable to read frame %d.\n", pic_ptr);
             } else {
-                //TODO : made distinction bw useful/useless frames
+                //TODO : make distinction bw useful/useless frames
 
                 //rescaling stuff (yet just a template)
                 //TODO : check if PIX_FMT_RGB24 is really generic
@@ -243,11 +243,10 @@ QImage* VideoTools::seekNextFrame()
                     QRgb *scanLine = (QRgb *)qImage->scanLine(y);
                     for (int x = 0; x < w; x++)
                     {
-                        scanLine[x] = qRgb(src[3*x], src[3*x+1], src[3*x+2]);
+                        scanLine[x] = qRgb(src[3*x], src[3*x+1], src[3*x+2]); //TODO revise this part
                     }
                     src += frameDst->linesize[0];
                 }
-
 
                 //we're done !
             }

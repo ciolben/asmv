@@ -31,12 +31,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     customctrl.cpp \
     #videoplayer.cpp \
-    videotools.cpp
+    videotools.cpp \
+    workerthread.cpp
 
 HEADERS  += mainwindow.h \
     customctrl.h \
     #videoplayer.h \
-    videotools.h
+    videotools.h \
+    workerthread.h
 
 FORMS    += mainwindow.ui \
     customctrl.ui

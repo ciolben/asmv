@@ -17,6 +17,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void handleResult(QString* res);
+
 private slots:
     void on_btClose_clicked();
 
@@ -30,6 +33,8 @@ private:
     VideoTools vtools;
 
     void logText(QString text);
+
+    int dc;
 };
 
 #endif // MAINWINDOW_H
