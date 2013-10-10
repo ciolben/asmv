@@ -5,6 +5,12 @@
 
 #include "videotools.h"
 
+#define LEAK_DETECT 0
+//**memory leak detector
+#if LEAK_DETECT == 1
+    #include <vld.h>
+#endif
+
 namespace Ui {
 class MainWindow;
 }
@@ -18,7 +24,7 @@ public:
     ~MainWindow();
 
 public slots:
-    void handleResult(QString* res);
+    void handleResult(const QString *res);
 
 private slots:
     void on_btClose_clicked();
@@ -27,12 +33,19 @@ private slots:
 
     void on_btGo_clicked();
 
+    void on_btClean_clicked();
+
+    void on_btFlow_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString filename;
     VideoTools vtools;
 
-    void logText(QString text);
+    void logText(const QString *text);
+    void logText(const char* text) {
+        logText(&QString(text));
+    }
 
     int dc;
 };

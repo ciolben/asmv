@@ -17,8 +17,9 @@ public:
 
     void setTiming(int bwFrames, int duration);
 
-//signals:
-//    void resultReady(const QString &s);
+signals:
+    void resultReady(const QString* s);
+    void redraw(void);
 
 public slots:
 
@@ -28,6 +29,8 @@ private:
 
     int bwFrames;
     int duration;
+
+    QString filename;
 };
 
 #endif // WORKERTHREAD_H

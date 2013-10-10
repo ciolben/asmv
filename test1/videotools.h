@@ -23,14 +23,34 @@ public:
 
     int initFfmpeg(const QString &qfile);
     QImage *seekNextFrame();
+    QImage *seekSpecifiedFrame(); //TODO
+    /*
+     * http://stackoverflow.com/questions/504792/ffmpeg-av-seek-frame
+     * http://dranger.com/ffmpeg/functions.html#av_seek_frame
+     */
+
+    void setOptUseMemcpy(bool value);
+    void cleanMem();
+
+    int getFramesToSkip() const;
+    void setFramesToSkip(int value);
+
+    int getCurrentFrameIndex() const;
 
 private:
     QString filename;
     AVFormatContext* pFormatContext;
     AVCodecContext* pCodecContext;
 
+    AVPacket* packet;
+    AVFrame* frame;
+    AVFrame* frameDst;
+    uint8_t* buffer;
+
     int videoStream;
     int audioStream;
+    int framesToSkip;
+    bool optUseMemcpy;
 
     unsigned curFrame;
 

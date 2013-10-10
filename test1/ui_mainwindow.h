@@ -20,9 +20,11 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
+#include "customctrl.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -43,6 +45,13 @@ public:
     QLabel *label_4;
     QLineEdit *txtDuration;
     QLabel *label_5;
+    QPushButton *btClean;
+    QSlider *slider;
+    QLabel *label_6;
+    QLineEdit *txtSkipFrames;
+    QLabel *label_7;
+    CustomCtrl *wOpticalFlow;
+    QPushButton *btFlow;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -51,16 +60,16 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(833, 323);
+        MainWindow->resize(833, 577);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         btClose = new QPushButton(centralWidget);
         btClose->setObjectName(QStringLiteral("btClose"));
-        btClose->setGeometry(QRect(220, 240, 75, 23));
+        btClose->setGeometry(QRect(220, 300, 75, 23));
         btClose->setCheckable(false);
         label = new QLabel(centralWidget);
         label->setObjectName(QStringLiteral("label"));
-        label->setGeometry(QRect(20, 140, 61, 16));
+        label->setGeometry(QRect(20, 200, 61, 16));
         btGo = new QPushButton(centralWidget);
         btGo->setObjectName(QStringLiteral("btGo"));
         btGo->setGeometry(QRect(190, 50, 75, 23));
@@ -72,11 +81,11 @@ public:
         txtFile->setGeometry(QRect(10, 10, 171, 20));
         lblImage = new QLabel(centralWidget);
         lblImage->setObjectName(QStringLiteral("lblImage"));
-        lblImage->setGeometry(QRect(310, 10, 511, 251));
+        lblImage->setGeometry(QRect(310, 10, 511, 281));
         lblImage->setFrameShape(QFrame::Box);
         txtInfo = new QPlainTextEdit(centralWidget);
         txtInfo->setObjectName(QStringLiteral("txtInfo"));
-        txtInfo->setGeometry(QRect(20, 160, 281, 71));
+        txtInfo->setGeometry(QRect(20, 220, 281, 71));
         txtInfo->setReadOnly(true);
         txtInfo->setCenterOnScroll(false);
         label_2 = new QLabel(centralWidget);
@@ -85,7 +94,7 @@ public:
         txtFrame = new QLineEdit(centralWidget);
         txtFrame->setObjectName(QStringLiteral("txtFrame"));
         txtFrame->setGeometry(QRect(100, 90, 61, 20));
-        txtFrame->setText(QStringLiteral("300"));
+        txtFrame->setText(QStringLiteral("15"));
         label_3 = new QLabel(centralWidget);
         label_3->setObjectName(QStringLiteral("label_3"));
         label_3->setGeometry(QRect(170, 90, 21, 16));
@@ -95,10 +104,32 @@ public:
         txtDuration = new QLineEdit(centralWidget);
         txtDuration->setObjectName(QStringLiteral("txtDuration"));
         txtDuration->setGeometry(QRect(100, 120, 61, 20));
-        txtDuration->setText(QStringLiteral("50"));
+        txtDuration->setText(QStringLiteral("100"));
         label_5 = new QLabel(centralWidget);
         label_5->setObjectName(QStringLiteral("label_5"));
         label_5->setGeometry(QRect(170, 120, 31, 16));
+        btClean = new QPushButton(centralWidget);
+        btClean->setObjectName(QStringLiteral("btClean"));
+        btClean->setGeometry(QRect(20, 300, 75, 23));
+        slider = new QSlider(centralWidget);
+        slider->setObjectName(QStringLiteral("slider"));
+        slider->setGeometry(QRect(310, 300, 511, 19));
+        slider->setOrientation(Qt::Horizontal);
+        label_6 = new QLabel(centralWidget);
+        label_6->setObjectName(QStringLiteral("label_6"));
+        label_6->setGeometry(QRect(20, 150, 71, 16));
+        txtSkipFrames = new QLineEdit(centralWidget);
+        txtSkipFrames->setObjectName(QStringLiteral("txtSkipFrames"));
+        txtSkipFrames->setGeometry(QRect(100, 150, 61, 20));
+        label_7 = new QLabel(centralWidget);
+        label_7->setObjectName(QStringLiteral("label_7"));
+        label_7->setGeometry(QRect(170, 150, 71, 16));
+        wOpticalFlow = new CustomCtrl(centralWidget);
+        wOpticalFlow->setObjectName(QStringLiteral("wOpticalFlow"));
+        wOpticalFlow->setGeometry(QRect(90, 330, 701, 201));
+        btFlow = new QPushButton(centralWidget);
+        btFlow->setObjectName(QStringLiteral("btFlow"));
+        btFlow->setGeometry(QRect(10, 370, 75, 23));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -128,6 +159,11 @@ public:
         label_3->setText(QApplication::translate("MainWindow", "ms", 0));
         label_4->setText(QApplication::translate("MainWindow", "Seq duration :", 0));
         label_5->setText(QApplication::translate("MainWindow", "frames", 0));
+        btClean->setText(QApplication::translate("MainWindow", "Clean mem", 0));
+        label_6->setText(QApplication::translate("MainWindow", "Save each ", 0));
+        txtSkipFrames->setText(QApplication::translate("MainWindow", "5", 0));
+        label_7->setText(QApplication::translate("MainWindow", "frames to disk", 0));
+        btFlow->setText(QApplication::translate("MainWindow", "OpticalFlow", 0));
     } // retranslateUi
 
 };

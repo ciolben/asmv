@@ -5,7 +5,9 @@
 #include <QScrollBar>
 #include <QTime>
 #include <QThread>
+
 #include "workerthread.h"
+#include "opticalflowtools.h"
 
 #include <stdio.h>
 
@@ -21,9 +23,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::handleResult(QString *res)
+void MainWindow::handleResult(const QString *res)
 {
-    //don
+    logText(res);
 }
 
 void MainWindow::on_btClose_clicked()
@@ -44,6 +46,7 @@ void MainWindow::on_btOpen_clicked()
         //VideoTools::getMediaInfo(res);
         //VideoTools::testFfmpeg(res);
         vtools = VideoTools();
+
         int out;
         out = vtools.initFfmpeg(filename);
         qDebug("initFfmpeg : %d", out);
@@ -78,17 +81,44 @@ void MainWindow::on_btGo_clicked()
 //    }
 
     //new implemtation with thread
+//    if (ui->chkMem->checkState() == Qt::Checked) {
+//        vtools.setOptUseMemcpy(true);
+//    } else {
+//        vtools.setOptUseMemcpy(false);
+//    }
+    vtools.setFramesToSkip(ui->txtSkipFrames->text().toInt());
     WorkerThread *workerThread = new WorkerThread(this, ui->lblImage, &vtools);
     workerThread->setTiming(ui->txtFrame->text().toInt(), ui->txtDuration->text().toInt());
-    //connect(workerThread, &WorkerThread::resultReady, this, &MainWindow::handleResult);
+    connect(workerThread, &WorkerThread::resultReady, this, &MainWindow::handleResult);
     connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
+    //repaint
+    connect(workerThread, SIGNAL(redraw()), ui->lblImage, SLOT(repaint()));
+    //------
     workerThread->start();
 
 }
 
-void MainWindow::logText(QString text)
+//void MainWindow::logText(const char* text) {
+//    logText(&QString(text));
+//}
+
+void MainWindow::logText(const QString *text)
 {
-    ui->txtInfo->setPlainText(ui->txtInfo->toPlainText() + "\r\n" + text);
-   // ui->txtInfo->ensureCursorVisible();
+    ui->txtInfo->setPlainText(ui->txtInfo->toPlainText() + "\r\n" + *text);
     ui->txtInfo->verticalScrollBar()->setValue(ui->txtInfo->verticalScrollBar()->maximum());
+}
+
+void MainWindow::on_btClean_clicked()
+{
+    vtools.cleanMem();
+}
+
+void MainWindow::on_btFlow_clicked()
+{
+    ui->wOpticalFlow->loadImages("img1.jpg", "img2.jpg");
+    //compute coarse2fine
+    QImage& image = *OpticalFlowTools::computeCoarse2Fine("img1.jpg", "img2.jpg");
+    //ui->wOpticalFlow->loadImOut(image);
+    ui->wOpticalFlow->loadImOut("flowout.jpg");
+    //delete image;
 }

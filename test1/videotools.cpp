@@ -12,6 +12,8 @@ VideoTools::VideoTools()
     , videoStream(-1)
     , audioStream(-1)
     , curFrame(0)
+    , framesToSkip(0)
+    , optUseMemcpy(true)
 {
     //don
 }
@@ -150,8 +152,34 @@ int VideoTools::initFfmpeg(const QString &qfile)
     //Manage sw context
     pSwsContext = sws_alloc_context();
 
+    //allocate frames
+    frame      = avcodec_alloc_frame();
+    frameDst   = avcodec_alloc_frame();
+
+    //define a buffer
+    // Determine required buffer size and allocate buffer
+    int numBytes = avpicture_get_size(PIX_FMT_RGB24, pCodecContext->width, pCodecContext->height);
+    buffer = new uint8_t[numBytes];
+
+    // Assign appropriate parts of buffer to image planes in pFrameRGB
+    avpicture_fill((AVPicture *)frameDst, buffer, PIX_FMT_RGB24,
+        pCodecContext->width, pCodecContext->height);
+
     curFrame = 0;
     return 0;
+}
+
+void freeResources(AVPacket* packet, AVCodecContext* ctx, AVFrame* frame1, AVFrame* frame2) {
+    //avcodec_default_release_buffer(ctx, frame1);
+    //av_freep(frame1);
+   // av_freep(frame2);
+   // avcodec_free_frame(&frame1);
+    //avcodec_default_release_buffer(ctx, frame2);
+   // avcodec_free_frame(&frame2);
+    av_free_packet(packet);
+    //delete frame1;
+    //delete frame2;
+    delete packet;
 }
 
 QImage* VideoTools::seekNextFrame()
@@ -162,11 +190,19 @@ QImage* VideoTools::seekNextFrame()
     }
 
     QImage* qImage      = NULL;
-    AVFrame* frame      = avcodec_alloc_frame();
-    AVFrame* frameDst   = avcodec_alloc_frame();
     AVPacket* packet = new AVPacket();
     if (av_read_frame(pFormatContext, packet) >= 0) {
         if (packet->stream_index == videoStream) {
+
+            AVRational millisecondbase = {1, 1000};
+            int f = packet->dts;
+            int t = av_rescale_q(packet->dts,pFormatContext->streams[videoStream]->time_base, millisecondbase);
+//            qDebug(QString("frame %1 : dts = %2, tb = %3/%4, rescaled = %5").arg(
+//                       QString("%1").arg(curFrame),
+//                       QString("%1").arg(f),
+//                       QString("%1").arg(pFormatContext->streams[videoStream]->time_base.num),
+//                       QString("%1").arg(pFormatContext->streams[videoStream]->time_base.den),
+//                       QString("%1").arg(t)).toLocal8Bit().constData());
 
             /* -----Some note from doc of ffmpeg------
              *
@@ -192,7 +228,7 @@ QImage* VideoTools::seekNextFrame()
             int pic_ptr; //if non-zero : success
             avcodec_decode_video2(pCodecContext, frame, &pic_ptr, packet);
             if (pic_ptr == 0) {
-                qDebug("Unable to read frame %d.\n", pic_ptr);
+                qDebug("Ignore : Unable to read frame %d.\n", pic_ptr);
             } else {
                 //TODO : make distinction bw useful/useless frames
 
@@ -216,58 +252,107 @@ QImage* VideoTools::seekNextFrame()
                 int w2 = w;
                 int h2 = h;
 
+                AVPixelFormat format = AV_PIX_FMT_RGB24;
                 pSwsContext = sws_getCachedContext(pSwsContext, w, h, pCodecContext->pix_fmt, w2, h2,
-                                                   PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+                                                   format, SWS_BICUBIC, NULL, NULL, NULL);
 
                 if (pSwsContext == NULL) {
                     qFatal("Conversion not possible !\n");
                     //TODO : skip conversion
+                    freeResources(packet, pCodecContext, frame, frameDst);
                     return NULL;
                 }
 
-                int num_bytes = avpicture_get_size(PIX_FMT_RGB24, w2, h2);
+                int num_bytes = avpicture_get_size(format, w2, h2);
                 uint8_t* frameDst_buffer = (uint8_t *)av_malloc(num_bytes*sizeof(uint8_t));
-                avpicture_fill((AVPicture*)frameDst, frameDst_buffer, PIX_FMT_RGB24, w2, h2);
+                avpicture_fill((AVPicture*)frameDst, frameDst_buffer, format, w2, h2);
                 sws_scale(pSwsContext, frame->data, frame->linesize, 0, h,
                           frameDst->data, frameDst->linesize);
 
-                qImage = new QImage(w, h, QImage::Format_RGB32); //RGB888 : need check
+                qImage = new QImage(w, h, QImage::Format_RGB888); //RGB888 : need check (seems ok)
 
                 //copy
-                /*for(int y = 0; y < h; y++) {
-                   memcpy(qImage.scanLine(y), frameDst->data[0] + y * frameDst->linesize[0], w * 3);
-                }*/
-                unsigned char *src = (unsigned char *)frameDst->data[0];
-                for (int y = 0; y < h; y++)
-                {
-                    QRgb *scanLine = (QRgb *)qImage->scanLine(y);
-                    for (int x = 0; x < w; x++)
-                    {
-                        scanLine[x] = qRgb(src[3*x], src[3*x+1], src[3*x+2]); //TODO revise this part
+                bool use_memcpy = true;
+                if (use_memcpy) { //should be faster
+                    for(int y = 0; y < h2; y++) {
+                       memcpy(qImage->scanLine(y), frameDst->data[0] + y * frameDst->linesize[0], w2 * 3);
                     }
-                    src += frameDst->linesize[0];
+                } else {
+                    unsigned char *src = (unsigned char *)frameDst->data[0];
+                    for (int y = 0; y < h; y++)
+                    {
+                        QRgb *scanLine = (QRgb *)qImage->scanLine(y);
+                        for (int x = 0; x < w; x++)
+                        {
+                            scanLine[x] = qRgb(src[3*x], src[3*x+1], src[3*x+2]); //TODO revise this part
+                        }
+                        src += frameDst->linesize[0];
+                    }
                 }
 
+                av_free(frameDst_buffer);
                 //we're done !
             }
 
-            av_free_packet(packet);
         #ifdef AUDIO_SUPPORT
         } else if (packet.stream_index == audioStream) {
 
         #endif
         } else {
-            av_free_packet(packet);
+            
         }
 
         curFrame++;
+        freeResources(packet, pCodecContext, frame, frameDst);
         return qImage; //TODO : return NULL if no change
     } else {
         //End of stream
         qDebug("End of stream reached (frame_nb : %d)", curFrame);
+        freeResources(packet, pCodecContext, frame, frameDst);
         return NULL;
     }
 }
+
+void VideoTools::setOptUseMemcpy(bool value)
+{
+    optUseMemcpy = value;
+}
+
+void VideoTools::cleanMem()
+{
+    //test of mem cleaning
+    if (buffer) {
+        delete [] buffer;
+    }
+
+    if(frame) {
+        av_free(frame);
+    }
+
+    if(frameDst) {
+        av_free(frameDst);
+    }
+
+    avcodec_close(pCodecContext);
+    av_close_input_file(pFormatContext);
+}
+
+int VideoTools::getCurrentFrameIndex() const {
+    return curFrame;
+}
+
+int VideoTools::getFramesToSkip() const
+{
+    return framesToSkip;
+}
+
+void VideoTools::setFramesToSkip(int value)
+{
+    framesToSkip = value;
+}
+
+
+
 
 
 
