@@ -36,7 +36,7 @@ QImage* OpticalFlowTools::computeCoarse2Fine(const QString& im1, const QString& 
 //                                 alpha,ratio, 1,
 //                                 nOuterFPIterations,nInnerFPIterations,nSORIterations);
 
-    OpticalFlow::ComputeOpticalFlow(dimg1, dimg2, warpI2);
+//    OpticalFlow::ComputeOpticalFlow(dimg1, dimg2, warpI2);
 
     bool res = true;
 

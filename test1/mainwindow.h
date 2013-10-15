@@ -33,9 +33,9 @@ private slots:
 
     void on_btGo_clicked();
 
-    void on_btClean_clicked();
-
     void on_btFlow_clicked();
+
+    void on_btTimeline_clicked();
 
 private:
     Ui::MainWindow *ui;
