@@ -987,9 +987,9 @@ void OpticalFlow::Coarse2FineFlow(DImage &vx, DImage &vy, DImage &warpI2,const D
 		{
 
 			vx.imresize(width,height);
-			vx.Multiplywith(1/ratio);
+            vx.Multiplywith(1/ratio);
 			vy.imresize(width,height);
-			vy.Multiplywith(1/ratio);
+            vy.Multiplywith(1/ratio);
 			//warpFL(warpI2,GPyramid1.Image(k),GPyramid2.Image(k),vx,vy);
 			if(interpolation == Bilinear)
 				warpFL(WarpImage2,Image1,Image2,vx,vy);
@@ -1007,7 +1007,7 @@ void OpticalFlow::Coarse2FineFlow(DImage &vx, DImage &vy, DImage &warpI2,const D
 			cout<<endl;
 	}
 	//warpFL(warpI2,Im1,Im2,vx,vy);
-	Im2.warpImageBicubicRef(Im1,warpI2,vx,vy);
+    Im2.warpImageBicubicRef(Im1,warpI2,vx,vy);
 	warpI2.threshold();
 }
 

@@ -17,7 +17,7 @@
 
 #pragma once
 
-#ifndef Q_MOC_RUN
+#ifndef Q_MOC_RUN //QT macros compatibility mode
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -73,6 +73,43 @@ namespace magnet {
       { 
 	_valid = false;
 	base::push_back(std::pair<double, double>(x,y)); 
+      }
+
+      ///
+      /// \brief getLast
+      /// \return last element
+      ///
+      std::pair<double, double> getLast() {
+          return base::empty() ? std::pair<double, double>(0,0)
+                  : base::at(base::size() - 1);
+      }
+
+      ///
+      /// \brief delPoint : Delete a point (costly operation)
+      /// \param x
+      ///
+      inline bool delPoint(double x) {
+          if (base::empty()) {
+            return false;
+          }
+      return false;
+      }
+
+
+      ///
+      /// \brief modifyYPoint : modify Y value for X value.
+      /// \param x
+      /// \param newY
+      ///
+      inline void modifyYPoint(double x_v, double newY) {
+          const size_t e = size() - 1;
+          for (size_t i(0); i < e; ++i) {
+              if (x(i) == x_v) {
+                  operator[](i).second = newY;
+                  _valid = false;
+                  return;
+              }
+          }
       }
 
       //Reset the boundary conditions
@@ -217,7 +254,7 @@ namespace magnet {
 
 	      for (base::iterator iPtr = base::begin(); iPtr != base::end() - 1; ++iPtr)
 		if (iPtr->first == (iPtr+1)->first)
-		  {
+          {
 		    if ((iPtr+1)->first != 0)
 		      (iPtr+1)->first += (iPtr+1)->first 
 			* std::numeric_limits<double>::epsilon() * 10;

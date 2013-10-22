@@ -45,10 +45,11 @@ SOURCES += main.cpp\
     opticalflow/include/OpticalFlow.cpp \
     opticalflow/include/GaussianPyramid.cpp \
     timeline.cpp \
-    timelineQML/t.cpp \
     timelineQML/bspline.cpp \
     timelineQML/splinedrawer.cpp \
-    qmlregister.cpp
+    qmlregister.cpp \
+    addsequencedialog.cpp \
+    imageeaterthread.cpp
 
 HEADERS  += mainwindow.h \
     customctrl.h \
@@ -67,16 +68,19 @@ HEADERS  += mainwindow.h \
     opticalflow/include/Image.h \
     opticalflow/include/GaussianPyramid.h \
     timeline.h \
-    timelineQML/t.h \
     timelineQML/bspline.h \
     timelineQML/splinedrawer.h \
     mathlib/spline.hpp \
-    qmlregister.h
+    qmlregister.h \
+    addsequencedialog.h \
+    imageeaterthread.h \
+    timelineQML/Sequence.hpp
 
 
 FORMS    += mainwindow.ui \
     customctrl.ui \
-    timeline.ui
+    timeline.ui \
+    addsequencedialog.ui
 
 #win32:QMAKE_LFLAGS += -shared
 

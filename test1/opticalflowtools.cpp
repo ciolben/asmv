@@ -17,7 +17,7 @@ QImage* OpticalFlowTools::computeCoarse2Fine(const QString& im1, const QString& 
 
     // get the parameters
     double alpha= 1;
-    double ratio=0.5;
+    double ratio=10.0;
     int minWidth= 40;
     int nOuterFPIterations = 3;
     int nInnerFPIterations = 1;
@@ -48,7 +48,7 @@ QImage* OpticalFlowTools::computeCoarse2Fine(const QString& im1, const QString& 
 
 //    res = featureImage.imwrite("feature.jpg");
 
-    res = warpI2.imwrite("flow2.jpg");
+    res = warpI2.imwrite("flowalpha.jpg");
     return res ? NULL : new QImage();
 
 //    dimg2.imwrite(imgres);

@@ -4,6 +4,7 @@
 #include <QQuickPaintedItem>
 #include <QPainter>
 
+#include "Sequence.hpp"
 #include "mathlib/spline.hpp"
 
 class SplineDrawer : public QQuickPaintedItem
@@ -11,25 +12,41 @@ class SplineDrawer : public QQuickPaintedItem
     Q_OBJECT
     Q_PROPERTY(int curwidth READ curwidth WRITE setCurwidth)
     Q_PROPERTY(int curheight READ curheight WRITE setCurheight)
+    Q_PROPERTY(int duration READ duration WRITE setduration NOTIFY durationChanged)
+    Q_PROPERTY(int playposition READ playposition WRITE setplayposition NOTIFY playpositionChanged)
 
 public:
     explicit SplineDrawer(QQuickItem *parent = 0);
     void paint(QPainter* painter);
 
-    int curwidth() const;
-    void setCurwidth(const int& width);
-    int curheight() const;
-    void setCurheight(const int& height);
+    //typedef std::pair<ulong, magnet::math::Spline*> Sequence;
 
-    void addKey(ulong time, ulong map);
+    int curwidth() const { return m_curwidth; }
+    void setCurwidth(const int& width) { m_curwidth = width; }
+    int curheight() const { return m_curheight; }
+    void setCurheight(const int& height) { m_curheight = height; }
+    int duration() const { return m_duration; }
+    void setduration(const int& duration) { m_duration = duration; emit durationChanged(duration);}
+    int playposition() const { return m_playPosition; }
+    void setplayposition(const int& playPosition) { m_playPosition = playPosition; emit playpositionChanged(playPosition);}
 
+    void addKey(ulong time, long map);
+    void modifyKey(ulong time, long new_map);
+    void beginAddSequence() { m_editing = true; }
+
+    void initView(const ulong& duration = 0);
 signals:
+    void durationChanged(int);
+    void playpositionChanged(int);
 
 public slots:
+    void mouseOnClick(int x, int y);
 
 private:
     int m_curwidth;
     int m_curheight;
+    int m_duration;
+    int m_playPosition;
 
     ulong m_max;
     ulong m_numKeys;
@@ -37,9 +54,17 @@ private:
     long m_maxDiff;
     long m_minDiff;
 
+    bool m_editing;
     magnet::math::Spline m_spline;
 
-    QMap<ulong, long> m_keys;
+    //QMap<ulong, double> m_keys;
+    //QMap<ulong, magnet::math::Spline*> m_seqs;
+    Sequence* m_currentSequence;
+    QList<Sequence*> m_sequences;
+
+    void addSequence(ulong start, ulong end);
+
+    inline long SplineDrawer::computeDiff(ulong time, long map);
 };
 
 #endif // SPLINEDRAWER_H

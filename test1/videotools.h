@@ -37,6 +37,14 @@ public:
 
     int getCurrentFrameIndex() const;
 
+    int64_t getDuration() const;
+    int getDurationMs() const;
+
+    int64_t getCurrentDts() const;
+    int64_t getCurrentTs() const;
+
+    bool isCurrentFrameValid() const;
+
 private:
     QString filename;
     AVFormatContext* pFormatContext;
@@ -53,6 +61,10 @@ private:
     bool optUseMemcpy;
 
     unsigned curFrame;
+    int64_t duration;
+    int64_t curDts;
+    int64_t curTs;
+    int64_t lastDts;
 
     SwsContext* pSwsContext;
 };

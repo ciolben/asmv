@@ -1,92 +1,130 @@
 #include "splinedrawer.h"
 #include "qmlregister.h"
 
+#include <utility>
+#include <vector>
 #include "QDebug"
 
 SplineDrawer::SplineDrawer(QQuickItem *parent) :
     QQuickPaintedItem(parent)
-    , m_keys(QMap<ulong, long>())
+    //, m_keys(QMap<ulong, double>())
+    //, m_seqs(QMap<ulong, magnet::math::Spline*>())
+  , m_sequences(QList<Sequence*>())
+  , m_editing(false)
+  , m_currentSequence(NULL)
     , m_max(0)
-    , m_maxDiff(0.f)
-    , m_minDiff(0.f)
+    , m_maxDiff(5.f)
+    , m_minDiff(-5.f)
     , m_numKeys(0)
+  , m_duration(0)
     , m_spline(magnet::math::Spline()) {
     QMLRegister::regQMLObject("spline", this);
 }
 
 void SplineDrawer::paint(QPainter *painter) {
-    QColor redcolor = QColor("red");
-    QPen pen(redcolor, 1);
+
+    if (m_duration == 0) { return; }
+
+    //general draw parameters
+    double const local_width = m_duration;
+    double const local_height = m_maxDiff - m_minDiff;
+    float yscalingSum = m_curheight / 2.f;
+    float yscalingProd = m_curheight / (m_maxDiff - m_minDiff);
+    float xscalingProd = m_curwidth / local_width;
+    double lastOffset = 0;
+    ulong startOffset = 0;
+    QColor color("blue");
+    QPen pen;
+
+    //draw control points (before scaling)
+    QColor blueColor("blue");
+    QColor magentaColor("magenta");
+    pen = QPen(color);
+    pen.setWidth(4);
     painter->setPen(pen);
+    int halfRecWidth = 5;
+    int recWidth = 2 * halfRecWidth;
+    typedef std::pair<ulong, double> pair;
+    QList<pair> ctrlPoints;
+    foreach (Sequence* seq, m_sequences) {
+        startOffset = seq->getBeginning();
+        lastOffset = seq->getEnding();
+        ctrlPoints = seq->getControlPointsList();
+        pen.setColor(blueColor);
+        painter->setPen(pen);
+        foreach (pair p, ctrlPoints) {
+            painter->drawRoundRect((p.first + startOffset) * xscalingProd - halfRecWidth
+                              , p.second * yscalingProd + yscalingSum - halfRecWidth
+                              , recWidth, recWidth);
+        }
+        pen.setColor(magentaColor);
+        painter->setPen(pen);
+        painter->drawRoundRect(startOffset * xscalingProd - halfRecWidth, yscalingSum - halfRecWidth, recWidth, recWidth);
 
-    // using namespace magnet::math;
-
-    double const local_width = m_max;
-    double const local_height = m_maxDiff + m_minDiff;
-
-    painter->translate(0.0, m_curheight / 2.f);
-    //painter->scale(m_curwidth / local_width, m_curheight / local_height);
-    painter->scale(m_curwidth / local_width, 1);
-
-    int xi, yi;
-    double xd, yd;
-    for (double x = 0.0; x < local_width; x += 0.5) {
-        xd = x;
-        yd = m_spline(x);
-
-        //rasterize on x
-        xi = xd - 0.5 <= xd - (int)xd ? (int)xd : (int)(xd + 0.5);
-
-        //rasterize on y
-        yi = yd - 0.5 <= yd - (int)yd ? (int)yd : (int)(yd + 0.5);
-        yi += m_maxDiff;
-        painter->drawPoint(xi, yi);
+        if(lastOffset != 0) { //while editing
+            painter->drawRoundRect(lastOffset * xscalingProd - halfRecWidth, yscalingSum - halfRecWidth, recWidth, recWidth);
+        }
     }
 
+    //draw the lines (scaled)
+    color = QColor("red");
+    pen = QPen(color);
+    painter->setPen(pen);
 
-//    for (float x = 0; x < local_width; x += 20) {
-//        spline.addPoint(x, local_height * abs(cos(x)));
-//    }
+    //draw parameters
+    painter->scale(m_curwidth / local_width, 1.f);
+    double resolution = 0;
 
-//    painter->scale(m_curwidth / local_width, m_curheight / local_height);
+    //draw sequences
+    bool firstIteration = true;
+    int xi, yi, xil = 0, yil = 0;
+    double xd, yd;
 
-    // QList<double> list = QList<double>();
-//    int xi, yi;
-//    double xd, yd;
-//    for (double x = 0.0; x < local_width; x += 0.5) {
-//        xd = x;
-//        yd = spline(x);
-//        //rasterize on x
-//        xi = xd - 0.5 <= xd - (int)xd ? (int)xd : (int)(xd + 0.5);
+    foreach (Sequence* seq, m_sequences) {
+        startOffset = seq->getBeginning();
+        lastOffset = seq->getEnding();
+        
+        if (firstIteration) {
+            firstIteration = false;
+            //draw first unchanged sequence
+            if (startOffset != 0) {
+                painter->drawLine(0, yscalingSum, startOffset, yscalingSum);
+            }
+        }
+        
+        //10 samples bw control points
+        resolution = (lastOffset - startOffset) / (10 * (seq->getControlPointsList().size() + 1));
 
-//        //rasterize on y
-//        yi = yd - 0.5 <= yd - (int)yd ? (int)yd : (int)(yd + 0.5);
+        //link two sequences
+        if(xil != 0 && yil != 0) {
+            painter->drawLine(xil, yil, startOffset, yscalingSum);
+        }
 
-//       painter->drawPoint(xi, yi);
-//    }
+        xil = startOffset;
+        yil = yscalingSum;
+        for (double x = resolution; x <= lastOffset - startOffset; x += resolution) {
+            xd = x + startOffset;
+            yd = seq->computeSpline(x) * yscalingProd + yscalingSum;
 
+            //adjust rasterization on x
+            xi = xd - 0.5 <= (int)xd ? xd : xd + 0.5;
+
+            //adjust rasterization on y
+            yi = yd - 0.5 <= (int)yd ? yd : yd + 0.5;
+
+            painter->drawLine(xil, yil, xi, yi);
+            xil = xi;
+            yil = yi;
+        }
+    }
+    
+    //draw last sequence
+    if (lastOffset != local_width) {
+        painter->drawLine(lastOffset, yscalingSum, local_width, yscalingSum);
+    }
 }
 
-int SplineDrawer::curwidth() const {
-    return m_curwidth;
-
-}
-
-void SplineDrawer::setCurwidth(const int &width) {
-    m_curwidth = width;
-}
-
-
-int SplineDrawer::curheight() const {
-    return m_curheight;
-
-}
-
-void SplineDrawer::setCurheight(const int &height) {
-    m_curheight = height;
-}
-
-void SplineDrawer::addKey(ulong time, ulong map) {
+inline long SplineDrawer::computeDiff(ulong time, long map) {
     if (time > m_max) {
         m_max = time;
     }
@@ -98,7 +136,69 @@ void SplineDrawer::addKey(ulong time, ulong map) {
         m_maxDiff = diff;
     }
 
-    m_spline.addPoint((double) time, diff);
-    m_keys[time] = map;
-    m_numKeys++;
+    return diff;
+}
+
+void SplineDrawer::addKey(ulong time, long map) {
+    //m_spline.addPoint((double) time, computeDiff(time, map));
+    //m_keys[time] = map;
+    //m_numKeys++;
+}
+
+void SplineDrawer::modifyKey(ulong time, long new_map) {
+    m_spline.modifyYPoint(time, computeDiff(time, new_map));
+    //m_keys[time] = new_map;
+}
+
+void SplineDrawer::addSequence(ulong start, ulong end) {
+    m_sequences.append(new Sequence(start, end));
+}
+
+void SplineDrawer::initView(const ulong &duration) {
+    if(duration != 0) {
+        m_duration = duration;
+    }
+
+    /*
+     * Add equally spaced points to the spline, from 0 to maxtime
+     */
+
+
+}
+
+void SplineDrawer::mouseOnClick(int x, int y) {
+    double nx = m_duration * (double)x / m_curwidth;
+    double ny = (m_maxDiff - m_minDiff) * (double)y / m_curheight - (m_maxDiff - m_minDiff) / 2.f;
+
+    if (m_editing) {
+        m_numKeys++;
+
+        //editing
+        if(m_numKeys == 1) {
+            //add begin + create sequence
+            m_currentSequence = new Sequence();
+            m_sequences.append(m_currentSequence);
+            m_currentSequence->modifyBeginning(nx);
+        } else {
+            //add end
+            m_currentSequence->modifyEnding(nx);
+        }
+
+        if (m_numKeys == 2) {
+            m_editing = false;
+            m_numKeys = 0;
+            qDebug() << "Editing sequence finished.";
+        }
+    } else {
+
+        if (m_currentSequence != NULL) {
+            //add point to current Sequence
+            if (nx < m_currentSequence->getBeginning() || nx > m_currentSequence->getEnding()) {
+                qDebug() << "Point outside sequence.";
+            } else {
+                m_currentSequence->addPoint(nx, ny);
+            }
+        }
+    }
+    this->update();
 }

@@ -1,99 +1,181 @@
 #include "splinedrawer.h"
+#include "qmlregister.h"
+
+#include <utility>
+#include <vector>
+#include "QDebug"
 
 SplineDrawer::SplineDrawer(QQuickItem *parent) :
     QQuickPaintedItem(parent)
-  , m_keys(QMap<ulong, ulong>())
-  , m_max(0)
-  , m_maxRatio(0.f)
-  , m_numKeys(0)
-  , m_spline(Spline())
-{
+    //, m_keys(QMap<ulong, double>())
+    , m_seqs(QMap<ulong, magnet::math::Spline*>())
+    , m_max(0)
+    , m_maxDiff(5.f)
+    , m_minDiff(-5.f)
+    , m_numKeys(0)
+    , m_spline(magnet::math::Spline()) {
+    QMLRegister::regQMLObject("spline", this);
 }
 
-void SplineDrawer::paint(QPainter *painter)
-{
+void SplineDrawer::paint(QPainter *painter) {
+
+    //draw the line
     QColor redcolor = QColor("red");
     QPen pen(redcolor, 1);
     painter->setPen(pen);
 
-   // using namespace magnet::math;
+    //draw parameters
+    double const local_width = m_duration;
+    double const local_height = m_maxDiff - m_minDiff;
+    float yscalingSum = m_curheight / 2.f;
+    float yscalingProd = m_curheight / (m_maxDiff - m_minDiff);
+    painter->scale(m_curwidth / local_width, 1.f);
+    double resolution = 100;
 
-    double const local_width = m_numKeys;
-    double const local_height = m_maxRatio;
+    //go in ascending order
+    ulong startOffset = 0;
+    bool firstIteration = false;
+    double lastOffset = 0;
+    std::vector<std::pair<double, double>>::const_iterator it_end;
+    //magnet::math::Spline::base::iterator it_end;
+    int xi, yi;
+    double xd, yd;
+    QMapIterator<ulong, magnet::math::Spline*> it(m_seqs);
+     while (it.hasNext()) {
+         it.next();
+         if (firstIteration) {
+             firstIteration = false;
+             //draw first unchanged sequence
+             if (it.key() != 0) {
+                 painter->drawLine(0, 0, it.key() * yscalingProd + yscalingSum, 0);
+             }
+         }
+         //draw splines in sequences
+         startOffset = it.key();
+         lastOffset = it.value()->getLast().first;
+         // = it_end->first;
+         for (double x = 0.0; x < lastOffset; x += resolution) {
+            xd = x + startOffset;
+            yd = it.value()->operator ()(x) * yscalingProd + yscalingSum;
 
-        int xi, yi;
-        double xd, yd;
-        for (double x = 0.0; x < local_width; x += 0.5) {
-            xd = x;
-            yd = spline(x);
             //rasterize on x
             xi = xd - 0.5 <= xd - (int)xd ? (int)xd : (int)(xd + 0.5);
 
             //rasterize on y
             yi = yd - 0.5 <= yd - (int)yd ? (int)yd : (int)(yd + 0.5);
+            yi += m_maxDiff;
 
-           painter->drawPoint(xi, yi);
-        }
+            painter->drawPoint(xi, yi);
+         }
+     }
+    //draw last sequence
+     if (lastOffset != local_width) {
+         painter->drawLine(lastOffset, yscalingSum, local_width, yscalingSum);
+     }
 
-//    for (float x = 0; x < local_width; x += 20) {
-//        spline.addPoint(x, local_height * abs(cos(x)));
+    //draw big custom points
+    pen.setWidth(3);
+    pen.setColor(QColor("blue"));
+    painter->setPen(pen);
+//    QMapIterator<ulong, double> i(m_keys);
+//    while (i.hasNext()) {
+//        i.next();
+//        painter->drawPoint(i.key(), i.value() * yscalingProd + yscalingSum);
 //    }
 
-//    painter->scale(m_curwidth / local_width, m_curheight / local_height);
-
-   // QList<double> list = QList<double>();
-//    int xi, yi;
-//    double xd, yd;
-//    for (double x = 0.0; x < local_width; x += 0.5) {
-//        xd = x;
-//        yd = spline(x);
-//        //rasterize on x
-//        xi = xd - 0.5 <= xd - (int)xd ? (int)xd : (int)(xd + 0.5);
-
-//        //rasterize on y
-//        yi = yd - 0.5 <= yd - (int)yd ? (int)yd : (int)(yd + 0.5);
-
-//       painter->drawPoint(xi, yi);
-//    }
-
+    //draw x position bar
+    //painter->drawLine(m_curxposition, 0, m_curxposition, m_curheight);
 }
 
-int SplineDrawer::curwidth() const
-{
+int SplineDrawer::curwidth() const {
     return m_curwidth;
 
 }
 
-void SplineDrawer::setCurwidth(const int &width)
-{
+void SplineDrawer::setCurwidth(const int &width) {
     m_curwidth = width;
 }
 
 
-int SplineDrawer::curheight() const
-{
+int SplineDrawer::curheight() const {
     return m_curheight;
 
 }
 
-void SplineDrawer::setCurheight(const int &height)
-{
+void SplineDrawer::setCurheight(const int &height) {
     m_curheight = height;
 }
 
-void SplineDrawer::addKey(ulong time, ulong map)
+int SplineDrawer::duration() const
 {
-    if (map > m_max) {
-        m_max = map;
+    return m_duration;
+}
+
+void SplineDrawer::setduration(const int &duration)
+{
+    m_duration = duration;
+}
+
+inline long SplineDrawer::computeDiff(ulong time, long map) {
+    if (time > m_max) {
+        m_max = time;
     }
 
-    float ratio = (float) time / (float) map;
-    if (ratio > m_maxRatio) { //TODO : check conversion loss
-        m_maxRatio = ratio;
+    long diff = time - map;
+    if (diff < m_minDiff) {
+        m_minDiff = diff;
+    } else if (diff > m_maxDiff) {
+        m_maxDiff = diff;
     }
 
-    m_spline.addPoint((double) time, ratio);
+    return diff;
+}
 
-    m_keys[time] = map;
+void SplineDrawer::addKey(ulong time, long map) {
+    //m_spline.addPoint((double) time, computeDiff(time, map));
+    //m_keys[time] = map;
     m_numKeys++;
+}
+
+void SplineDrawer::modifyKey(ulong time, long new_map) {
+    m_spline.modifyYPoint(time, computeDiff(time, new_map));
+    //m_keys[time] = new_map;
+}
+
+void SplineDrawer::addSequence(ulong start, magnet::math::Spline *spline)
+{
+    m_seqs[start] = spline;
+}
+
+void SplineDrawer::initView(const ulong &duration)
+{
+    if(duration != 0) {
+        m_duration = duration;
+    }
+
+    /*
+     * Add equally spaced points to the spline, from 0 to maxtime
+     */
+
+
+    m_seqs.clear();
+    m_seqs[500] = new magnet::math::Spline();
+}
+
+void SplineDrawer::mouseOnClick(int x, int y)
+{
+    double nx = m_duration * (double)x / m_curwidth;
+    double ny = (m_maxDiff - m_minDiff) * (double)y / m_curheight - (m_maxDiff - m_minDiff) / 2.f;
+
+   // m_spline.addPoint(nx, ny);
+   // m_keys[(ulong) nx] = ny;
+    //find nearest sequence
+    QMapIterator<ulong, magnet::math::Spline*> it(m_seqs);
+    while (it.hasNext()) {
+        it.next();
+    }
+    m_seqs[500]->addPoint(0.0, ny);
+    m_seqs[500]->addPoint(nx, ny);
+    m_seqs[500]->addPoint(m_duration - 500, ny);
+    this->update();
 }

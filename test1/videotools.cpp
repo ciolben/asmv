@@ -11,7 +11,11 @@ VideoTools::VideoTools()
     , pCodecContext(NULL)
     , videoStream(-1)
     , audioStream(-1)
+    , duration(0)
     , curFrame(0)
+    , curDts(0)
+    , lastDts(0)
+    , curTs(0)
     , framesToSkip(0)
     , optUseMemcpy(true)
 {
@@ -166,6 +170,13 @@ int VideoTools::initFfmpeg(const QString &qfile)
         pCodecContext->width, pCodecContext->height);
 
     curFrame = 0;
+
+    //save duration (ms)
+    ulong secs = pFormatContext->duration / AV_TIME_BASE;
+    ulong us = pFormatContext->duration % AV_TIME_BASE;
+    ulong l = secs*1000 + us/1000;
+    duration = l;
+
     return 0;
 }
 
@@ -182,6 +193,11 @@ void freeResources(AVPacket* packet, AVCodecContext* ctx, AVFrame* frame1, AVFra
     delete packet;
 }
 
+///
+/// \brief VideoTools::seekNextFrame
+/// Method is unsynchronized.
+/// \return
+///
 QImage* VideoTools::seekNextFrame()
 {
     if (pFormatContext == NULL || pCodecContext == NULL) {
@@ -195,8 +211,12 @@ QImage* VideoTools::seekNextFrame()
         if (packet->stream_index == videoStream) {
 
             AVRational millisecondbase = {1, 1000};
-            int f = packet->dts;
-            int t = av_rescale_q(packet->dts,pFormatContext->streams[videoStream]->time_base, millisecondbase);
+
+            //revise this part if going backward is allowed
+            lastDts = curDts;
+            curDts = packet->dts;
+
+            curTs = av_rescale_q(packet->dts,pFormatContext->streams[videoStream]->time_base, millisecondbase);
 //            qDebug(QString("frame %1 : dts = %2, tb = %3/%4, rescaled = %5").arg(
 //                       QString("%1").arg(curFrame),
 //                       QString("%1").arg(f),
@@ -229,6 +249,7 @@ QImage* VideoTools::seekNextFrame()
             avcodec_decode_video2(pCodecContext, frame, &pic_ptr, packet);
             if (pic_ptr == 0) {
                 qDebug("Ignore : Unable to read frame %d.\n", pic_ptr);
+                return NULL;
             } else {
                 //TODO : make distinction bw useful/useless frames
 
@@ -337,8 +358,22 @@ void VideoTools::cleanMem()
     av_close_input_file(pFormatContext);
 }
 
+///
+/// \brief VideoTools::getCurrentFrameIndex
+/// The frame that is last decoded, including invalid ones.
+/// \return
+///
 int VideoTools::getCurrentFrameIndex() const {
     return curFrame;
+}
+
+int64_t VideoTools::getDuration() const
+{
+    return duration;
+}
+
+int VideoTools::getDurationMs() const {
+    return duration;
 }
 
 int VideoTools::getFramesToSkip() const
@@ -351,6 +386,22 @@ void VideoTools::setFramesToSkip(int value)
     framesToSkip = value;
 }
 
+int64_t VideoTools::getCurrentDts() const {
+    return curDts;
+}
+
+int64_t VideoTools::getCurrentTs() const {
+    return curTs;
+}
+
+///
+/// \brief VideoTools::isCurrentFrameValid
+/// \return true if the current frame contains new data, false otherwise.
+///
+bool VideoTools::isCurrentFrameValid() const
+{
+    return curDts > lastDts;
+}
 
 
 
