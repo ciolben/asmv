@@ -15,18 +15,29 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         anchors.fill: parent
         property bool drag: false
+        property bool supr: false
         onPressed: {
             if (mouse.button == Qt.RightButton) {
-                drag = true
+                if (mouse.modifiers == Qt.NoModifier) {
+                    drag = true
+                }
+            }
+            if (mouse.button == Qt.LeftButton) {
+                if (mouse.modifiers == Qt.ControlModifier){
+                    supr = true
+                }
             }
         }
 
         onPositionChanged: if (drag) splineDrawer.mouseOnButtonPressed(mousePos.mouseX,
-                                                             mousePos.mouseY)
+                                                             mousePos.mouseY, false)
         onReleased: {
             if (drag) {
                 splineDrawer.mouseOnButtonReleased(mouse.x, mouse.y)
                 drag = false
+            } else if (supr) {
+                splineDrawer.mouseOnButtonPressed(mouse.x, mouse.y, true)
+                supr = false;
             } else if (mouse.button == Qt.LeftButton) {
                 splineDrawer.mouseOnClick(mouse.x, mouse.y)
             }

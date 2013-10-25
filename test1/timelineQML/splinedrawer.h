@@ -41,7 +41,7 @@ signals:
 
 public slots:
     void mouseOnClick(int x, int y);
-    void mouseOnButtonPressed(int x, int y);
+    void mouseOnButtonPressed(int x, int y, bool supr);
     void mouseOnButtonReleased(int x, int y);
 
 private:
@@ -66,6 +66,7 @@ private:
     QList<Sequence*> m_sequences;
 
     void addSequence(ulong start, ulong end);
+    void removeSequence(Sequence* seq);
 
     inline void fromPlanToLocal(double &x, double &y);
     inline long SplineDrawer::computeDiff(ulong time, long map);

@@ -7,24 +7,26 @@
 
 SplineDrawer::SplineDrawer(QQuickItem *parent) :
     QQuickPaintedItem(parent)
-  , m_sequences(QList<Sequence*>())
-  , m_editing(false)
-  , m_dragging(false)
-  , m_currentSequence(NULL)
-  , m_currentModifyingPoint(0)
-  , m_mod(0)
-  , m_curIndex(0) //O(1) lookup for neighboring sequences
-  , m_max(0)
-  , m_maxDiff(5.f)
-  , m_minDiff(-5.f)
-  , m_numKeys(0)
-  , m_duration(0) {
+    , m_sequences(QList<Sequence*>())
+    , m_editing(false)
+    , m_dragging(false)
+    , m_currentSequence(NULL)
+    , m_currentModifyingPoint(0)
+    , m_mod(0)
+    , m_curIndex(0) //O(1) lookup for neighboring sequences
+    , m_max(0)
+    , m_maxDiff(5.f)
+    , m_minDiff(-5.f)
+    , m_numKeys(0)
+    , m_duration(0) {
     QMLRegister::regQMLObject("spline", this);
 }
 
 void SplineDrawer::paint(QPainter *painter) {
 
-    if (m_duration == 0) { return; }
+    if (m_duration == 0) {
+        return;
+    }
 
     //general draw parameters
     double const local_width = m_duration;
@@ -55,8 +57,8 @@ void SplineDrawer::paint(QPainter *painter) {
         painter->setPen(pen);
         foreach (pair p, ctrlPoints) {
             painter->drawRoundRect((p.first + startOffset) * xscalingProd - halfRecWidth
-                              , p.second * yscalingProd + yscalingSum - halfRecWidth
-                              , recWidth, recWidth);
+                                   , p.second * yscalingProd + yscalingSum - halfRecWidth
+                                   , recWidth, recWidth);
         }
 
         if (seq == m_currentSequence) {
@@ -89,10 +91,12 @@ void SplineDrawer::paint(QPainter *painter) {
     double xd, yd;
 
     foreach (Sequence* seq, m_sequences) {
-        if (m_editing && seq == m_currentSequence) { continue; }
+        if (m_editing && seq == m_currentSequence) {
+            continue;
+        }
         startOffset = seq->getBeginning();
         lastOffset = seq->getEnding();
-        
+
         if (firstIteration) {
             firstIteration = false;
             //draw first unchanged sequence
@@ -100,7 +104,7 @@ void SplineDrawer::paint(QPainter *painter) {
                 painter->drawLine(0, yscalingSum, startOffset, yscalingSum);
             }
         }
-        
+
         //10 samples bw control points
         resolution = (lastOffset - startOffset) / (10 * (seq->getControlPointsList().size() + 1));
 
@@ -133,7 +137,7 @@ void SplineDrawer::paint(QPainter *painter) {
             yil = yscalingSum;
         }
     }
-    
+
     //draw last sequence
     if (lastOffset != local_width) {
         painter->drawLine(lastOffset, yscalingSum, local_width, yscalingSum);
@@ -162,7 +166,7 @@ void SplineDrawer::addKey(ulong time, long map) {
 }
 
 void SplineDrawer::modifyKey(ulong time, long new_map) {
-  //  m_spline.modifyYPoint(time, computeDiff(time, new_map));
+    //  m_spline.modifyYPoint(time, computeDiff(time, new_map));
     //m_keys[time] = new_map;
 }
 
@@ -170,14 +174,25 @@ void SplineDrawer::addSequence(ulong start, ulong end) {
     Sequence* seq = new Sequence(start, end);
     m_sequences.append(seq);
     qSort(m_sequences.begin(), m_sequences.end(), []
-          (const Sequence* s1, const Sequence* s2) {
+    (const Sequence* s1, const Sequence* s2) {
         return s1->getBeginning() < s2->getBeginning();
     });
     m_curIndex = m_sequences.indexOf(seq);
 }
 
-void SplineDrawer::fromPlanToLocal(double &x, double &y)
-{
+void SplineDrawer::removeSequence(Sequence *seq) {
+    if (seq == NULL) { return; }
+    int index = m_sequences.indexOf(seq);
+    if (index == -1) { return; }
+    m_sequences.removeAt(index);
+    if (seq == m_currentSequence) {
+        m_currentSequence = NULL;
+        m_curIndex = 0;
+    }
+    delete seq;
+}
+
+void SplineDrawer::fromPlanToLocal(double &x, double &y) {
     x = m_duration * (double)x / m_curwidth;
     y = (m_maxDiff - m_minDiff) * (double)y / m_curheight - (m_maxDiff - m_minDiff) / 2.f;
 }
@@ -211,16 +226,18 @@ void SplineDrawer::mouseOnClick(int x, int y) {
 
         //editing
         if(m_numKeys == 1) {
+
             //add begin + create sequence
             m_currentSequence = new Sequence();
             m_sequences.append(m_currentSequence);
             m_currentSequence->modifyBeginning(nx);
             qSort(m_sequences.begin(), m_sequences.end(), []
-                  (const Sequence* s1, const Sequence* s2) {
+            (const Sequence* s1, const Sequence* s2) {
                 return s1->getBeginning() < s2->getBeginning();
             });
             m_curIndex = m_sequences.indexOf(m_currentSequence);
         } else {
+
             //add end
             //check if sequence will be valid (no over crossing)
             if (nx <= m_currentSequence->getBeginning() + 100) {
@@ -261,7 +278,9 @@ void SplineDrawer::mouseOnClick(int x, int y) {
             }
         }
 
-        if (!found) { m_currentSequence = NULL; }
+        if (!found) {
+            m_currentSequence = NULL;
+        }
         //add point if we have to, else return
         if (m_currentSequence != NULL && !m_dragging) {
             //add point to current Sequence if not outside
@@ -273,8 +292,7 @@ void SplineDrawer::mouseOnClick(int x, int y) {
     this->update();
 }
 
-void SplineDrawer::mouseOnButtonPressed(int x, int y)
-{
+void SplineDrawer::mouseOnButtonPressed(int x, int y, bool supr) {
     if (m_currentSequence == NULL) { return; }
 
     double nx = x, ny = y;
@@ -314,7 +332,9 @@ void SplineDrawer::mouseOnButtonPressed(int x, int y)
         case 1:
             //right
             if (m_curIndex == m_sequences.size() - 1) {
-                if (nx >= m_duration - spacing) { return; }
+                if (nx >= m_duration - spacing) {
+                    return;
+                }
             } else {
                 Sequence* seq = m_sequences[m_curIndex + 1];
                 if (seq->getBeginning() - spacing <= nx + spacing) {
@@ -357,21 +377,39 @@ void SplineDrawer::mouseOnButtonPressed(int x, int y)
         m_mod = 0;
         double half_recwidth_localX = HALF_RECWIDTH, half_recwidth_localY = HALF_RECWIDTH + m_curheight / 2.f;
         fromPlanToLocal(half_recwidth_localX, half_recwidth_localY);
-        if (nx >= m_currentSequence->getBeginning() && nx <= m_currentSequence->getBeginning() + half_recwidth_localX
+        if (nx >= m_currentSequence->getBeginning() - half_recwidth_localX
+                && nx <= m_currentSequence->getBeginning() + half_recwidth_localX
                 && ny >= -half_recwidth_localY && ny <= half_recwidth_localY) {
+            if (supr) {
+                removeSequence(m_currentSequence);
+                this->update(); return;
+            }
             m_mod = -1;
             m_currentModifyingPoint = m_currentSequence->getBeginning();
-        } else if (nx <= m_currentSequence->getEnding() && nx >= m_currentSequence->getEnding() - half_recwidth_localX
-                && ny >= -half_recwidth_localY && ny <= half_recwidth_localY) {
+        } else if (nx <= m_currentSequence->getEnding() + half_recwidth_localX
+                   && nx >= m_currentSequence->getEnding() - half_recwidth_localX
+                   && ny >= -half_recwidth_localY && ny <= half_recwidth_localY) {
+            if (supr) {
+                removeSequence(m_currentSequence);
+                this->update(); return;
+            }
             m_mod = 1;
             m_currentModifyingPoint = m_currentSequence->getEnding();
         }
-        if (m_mod != 0) { m_dragging = true; return; } //found beggining or ending
+
+        if (m_mod != 0) {
+            m_dragging = true;    //found beggining or ending
+            return;
+        }
 
         nx -= m_currentSequence->getBeginning(); //from local to sequence coords
         foreach (pair p, m_currentSequence->getControlPointsList()) {
             if (nx >= p.first - half_recwidth_localX && nx <= p.first + half_recwidth_localX
                     && ny >= p.second - half_recwidth_localY && ny <= p.second + half_recwidth_localY) {
+                if (supr) {
+                    m_currentSequence->delPoint(p);
+                    this->update(); return;
+                }
                 m_currentModifyingPoint = p.first + m_currentSequence->getBeginning(); //from seq coords to local
                 m_dragging = true;
                 break; // found control points
@@ -380,8 +418,7 @@ void SplineDrawer::mouseOnButtonPressed(int x, int y)
     }
 }
 
-void SplineDrawer::mouseOnButtonReleased(int x, int y)
-{
+void SplineDrawer::mouseOnButtonReleased(int x, int y) {
     //if we were dragging a control point, adjust its position
     if (m_dragging) {
         m_dragging = false;
