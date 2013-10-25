@@ -112,11 +112,12 @@ void OpticalFlow::SanityCheck(const DImage &imdx, const DImage &imdy, const DIma
 //--------------------------------------------------------------------------------------------------------
 // function to warp image based on the flow field
 //--------------------------------------------------------------------------------------------------------
-void OpticalFlow::warpFL(DImage &warpIm2, const DImage &Im1, const DImage &Im2, const DImage &vx, const DImage &vy)
+void OpticalFlow::warpFL(DImage &warpIm2, const DImage &Im1, const DImage &Im2, const DImage &vx, const DImage &vy
+                         , double interp)
 {
 	if(warpIm2.matchDimension(Im2)==false)
 		warpIm2.allocate(Im2.width(),Im2.height(),Im2.nchannels());
-	ImageProcessing::warpImage(warpIm2.data(),Im1.data(),Im2.data(),vx.data(),vy.data(),Im2.width(),Im2.height(),Im2.nchannels());
+    ImageProcessing::warpImage(warpIm2.data(),Im1.data(),Im2.data(),vx.data(),vy.data(),Im2.width(),Im2.height(),Im2.nchannels(), interp);
 }
 
 void OpticalFlow::warpFL(DImage &warpIm2, const DImage &Im1, const DImage &Im2, const DImage &Flow)
@@ -429,7 +430,7 @@ void OpticalFlow::SmoothFlowSOR(const DImage &Im1, const DImage &Im2, DImage &wa
 		u.Add(du);
 		v.Add(dv);
 		if(interpolation == Bilinear)
-			warpFL(warpIm2,Im1,Im2,u,v);
+            warpFL(warpIm2,Im1,Im2,u,v, 0.5); //********************************************
 		else
 		{
 			Im2.warpImageBicubicRef(Im1,warpIm2,u,v);
@@ -737,7 +738,7 @@ void OpticalFlow::SmoothFlowPDE(const DImage &Im1, const DImage &Im2, DImage &wa
 		u.Add(du,1);
 		v.Add(dv,1);
 		if(interpolation == Bilinear)
-			warpFL(warpIm2,Im1,Im2,u,v);
+            warpFL(warpIm2,Im1,Im2,u,v, 1); //**********************************
 		else
 		{
 			Im2.warpImageBicubicRef(Im1,warpIm2,u,v);
@@ -938,8 +939,9 @@ void OpticalFlow::testLaplacian(int dim)
 //--------------------------------------------------------------------------------------
 // function to perfomr coarse to fine optical flow estimation
 //--------------------------------------------------------------------------------------
-void OpticalFlow::Coarse2FineFlow(DImage &vx, DImage &vy, DImage &warpI2,const DImage &Im1, const DImage &Im2, double alpha, double ratio, int minWidth,
-																	 int nOuterFPIterations, int nInnerFPIterations, int nCGIterations)
+void OpticalFlow::Coarse2FineFlow(DImage &vx, DImage &vy, DImage &warpI2, const DImage &Im1, const DImage &Im2, double alpha, double ratio, int minWidth,
+                                                                     int nOuterFPIterations, int nInnerFPIterations, int nCGIterations,
+                                  double interp)
 {
 	// first build the pyramid of the two images
 	GaussianPyramid GPyramid1;
@@ -992,7 +994,7 @@ void OpticalFlow::Coarse2FineFlow(DImage &vx, DImage &vy, DImage &warpI2,const D
             vy.Multiplywith(1/ratio);
 			//warpFL(warpI2,GPyramid1.Image(k),GPyramid2.Image(k),vx,vy);
 			if(interpolation == Bilinear)
-				warpFL(WarpImage2,Image1,Image2,vx,vy);
+                warpFL(WarpImage2,Image1,Image2,vx,vy, interp);
 			else
 				Image2.warpImageBicubicRef(Image1,WarpImage2,vx,vy);
 		}
@@ -1065,7 +1067,7 @@ void OpticalFlow::Coarse2FineFlowLevel(DImage &vx, DImage &vy, DImage &warpI2,co
 			vy.Multiplywith(1/ratio);
 		}
 		if(interpolation == Bilinear)
-			warpFL(WarpImage2,Image1,Image2,vx,vy);
+            warpFL(WarpImage2,Image1,Image2,vx,vy, 1); //*****************************************
 		else
 			Image2.warpImageBicubicRef(Image1,WarpImage2,vx,vy);
 		//SmoothFlowPDE(GPyramid1.Image(k),GPyramid2.Image(k),warpI2,vx,vy,alpha,nOuterFPIterations,nInnerFPIterations,nCGIterations);

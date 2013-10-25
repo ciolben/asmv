@@ -29,7 +29,9 @@ toc
 
 figure;imshow(im1);figure;imshow(warpI2);
 
-
+imgInterp = warpFLColorinterp(im1,im2,vx,vy, 0.5);
+figure;imshow(imgInterp);
+imwrite(imgInterp,fullfile('output',[example '_flowInterp.jpg']),'quality',100);
 
 % output gif
 clear volume;

@@ -23,10 +23,18 @@ QImage* OpticalFlowTools::computeCoarse2Fine(const QString& im1, const QString& 
     int nInnerFPIterations = 1;
     int nSORIterations= 20;
 
+    double interp = 0.5;
+
     DImage vx,vy,warpI2;
     OpticalFlow::Coarse2FineFlow(vx,vy,warpI2,dimg1,dimg2,
                                  alpha,ratio,
-                                 minWidth,nOuterFPIterations,nInnerFPIterations,nSORIterations);
+                                 minWidth,nOuterFPIterations,nInnerFPIterations,nSORIterations
+                                 , 1.0);
+
+    warpI2.imwrite("_flowResult1.jpg");
+    //we have the flow
+    //compute interpolation
+    OpticalFlow::warpFL(warpI2, dimg1, dimg2, vx, vy, interp);
 
 
 //    DImage featureImage;
@@ -48,7 +56,7 @@ QImage* OpticalFlowTools::computeCoarse2Fine(const QString& im1, const QString& 
 
 //    res = featureImage.imwrite("feature.jpg");
 
-    res = warpI2.imwrite("flowalpha.jpg");
+    res = warpI2.imwrite("_flowResult2.jpg");
     return res ? NULL : new QImage();
 
 //    dimg2.imwrite(imgres);

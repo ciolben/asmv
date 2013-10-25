@@ -2528,7 +2528,7 @@ template <class T>
 template <class T1>
 void Image<T>::warpImageBicubicRef(const Image<T>& ref,Image<T>& output,const Image<T1>& vx,const Image<T1>& vy) const
 {
-	double dfilter[3] = {-0.5,0,0.5};
+    double dfilter[3] = {-0.5,0,0.5}; //aaa
 	DImage imdx,imdy,imdxdy;
 	imfilter_h(imdx,dfilter,1);
 	imfilter_v(imdy,dfilter,1);
@@ -2555,8 +2555,8 @@ void Image<T>::DissembleFlow(Image<T1>& vx,Image<T1>& vy) const
 		vy.allocate(imWidth,imHeight,1);
 	for(int i =0;i<vx.npixels();i++)
 	{
-		vx.data()[i] = pData[i*2];
-		vy.data()[i] = pData[i*2+1];
+        vx.data()[i] = pData[i*2];
+        vy.data()[i] = pData[i*2+1];
 	}
 }
 
@@ -2565,7 +2565,7 @@ template <class T1,class T2>
 void Image<T>::warpImageBicubicRef(const Image<T>& ref,Image<T>& output,const Image<T1>& imdx,const Image<T1>& imdy,const Image<T1>& imdxdy,
 																		const Image<T2>& vx,const Image<T2>& vy) const
 {
-	T* pIm = pData;
+    T* pIm = pData; //aaa
 	const T1* pImDx = imdx.data();
 	const T1* pImDy = imdy.data();
 	const T1* pImDxDy = imdxdy.data();
@@ -2586,16 +2586,16 @@ void Image<T>::warpImageBicubicRef(const Image<T>& ref,Image<T>& output,const Im
 		for(int j = 0;j<width;j++)
 		{
 			int offset = i*width+j;
-			double x = j + vx.pData[offset];
-			double y = i + vy.pData[offset];
+            double x = j + vx.pData[offset]; //aaa**********************************************************
+            double y = i + vy.pData[offset];
 			if(x<0 || x>imWidth-1 || y<0 || y>imHeight-1)
 			{
 				for(int k = 0; k<nChannels;k++)
 					output.pData[offset*nChannels+k] = ref.pData[offset*nChannels+k];
 				continue;
 			}
-			int x0 = x;
-			int y0 = y;
+            int x0 = x; //aaa test
+            int y0 = y;
 			int x1 = x0+1;
 			int y1 = y0+1;
 			x0 = __min(__max(x0,0),imWidth-1);
@@ -2655,8 +2655,8 @@ void Image<T>::warpImageBicubicRef(const Image<T>& ref,Image<T>& output,const Im
 		for(int j = 0;j<width;j++)
 		{
 			int offset = i*width+j;
-			double x = j + vx.pData[offset];
-			double y = i + vy.pData[offset];
+            double x = j + vx.pData[offset]; //*******************************************************
+            double y = i + vy.pData[offset];
 			if(x<0 || x>imWidth-1 || y<0 || y>imHeight-1)
 			{
 				for(int k = 0; k<nChannels;k++)

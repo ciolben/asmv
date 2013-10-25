@@ -41,30 +41,37 @@ signals:
 
 public slots:
     void mouseOnClick(int x, int y);
+    void mouseOnButtonPressed(int x, int y);
+    void mouseOnButtonReleased(int x, int y);
 
 private:
     int m_curwidth;
     int m_curheight;
     int m_duration;
     int m_playPosition;
+    int m_mod;
+    int m_curIndex;
 
     ulong m_max;
     ulong m_numKeys;
+    ulong m_currentModifyingPoint;
 
     long m_maxDiff;
     long m_minDiff;
 
     bool m_editing;
-    magnet::math::Spline m_spline;
+    bool m_dragging;
 
-    //QMap<ulong, double> m_keys;
-    //QMap<ulong, magnet::math::Spline*> m_seqs;
     Sequence* m_currentSequence;
     QList<Sequence*> m_sequences;
 
     void addSequence(ulong start, ulong end);
 
+    inline void fromPlanToLocal(double &x, double &y);
     inline long SplineDrawer::computeDiff(ulong time, long map);
+
+    static const int HALF_RECWIDTH = 5;
+    typedef std::pair<ulong, double> pair;
 };
 
 #endif // SPLINEDRAWER_H

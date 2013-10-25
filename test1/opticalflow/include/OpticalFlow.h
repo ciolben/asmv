@@ -23,7 +23,7 @@ public:
 public:
 	static void getDxs(DImage& imdx,DImage& imdy,DImage& imdt,const DImage& im1,const DImage& im2);
 	static void SanityCheck(const DImage& imdx,const DImage& imdy,const DImage& imdt,double du,double dv);
-	static void warpFL(DImage& warpIm2,const DImage& Im1,const DImage& Im2,const DImage& vx,const DImage& vy);
+    static void warpFL(DImage& warpIm2, const DImage& Im1, const DImage& Im2, const DImage& vx, const DImage& vy, double interp);
 	static void warpFL(DImage& warpIm2,const DImage& Im1,const DImage& Im2,const DImage& flow);
 
 
@@ -43,7 +43,8 @@ public:
 
 	// function of coarse to fine optical flow
     static void Coarse2FineFlow(DImage& vx,DImage& vy,DImage &warpI2,const DImage& Im1,const DImage& Im2,double alpha,double ratio,int minWidth,
-                                                            int nOuterFPIterations,int nInnerFPIterations,int nCGIterations);
+                                                            int nOuterFPIterations,int nInnerFPIterations,int nCGIterations
+                                , double interp);
 	// function to convert image to features
 	static void im2feature(DImage& imfeature,const DImage& im);
 
@@ -98,8 +99,11 @@ public:
 		int nInnerFPIterations=1;
 		int nCGIterations=40;
 
+        double interp = 1.0;
+
 		DImage vx,vy,warpI2;
-        OpticalFlow::Coarse2FineFlow(vx,vy,warpI2,Im1,Im2,alpha,ratio,minWidth,nOuterFPIterations,nInnerFPIterations,nCGIterations);
+        OpticalFlow::Coarse2FineFlow(vx,vy,warpI2,Im1,Im2,alpha,ratio,minWidth,nOuterFPIterations,nInnerFPIterations,nCGIterations
+                                     , interp);
 		AssembleFlow(vx,vy,flow);
     }
 

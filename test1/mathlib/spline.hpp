@@ -86,13 +86,14 @@ namespace magnet {
 
       ///
       /// \brief delPoint : Delete a point (costly operation)
+      /// Not implemented
       /// \param x
       ///
       inline bool delPoint(double x) {
           if (base::empty()) {
             return false;
           }
-      return false;
+        return false;
       }
 
 

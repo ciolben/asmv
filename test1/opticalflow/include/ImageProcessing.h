@@ -81,7 +81,8 @@ public:
 	// function to warp image
 	//---------------------------------------------------------------------------------
 	template <class T1,class T2>
-	static void warpImage(T1* pWarpIm2,const T1* pIm1,const T1* pIm2,const T2* pVx,const T2* pVy,int width,int height,int nChannels);
+    static void warpImage(T1* pWarpIm2,const T1* pIm1,const T1* pIm2,const T2* pVx,const T2* pVy,int width,int height,int nChannels
+                          , double interp);
 
 	template <class T1,class T2>
 	static void warpImageFlow(T1* pWarpIm2,const T1* pIm1,const T1* pIm2,const T2* pFlow,int width,int height,int nChannels);
@@ -126,7 +127,7 @@ public:
 template <class T1,class T2>
 inline void ImageProcessing::BilinearInterpolate(const T1* pImage,int width,int height,int nChannels,double x,double y,T2* result)
 {
-	int xx,yy,m,n,u,v,l,offset;
+    int xx,yy,m,n,u,v,p,offset;
 	xx=x;
 	yy=y;
 	double dx,dy,s;
@@ -139,9 +140,9 @@ inline void ImageProcessing::BilinearInterpolate(const T1* pImage,int width,int 
 			u=EnforceRange(xx+m,width);
 			v=EnforceRange(yy+n,height);
 			offset=(v*width+u)*nChannels;
-			s=fabs(1-m-dx)*fabs(1-n-dy);
-			for(l=0;l<nChannels;l++)
-				result[l]+=pImage[offset+l]*s;
+            s=fabs(1-m-dx)*fabs(1-n-dy); //aaaa
+            for(p=0; p < nChannels; p++)
+                result[p]+=pImage[offset + p]*s;
 		}
 }
 
@@ -465,24 +466,32 @@ void ImageProcessing::getPatch(const T1* pSrcImage,T2* pPatch,int width,int heig
 // pWarpIm2 has to be allocated before hands
 //------------------------------------------------------------------------------------------------------------
 template <class T1,class T2>
-void ImageProcessing::warpImage(T1 *pWarpIm2, const T1 *pIm1, const T1 *pIm2, const T2 *pVx, const T2 *pVy, int width, int height, int nChannels)
+void ImageProcessing::warpImage(T1 *pWarpIm2, const T1 *pIm1, const T1 *pIm2, const T2 *pVx, const T2 *pVy, int width, int height, int nChannels
+                                , double interp)
 {
 	memset(pWarpIm2,0,sizeof(T1)*width*height*nChannels);
 	for(int i=0;i<height;i++)
 		for(int j=0;j<width;j++)
 		{
 			int offset=i*width+j;
+
 			double x,y;
-			y=i+pVy[offset];
-			x=j+pVx[offset];
+            y=i+pVy[offset] * interp; //modified aaa
+            x=j+pVx[offset] * interp; //modified
+            int xoffset = y*width + x;
+
 			offset*=nChannels;
+            xoffset *= nChannels;
 			if(x<0 || x>width-1 || y<0 || y>height-1)
 			{
 				for(int k=0;k<nChannels;k++)
-					pWarpIm2[offset+k]=pIm1[offset+k];
+                    pWarpIm2[offset+k]=pIm1[offset+k];
 				continue;
 			}
-			BilinearInterpolate(pIm2,width,height,nChannels,x,y,pWarpIm2+offset);
+           // BilinearInterpolate(pIm2,width,height,nChannels,x,y,pWarpIm2+offset);
+            for(int k=0;k<nChannels;k++)
+                pWarpIm2[offset + k] = pIm2[xoffset + k];
+            continue;
 		}
 }
 

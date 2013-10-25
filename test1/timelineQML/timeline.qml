@@ -12,8 +12,25 @@ Item {
     MouseArea {
         hoverEnabled: true
         id:mousePos
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
         anchors.fill: parent
-        onClicked: splineDrawer.mouseOnClick(mouse.x, mouse.y)
+        property bool drag: false
+        onPressed: {
+            if (mouse.button == Qt.RightButton) {
+                drag = true
+            }
+        }
+
+        onPositionChanged: if (drag) splineDrawer.mouseOnButtonPressed(mousePos.mouseX,
+                                                             mousePos.mouseY)
+        onReleased: {
+            if (drag) {
+                splineDrawer.mouseOnButtonReleased(mouse.x, mouse.y)
+                drag = false
+            } else if (mouse.button == Qt.LeftButton) {
+                splineDrawer.mouseOnClick(mouse.x, mouse.y)
+            }
+        }
 
         SplineDrawer {
             //anchors.top: parent
@@ -63,23 +80,21 @@ Item {
             time = h < 10 ? "0" + h : h
             time += ":" + (m < 10 ? "0" + m : m)
             time += ":" + (s < 10 ? "0" + s : s)
-            return time
+            return " " + time
         }
 
         Text {
             property int playpos: splineDrawer.playposition * container.width / splineDrawer.duration
             id: qml_lblPlay
             color: "#ece914"
-            x: playpos
-            z: 2
             text: parent.computeTime(playpos)
+            x: container.width - playpos < 50 ? playpos - 43 : playpos
         }
 
         Text {
             id: qml_lblInfo
             text: parent.computeTime(mousePos.mouseX)
-
-            x: mousePos.mouseX
+            x:container.width - mousePos.mouseX < 50 ? mousePos.mouseX - 43 : mousePos.mouseX
             y: parent.height - 2 * height
             z: 2
             color: Qt.rgba(1,1,1,.5)
