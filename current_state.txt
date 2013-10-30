@@ -1,11 +1,22 @@
 Show frame by frame a video -> ok
-Linear time control
-B-Spline time control
+Linear time control -> ok
+B-Spline time control -> ok
 Find frames of interest
+	-implement opticalflow c2f
+		-try "engine.h"
+		-else use python script
+	-implement opticalflow cuda (tk)
+		-setup cuda 5.5 in qt 5.1 -> ok
+		-setup opencv 2.4.6 in qt 5.1
 
 BUG LIST
 FIXED : On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.
 FIXED :	raw copy create "access violation", change it to memcopy for ffmpeg's frames to QImage.
 FIXED : memory leak on QImage pointer.
 FIXED : memory leak in FFMPEG decoder (frame's packet were not correctly freed).
-BUG5  : cannot load DImage (from OpticalFlow lib) in QImage (need save to disk then read from disk as a workaround).
+FIXED  : cannot load DImage (from OpticalFlow lib) in QImage (need save 
+to disk then read from disk as a workaround).
+
+NOTE
+CUDA : subproject is needed because cuda exe cannot be debugged 
+(issue?). It would broke video player executable otherwise.
