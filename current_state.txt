@@ -6,8 +6,8 @@ Find frames of interest
 		-try "engine.h"
 		-else use python script
 	-implement opticalflow cuda (tk)
-		-setup cuda 5.5 in qt 5.1 -> ok
-		-setup opencv 2.4.6 in qt 5.1
+		-setup cuda 5.5 in qt 5.1 -> ok (no debug with qt)
+		-setup opencv 2.4.6 in qt 5.1 -> ok (with debug)
 
 BUG LIST
 FIXED : On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.
