@@ -34,6 +34,8 @@ public:
     void modifyKey(ulong time, long new_map);
     void beginAddSequence() { m_editing = true; }
 
+    QList<float> *getInterpolationFactors(int tpf, ulong time);
+
     void initView(const ulong& duration = 0);
 signals:
     void durationChanged(int);

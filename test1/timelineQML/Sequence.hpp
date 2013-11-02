@@ -37,6 +37,9 @@ public:
     void addPoint(ulong x, double y) {
         m_spline.addPoint(x - m_begin, y); //spline is drawn in local spline coords
         m_controlPoints.append(pair(x - m_begin, y)); }
+    void delPoint(const pair& p) {
+        m_controlPoints.removeAt(m_controlPoints.indexOf(p));
+        m_valid = false; }
     void delPoint(ulong x, int mod = 0) {
         if (mod == -1) { modifyBeginning(x); return; }
         if (mod == 1) { modifyEnding(x); return; }

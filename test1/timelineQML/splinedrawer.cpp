@@ -170,6 +170,72 @@ void SplineDrawer::modifyKey(ulong time, long new_map) {
     //m_keys[time] = new_map;
 }
 
+///
+/// \brief SplineDrawer::getInterpolationFactor
+///         Assume that rate of video is constant
+/// \param tpf time per frame
+/// \param time when the frame wants to be played in not remaped time
+/// \return set of interpolation factors (note: delete pointer)
+///
+QList<float>* SplineDrawer::getInterpolationFactors(int tpf, ulong time)
+{
+    //coherence check
+    if (tpf <= 0) {
+        qDebug() << "getInterpolationFactor : warning : fps <= 0";
+        return NULL;
+    }
+    if (time == 0) {
+        qDebug() << "getInterpolationFactor : warning : time = 0";
+        return NULL;
+    }
+
+    //find to which sequence time is part of (time given in ms)
+    //asumption : two sequences are enough separated :
+    //end != begin
+    bool found = false;
+    ulong accumulatedTime = 0; //seqs are sorted
+    ulong nextSeqBegin = 0;
+    Sequence* selectedSeq;
+    for (int i = 0; i < m_sequences.size(); i++) {
+        Sequence* selectedSeq = m_sequences[i];
+        accumulatedTime = selectedSeq->getBeginning();
+        if (time >= selectedSeq->getBeginning()) {
+            if (time <= selectedSeq->getEnding()) {
+                found = true;
+                if (++i < m_sequences.size()) {
+                    nextSeqBegin = m_sequences[i]->getBeginning();
+                }
+                break;
+            } else {
+                accumulatedTime = selectedSeq->getEnding();
+            }
+        }
+    }
+
+    //find interpolation factor based on the space bw two frames
+    auto ratios = new QList<float>();
+    if (!found) { //I'm not in sequence (at least at the beginning)
+        ratios->append(1.f);
+        return ratios;
+    }
+
+    float cumulatedRatio = 0;
+    float rate = 0;
+    ulong resetTime = time - selectedSeq->getBeginning();
+    do {
+        if (cumulatedRatio != 0) { ratios->append(cumulatedRatio); }
+        rate = (float) selectedSeq->computeSpline(resetTime);
+        if (rate < 0) { //slowmotion
+            rate = -1.f / rate;
+            resetTime += tpf * rate;
+        } else { //acceleration
+            /* not yet implemented */
+            rate = 1.f; //just highpass filtering
+        }
+    } while ((cumulatedRatio += rate) <= 1.f);
+    return ratios;
+}
+
 void SplineDrawer::addSequence(ulong start, ulong end) {
     Sequence* seq = new Sequence(start, end);
     m_sequences.append(seq);

@@ -16,20 +16,20 @@ FFMPEG_INCLUDES = ffmpeg/include/
 FFMPEG_LIBS32 = ffmpeg/lib/
 OPTICALFLOW_INCLUDES = opticalflow/include
 
-win32:INCLUDEPATH += $$FFMPEG_INCLUDES
+INCLUDEPATH += $$FFMPEG_INCLUDES
 INCLUDEPATH += $$OPTICALFLOW_INCLUDES \
                 $$BOOST_PATH
 
 SUBDIRS += timelineQML
 
-LIBS += -L$$FFMPEG_LIBS32 -lavformat\
+win32:LIBS += -L$$FFMPEG_LIBS32 -lavformat\
             -lavcodec \
             -lavdevice \
             -lavutil \
             -lavfilter \
             -lpostproc \
             -lswresample \
-            -lswscale \
+            -lswscale
 
 TARGET = test1
 TEMPLATE = app
