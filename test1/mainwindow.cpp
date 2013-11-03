@@ -180,13 +180,29 @@ void MainWindow::logText(const QString *text)
     ui->txtInfo->setPlainText(plainText + "\r\n" + *text);
     ui->txtInfo->verticalScrollBar()->setValue(ui->txtInfo->verticalScrollBar()->maximum());
 }
-
+#include <QQmlEngine>
 void MainWindow::on_btFlow_clicked()
 {
 
+    QUrl qmlSource("opticalflowUI.qml");
+    // qmlRegisterType("smth");
+    QQmlEngine* engine = new QQmlEngine(this);
+    // this->connect(engine, signal, slot);
+    QQmlComponent* component = new QQmlComponent(engine);
+    component->loadUrl(qmlSource);
+    if (!component->isReady()) {
+        qDebug() << "Error while loading opticaflowUI.qml";
+        return;
+    }
+
+    QObject* object = component->create();
+    QQuickWindow* opticalflowUI = (QQuickWindow*)object;
+    opticalflowUI->show();
+    component->deleteLater();
+
 //    ui->wOpticalFlow->loadImages("img1.jpg", "img2.jpg");
 //    //compute coarse2fine
-    QImage& image = *OpticalFlowTools::computeCoarse2Fine("car1.jpg", "car2.jpg");
+//    QImage& image = *OpticalFlowTools::computeCoarse2Fine("car1.jpg", "car2.jpg");
 //    //ui->wOpticalFlow->loadImOut(image);
 //    ui->wOpticalFlow->loadImOut("flowout.jpg");
     //delete image;
