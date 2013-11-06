@@ -49,7 +49,9 @@ SOURCES += main.cpp\
     timelineQML/splinedrawer.cpp \
     qmlregister.cpp \
     addsequencedialog.cpp \
-    imageeaterthread.cpp
+    imageeaterthread.cpp \
+    opticalflowui.cpp \
+    opticalflowthread.cpp
 
 HEADERS  += mainwindow.h \
     customctrl.h \
@@ -74,13 +76,16 @@ HEADERS  += mainwindow.h \
     qmlregister.h \
     addsequencedialog.h \
     imageeaterthread.h \
-    timelineQML/Sequence.hpp
+    timelineQML/Sequence.hpp \
+    opticalflowui.h \
+    opticalflowthread.h
 
 
 FORMS    += mainwindow.ui \
     customctrl.ui \
     timeline.ui \
-    addsequencedialog.ui
+    addsequencedialog.ui \
+    opticalflowui.ui
 
 #win32:QMAKE_LFLAGS += -shared
 
@@ -89,4 +94,5 @@ DEFINES += __STDC_CONSTANT_MACROS
 OTHER_FILES += \
     timelineQML/timeline.qmlproject \
     timelineQML/timeline.qml \
-    timelineQML/Line.qml
+    timelineQML/Line.qml \
+    opticalflowUI.qml

@@ -1,8 +1,14 @@
 import QtQuick 2.0
 import QtQuick.Window 2.0
 import QtQuick.Controls 1.0
+import OpticalFlowTools 1.0
 
 Window {
+
+    OpticalFlowTools {
+        id: optflowtools
+    }
+
     id: window1
         width: 800
         height: 600
@@ -23,13 +29,13 @@ Window {
             Item {
                 id: images
                 width: 800
-                anchors.bottom: rectangle1.top
+                anchors.bottom: recGraph.top
                 anchors.bottomMargin: 10
                 anchors.right: parent.right
                 anchors.rightMargin: 0
                 anchors.left: parent.left
                 anchors.leftMargin: 0
-                anchors.top: group_box1.bottom
+                anchors.top: radios.bottom
                 anchors.topMargin: 10
                 smooth: true
 
@@ -110,12 +116,12 @@ Window {
             }
 
             GroupBox {
-                id: group_box1
+                id: radios
                 x: 0
                 width: rdMatlab.x + rdMatlab.width + 20
-                height: rdMatlab.y + rdMatlb.height + 20
-                anchors.top: text1.bottom
-                anchors.topMargin: 0
+                height: rdMatlab.y + rdMatlab.height + 20
+                anchors.top: lblTitle.bottom
+                anchors.topMargin: 10
                 checked: false
                 checkable: false
                 flat: false
@@ -149,20 +155,8 @@ Window {
 
             }
 
-            Text {
-                id: text1
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                width: parent.width
-                height: 50
-                text: "Optical Flow"
-                styleColor: "#c02323"
-                font.pixelSize: 20
-                color: "#1ea015"
-            }
-
             Rectangle {
-                id: rectangle1
+                id: recGraph
                 x: 0
                 y: 360
                 height: 200
@@ -184,6 +178,104 @@ Window {
                 anchors.rightMargin: 10
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 10
+                onClicked: optflowtools.onCloseButton()
             }
+
+            Button {
+                id: button2
+                x: 537
+                y: 567
+                text: "Start"
+                anchors.right: button3.left
+                anchors.rightMargin: 10
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 10
+                iconSource: "play.png"
+                onClicked: optflowtools.onStartButton(
+                               (rdGPU.checked) ? 1
+                                               : (rdCPU.checked) ? 2
+                                                                 : (rdMatlab.checked) ? 3
+                                                                                      : -1
+                               )
+            }
+
+            Button {
+                id: button3
+                x: 625
+                y: 567
+                text: "Button"
+                anchors.right: button1.left
+                anchors.rightMargin: 10
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 10
+                iconSource: "pause.png"
+                onClicked: optflowtools.onPauseButton()
+            }
+
+            TextEdit {
+                id: txtInput
+                y: 570
+                width: 180
+                height: 20
+                text: "out/"
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 10
+                anchors.left: lblIn.right
+                anchors.leftMargin: 10
+                font.pixelSize: 12
+            }
+
+            TextEdit {
+                id: txtOutput
+                y: 570
+                width: 180
+                height: 20
+                text: "out/flow/"
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 10
+                anchors.left: lblOut.right
+                anchors.leftMargin: 10
+                font.pixelSize: 12
+            }
+
+            Label {
+                id: lblOut
+                y: 570
+                width: 25
+                height: 21
+                color: "#0f5a09"
+                text: "Out:"
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 10
+                anchors.left: txtInput.right
+                anchors.leftMargin: 30
+            }
+
+            Label {
+                id: lblIn
+                y: 570
+                width: 14
+                height: 20
+                color: "#0f5a09"
+                text: "In:"
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 10
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+            }
+
+            Label {
+                id: lblTitle
+                x: 369
+                y: 10
+                color: "#76b900"
+                text: "Optical Flow"
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pointSize: 14
+                anchors.top: parent.top
+                anchors.topMargin: 10
+                font.bold: true
+        }
+
         }
 }

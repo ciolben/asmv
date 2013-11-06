@@ -8,6 +8,8 @@
 #include "workerthread.h"
 #include "timeline.h"
 
+#include "opticalflowtools.h"
+
 #define LEAK_DETECT 0
 //**memory leak detector
 #if LEAK_DETECT == 1
@@ -57,6 +59,7 @@ private:
     WorkerThread* worker;
     ImageEaterThread* imageEater;
     SplineDrawer* spline;
+    OpticalFlowTools* m_optflowtools;
 
     QTimer timer;
 

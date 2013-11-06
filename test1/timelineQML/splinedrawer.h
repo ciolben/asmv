@@ -29,6 +29,7 @@ public:
     void setduration(const int& duration) { m_duration = duration; emit durationChanged(duration);}
     int playposition() const { return m_playPosition; }
     void setplayposition(const int& playPosition) { m_playPosition = playPosition; emit playpositionChanged(playPosition);}
+    QList<Sequence*> getSequences() const { return m_sequences; }
 
     void addKey(ulong time, long map);
     void modifyKey(ulong time, long new_map);

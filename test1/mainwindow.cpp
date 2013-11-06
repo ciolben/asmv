@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
   , worker(NULL)
   , imageEater(NULL)
   , spline(NULL)
+  , m_optflowtools(NULL)
   , timer(this)
 {
     ui->setupUi(this);
@@ -180,27 +181,23 @@ void MainWindow::logText(const QString *text)
     ui->txtInfo->setPlainText(plainText + "\r\n" + *text);
     ui->txtInfo->verticalScrollBar()->setValue(ui->txtInfo->verticalScrollBar()->maximum());
 }
-#include <QQmlEngine>
+
 void MainWindow::on_btFlow_clicked()
 {
 
-    QUrl qmlSource("opticalflowUI.qml");
-    // qmlRegisterType("smth");
-    QQmlEngine* engine = new QQmlEngine(this);
-    // this->connect(engine, signal, slot);
-    QQmlComponent* component = new QQmlComponent(engine);
-    component->loadUrl(qmlSource);
-    if (!component->isReady()) {
-        qDebug() << "Error while loading opticaflowUI.qml";
-        return;
+    m_optflowtools = OpticalFlowTools::createWindow(this);
+    if (spline != NULL) {
+        m_optflowtools->setSequences(spline->getSequences());
     }
 
-    QObject* object = component->create();
-    QQuickWindow* opticalflowUI = (QQuickWindow*)object;
-    opticalflowUI->show();
-    component->deleteLater();
+    /* QML version not used
+     *
+    OpticalFlowTools* m_optflowtools = (OpticalFlowTools*) QMLRegister::getQMLObject("optflowtools");
+    optflowtools->initializeTools();
+   */
 
-//    ui->wOpticalFlow->loadImages("img1.jpg", "img2.jpg");
+    //tests
+//    ui->->loadImages("img1.jpg", "img2.jpg");
 //    //compute coarse2fine
 //    QImage& image = *OpticalFlowTools::computeCoarse2Fine("car1.jpg", "car2.jpg");
 //    //ui->wOpticalFlow->loadImOut(image);

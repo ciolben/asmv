@@ -4,6 +4,138 @@
 #include <iostream>
 
 #include "opticalflowtools.h"
+#include "opticalflowui.h"
+
+#include <QDebug>
+
+OpticalFlowTools::OpticalFlowTools() :
+    m_sequences(QList<Sequence*>())
+{
+    //QMLRegister::regQMLObject("optflowtools", this);
+}
+
+///
+/// \brief OpticalFlowTools::getInterpolationFactors
+/// \param tpf time per frame
+/// \param time at which the original frame was played
+/// \return the set of factors (0 < a <= 1) to multiply the flow with.
+/// Note : this method should be used from the beginning to the end in order to
+///to accumulate the time.
+///
+QList<float>* OpticalFlowTools::getInterpolationFactors(int tpf, ulong time)
+{
+    //coherence check
+    if (tpf <= 0) {
+        qDebug() << "getInterpolationFactor : warning : fps <= 0";
+        return NULL;
+    }
+    if (time == 0) {
+        qDebug() << "getInterpolationFactor : warning : time = 0";
+        return NULL;
+    }
+
+    //find to which sequence time is part of (time given in ms)
+    //asumption : two sequences are enough separated :
+    //end != begin
+    bool found = false;
+    ulong accumulatedTime = 0; //seqs are sorted
+    ulong nextSeqBegin = 0;
+    Sequence* selectedSeq;
+    for (int i = 0; i < m_sequences.size(); i++) {
+        Sequence* selectedSeq = m_sequences[i];
+        accumulatedTime = selectedSeq->getBeginning();
+        if (time >= selectedSeq->getBeginning()) {
+            if (time <= selectedSeq->getEnding()) {
+                found = true;
+                if (++i < m_sequences.size()) {
+                    nextSeqBegin = m_sequences[i]->getBeginning();
+                }
+                break;
+            } else {
+                accumulatedTime = selectedSeq->getEnding();
+            }
+        }
+    }
+
+    //find interpolation factor based on the space bw two frames
+    auto ratios = new QList<float>();
+    if (!found) { //I'm not in sequence (at least at the beginning)
+        ratios->append(1.f);
+        return ratios;
+    }
+
+    float cumulatedRatio = 0;
+    float rate = 0;
+    ulong resetTime = time - selectedSeq->getBeginning();
+    do {
+        if (cumulatedRatio != 0) { ratios->append(cumulatedRatio); }
+        rate = (float) selectedSeq->computeSpline(resetTime);
+        if (rate < 0) { //slowmotion
+            rate = -1.f / rate;
+            resetTime += tpf * rate;
+        } else { //acceleration
+            /* not yet implemented */
+            rate = 1.f; //just highpass filtering
+        }
+    } while ((cumulatedRatio += rate) <= 1.f);
+    return ratios;
+}
+
+///
+/// \brief OpticalFlowTools::createWindow
+/// Open a new QT object window.
+/// Note used anymore : Once created, the object opticalflow tools is available
+/// in QMLRegister.
+OpticalFlowTools* OpticalFlowTools::createWindow(QWidget *parent)
+{
+    /*
+     * CPP version
+     */
+
+    OpticalFlowUI* ui = new OpticalFlowUI(parent);
+    ui->show();
+
+    OpticalFlowTools* optflowTools = new OpticalFlowTools();
+    ui->setOpticalFlowTools(optflowTools);
+
+    return optflowTools;
+
+    /*-----------------------------
+     *QML window : not used because cpp dynamic image loading is a mess with qml
+     *
+    QUrl qmlSource("opticalflowUI.qml");
+    qmlRegisterType<OpticalFlowTools>("OpticalFlowTools", 1, 0, "OpticalFlowTools");
+    QQmlEngine* engine = new QQmlEngine();
+
+    engine->addImageProvider();
+
+    // this->connect(engine, signal, slot);
+    QQmlComponent* component = new QQmlComponent(engine);
+    component->loadUrl(qmlSource);
+    if (!component->isReady()) {
+        qDebug() << "Error while loading opticaflowUI.qml : " << component->errorString();
+        return;
+    }
+
+    QQuickWindow* opticalflowUI = (QQuickWindow*) component->create();
+    opticalflowUI->show();
+    component->deleteLater();
+
+    OpticalFlowTools* optflowtools = (OpticalFlowTools*) QMLRegister::getQMLObject("optflowtools");
+    optflowtools->setQMLWindow(opticalflowUI);
+    */
+}
+
+void OpticalFlowTools::computeFlow(const QImage* frame1, const QImage* frame2, QImage* flow)
+{
+    if (frame1 == NULL || frame2 = NULL) {
+        flow = NULL;
+        return;
+    }
+
+    //TODO
+
+}
 
 QImage* OpticalFlowTools::computeCoarse2Fine(const QString& im1, const QString& im2) {
     DImage dimg1,dimg2;
@@ -60,5 +192,6 @@ QImage* OpticalFlowTools::computeCoarse2Fine(const QString& im1, const QString& 
     return res ? NULL : new QImage();
 
 //    dimg2.imwrite(imgres);
-//            return imgres;
+    //            return imgres;
 }
+
