@@ -27,3 +27,4 @@ into a folder when distributing app.
 NOTE
 CUDA : subproject is needed because cuda exe cannot be debugged 
 (issue?). It would broke video player executable otherwise.
+OpenCV 2.4.6 recompiled with GPU and OpenGL support.

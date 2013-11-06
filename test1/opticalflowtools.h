@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QImage>
+#include <QLibrary>
 
 #include "timelineQML/Sequence.hpp"
 
@@ -29,6 +30,10 @@ public:
 private:
     QList<Sequence*> m_sequences;
     ComputationMods m_computationMod;
+
+    QLibrary* optflowLib;
+    typedef QImage*(*computeOptflowFunction)(const QImage& frame1, const QImage& frame2);
+
 };
 
 #endif // OPTICALFLOWTOOLS_H
