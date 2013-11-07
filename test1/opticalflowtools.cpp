@@ -10,6 +10,8 @@
 
 OpticalFlowTools::OpticalFlowTools() :
     m_sequences(QList<Sequence*>())
+  , m_optflowLib(NULL)
+  , m_process(NULL)
 {
     //QMLRegister::regQMLObject("optflowtools", this);
 }
@@ -126,15 +128,74 @@ OpticalFlowTools* OpticalFlowTools::createWindow(QWidget *parent)
     */
 }
 
-void OpticalFlowTools::computeFlow(const QImage* frame1, const QImage* frame2, QImage* flow)
+QImage* OpticalFlowTools::computeFlow(const QImage* frame1, const QImage* frame2, const QString& f1, const QString& f2)
 {
-    if (frame1 == NULL || frame2 = NULL) {
-        flow = NULL;
-        return;
+    if (frame1 == NULL || frame2 == NULL) {
+        return NULL;
     }
 
-    //TODO
+    //try to load dll
+    if (m_process == NULL && m_optflowLib == NULL) {
+        QString libpath = "../../build-opticalflowCV-Desktop_Qt_5_1_1_MSVC2010_32bit_OpenGL-Debug/debug/";
+        QLibrary* library = new QLibrary(libpath + "opticalflowCV.dll");
+        if (!library->load()) {
+            qDebug() << "Cannot load opticalflowCV.dll : " << library->errorString();
+            qDebug() << "Will use chain tools instead";
 
+            QString exepath = QString("../build-opticalflowCV-Desktop_Qt_5_1_1_MSVC2010_32bit_OpenGL-Debug/debug/") + "opticalflowCV.exe";
+            QFile file(exepath); qDebug() << "file exist ? : " << file.exists();
+            qDebug() << "exe path : " << exepath;
+            if (!file.exists()) {
+                return NULL;
+            }
+            m_process = new QProcess();
+
+            QString outName("flow.jpg");
+            QStringList args; args.append(f1); args.append(f2); args.append(outName);
+            if (m_computationMod == GPU) {
+                args.append("GPU");
+            } else if (m_computationMod == CPU) {
+                args.append("CPU");
+            } else {
+                args.append("Matlab");
+            }
+
+            int exitCode;
+            qDebug() << "execute : " << m_process->execute(exepath, args);
+            qDebug() << "error : " << m_process->errorString();
+            m_process->waitForFinished();
+            qDebug() << "Output : " << QString(m_process->readAll());
+            qDebug() << "exit code : " << (exitCode = m_process->exitCode());
+
+            QImage* res = NULL;
+            if (exitCode == 0) {
+                res = new QImage(outName);
+            }
+            delete m_process;
+            m_process = NULL;
+            return res;
+        } else {
+            qDebug() << "Library LOADED.";
+
+            if (m_computationMod == GPU) {
+                computeOptFlow = (computeOptflowFunction )library->resolve("computeFlow");
+            } else if (m_computationMod == CPU) {
+                computeOptFlow = (computeOptflowFunction )library->resolve("computeFlowCPU");
+            } else {
+                qDebug() << "Computation mod not implemented";
+                return NULL;
+            }
+
+            if (!computeOptFlow) {
+                qDebug() << "Cannot find \"computeFlow\" signature in opticalflowCV.dll";
+                return NULL;
+            }
+            m_optflowLib = library;
+        }
+    }
+    //compute the optical flow
+    if (m_optflowLib != NULL ) { return computeOptFlow(*frame1, *frame2); }
+    return NULL;
 }
 
 QImage* OpticalFlowTools::computeCoarse2Fine(const QString& im1, const QString& im2) {

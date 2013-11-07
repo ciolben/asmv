@@ -4,6 +4,7 @@
 #include <QString>
 #include <QImage>
 #include <QLibrary>
+#include <QProcess>
 
 #include "timelineQML/Sequence.hpp"
 
@@ -20,7 +21,7 @@ public:
         GPU, CPU, Matlab
     };
 
-    void computeFlow(const QImage* frame1, const QImage* frame2, QImage* flow);
+    QImage* computeFlow(const QImage* frame1, const QImage* frame2, const QString& f1 = "", const QString& f2 = "");
     QList<float>* getInterpolationFactors(int tpf, ulong time);
 
     QList<Sequence *> getSequences() const { return m_sequences; }
@@ -31,8 +32,11 @@ private:
     QList<Sequence*> m_sequences;
     ComputationMods m_computationMod;
 
-    QLibrary* optflowLib;
+    QLibrary* m_optflowLib;
     typedef QImage*(*computeOptflowFunction)(const QImage& frame1, const QImage& frame2);
+    computeOptflowFunction computeOptFlow;
+
+    QProcess* m_process;
 
 };
 

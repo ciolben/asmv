@@ -1,6 +1,88 @@
 #include "opticalflowcv.h"
 
 #include "broxflow.hpp"
+#include <QImageWriter>
+#include <QDebug>
+#include <QFile>
+#include <QTextStream>
+
+#if defined(OPTICALFLOWCV_LIBRARY)
+#else
+//for chaining tools, not as fast as dll build, because exe as to be call
+//for each pair of frame.
+//arg : frame1, frame2, flow, type=CPU[GPU|Matlab]
+int main(int argc, char *argv[])
+{
+    QFile file ("log.txt");
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream out(&file);
+    out << argv[1] << " " << argv[2] << " " << argv[3] << " " << argv[4] << "\n";
+
+    if (argc != 4 && argc != 5) {
+        std::cout << "args : frame1, frame2, flow, type=CPU[GPU|Matlab]" << std::endl;
+        return -1;
+    }
+
+    QImage frame1; bool ok = frame1.load(argv[1]);
+    if (!ok) {
+        std::cout << "frame1 does not exists" << std::endl;
+        out << "frame1 does not exist.\n";
+        return -1;
+    }
+    QImage frame2; ok = frame2.load(argv[2]);
+    if (!ok) {
+        std::cout << "frame2 does not exists" << std::endl;
+        out << "frame2 does not exist.\n";
+        return -1;
+    }
+    QImage* flow;
+    Mat qvisual;
+
+    QString type("CPU");
+    if (argc == 5) {
+        type = QString(argv[4]);
+    }
+    if (type.compare("CPU") == 0) {
+        flow = computeFlowCPU(frame1, frame2, &qvisual);
+    } else if (type.compare("GPU") == 0) {
+        flow = computeFlow(frame1, frame2);
+    } else if (type.compare("Matlab") == 0) {
+        std::cout << "Matlab not yet implemented" << std::endl;
+        out << "Matlab not yet implemented\n";
+        return -2;
+    } else {
+        std::cout << "Unknown computation type";
+        out << "Unknown computation type\n";
+        return -2;
+    }
+
+    if (flow == NULL) {
+        std::cout << "Error while computing flow." << std::endl;
+        out << "Error while computing flow.\n";
+        return -3;
+    }
+
+    QString filename(argv[3]);
+    QImageWriter writer(filename);
+    if(!writer.write(*flow))
+    {
+        qDebug() << writer.errorString() << "\n will use opencv instead of Qt.";
+        //try to use opencv instead
+        if (!imwrite(filename.toStdString(), qvisual)) {
+            qDebug() << "Cannot save the file with opencv";
+            std::cout << "Cannot save the file" << std::endl;
+            out << "Cannot save the file\n";
+            return -4;
+        } else {
+            out << "Save ok\n";
+            qDebug() << "Save ok.";
+        }
+    }
+
+    out << "OK\n";
+    return 0;
+}
+#endif
 
 QString* getGPUinfo() {
     // Show CUDA information
@@ -28,16 +110,52 @@ QImage* computeFlow(const QImage &frame1, const QImage &frame2) {
 //        imshow("flow", flow);
 //        waitKey();
     //return qimage
-    return &Mat2QImage(flow);
+    return Mat2QImage(flow);
 }
 
-QImage Mat2QImage(cv::Mat const& src)
+
+QImage *computeFlowCPU(const QImage &frame1, const QImage &frame2)
 {
+    return computeFlowCPU(frame1, frame2, NULL);
+}
+
+QImage* computeFlowCPU(const QImage &frame1, const QImage &frame2, Mat *qvisual) {
+    Mat image1 = QImage2Mat(frame1);
+    Mat image2 = QImage2Mat(frame2);
+
+    //compute flow
+    void* qqvisual;
+    if (qvisual == NULL) {
+        qqvisual = new Mat();
+    } else {
+        qqvisual = qvisual;
+    }
+    Mat flow;
+   // Mat* visual = new Mat();
+    farnebackOpticalFlowCPU(image1, image2, flow, *(Mat*) qqvisual);
+//    namedWindow( "2", CV_WINDOW_AUTOSIZE );
+//    imshow("2", image1);
+//    namedWindow( "3", CV_WINDOW_AUTOSIZE );
+//    imshow("3", image2);
+//    waitKey();
+//    namedWindow( "4", CV_WINDOW_AUTOSIZE );
+//    imshow("4", flow);
+    //combine flow x y
+//    Mat flow = cv::Mat(Size(image1.cols, image1.rows),CV_8UC3);
+//    drawColorField(flowU, flowV, flow);
+    //*qvisual = visual;
+    return Mat2QImage(*(Mat*) qqvisual); //TODO convert flow to something serializable like ppm
+}
+
+QImage* Mat2QImage(cv::Mat const& src)
+{
+//    namedWindow( "1", CV_WINDOW_AUTOSIZE );
+//    imshow("1", src);
      cv::Mat temp; // make the same cv::Mat
      cvtColor(src, temp,CV_BGR2RGB); // cvtColor Makes a copt, that what i need
      QImage dest((uchar*) temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
-     QImage dest2(dest);
-     dest2.detach(); // enforce deep copy
+     QImage* dest2 = new QImage(dest);
+     dest2->detach(); // enforce deep copy
      return dest2;
 }
 

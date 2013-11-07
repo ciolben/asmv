@@ -23,6 +23,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/gpu/gpu.hpp>
+#include <opencv2/video/video.hpp>
 
 // Other Includes
 #define M_PI 3.14159265359
@@ -97,4 +98,37 @@ void broxOpticalFlow(const Mat& image1, const Mat& image2, Mat& flowU, Mat& flow
     uGPU.download(flowU);
     vGPU.download(flowV);
 }
+
+static void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step,
+                    double, const Scalar& color)
+{
+    for(int y = 0; y < cflowmap.rows; y += step)
+        for(int x = 0; x < cflowmap.cols; x += step)
+        {
+            const Point2f& fxy = flow.at<Point2f>(y, x);
+            line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)),
+                 color);
+            circle(cflowmap, Point(x,y), 2, color, -1);
+        }
+}
+
+void farnebackOpticalFlowCPU(const Mat& image1, const Mat& image2, Mat& flow, Mat&visual)
+{
+    Mat im1gray, im2gray;
+    cvtColor(image1, im1gray, CV_BGR2GRAY);
+    cvtColor(image2, im2gray, CV_BGR2GRAY);
+
+//    CvSize size; size.height = image1.rows; size.width = image1.cols;
+//    fl = cvCreateImage(size, IPL_DEPTH_32F, 2);
+   // cv::Mat _flow = cv::cvarrToMat(fl);
+    cv::calcOpticalFlowFarneback(im1gray, im2gray, flow, 0.5, 3, 15, 3, 5, 1.2, 0);
+
+    cvtColor(im1gray, visual, CV_GRAY2BGR);
+    drawOptFlowMap(flow, visual, 16, 1.5, CV_RGB(0, 255, 0));
+
+//    namedWindow("b",CV_WINDOW_NORMAL);
+//    imshow("b", visual );
+//    waitKey();
+}
+
 

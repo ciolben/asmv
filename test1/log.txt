@@ -1,0 +1,2 @@
+..\test1\debug\out/img1150.jpg ..\test1\debug\out/img1153.jpg flow.jpg CPU
+OK

@@ -3,8 +3,9 @@
 #include <QDebug>
 #include <QDir>
 
-OpticalFlowThread::OpticalFlowThread(QObject* parent, )
+OpticalFlowThread::OpticalFlowThread(OpticalFlowTools* optflowtools, QObject* parent)
     : QThread(parent)
+    , m_optflowtools(optflowtools)
     , m_pause(false)
     , m_alive(true)
 {
@@ -24,47 +25,58 @@ void OpticalFlowThread::run() {
         return;
     }
     if (!dirout.exists()) {
-        if (!QDir::mkdir(m_outputDir)) {
-            qDebug() << "Cannot creat output dir.";
+        if (!dirout.mkpath(m_outputDir)) {
+            qDebug() << "Cannot create output dir.";
             return;
         }
     }
 
     QFileInfoList images = dirin.entryInfoList(QDir::Files);
-    QStringList exts = {"jpg", "jpeg", "png"};
+    QStringList exts; exts << "jpg" << "jpeg" << "png";
 
-    QImage* img1 = NULL, img2 = NULL, flow;
+    QImage* img1;
+    QImage* img2;
+    QImage* flow;
+    img1 = NULL;
+    img2 = NULL;
+    QString filename1;
     bool isImage = false;
     while (m_alive) {
         foreach (QFileInfo file, images) {
             if (m_pause) {
                 m_mutexSleep.lock();
-                m_condition.wait(m_mutexSleep);
+                m_condition.wait(&m_mutexSleep);
                 m_mutexSleep.unlock();
             }
 
-            foreach (String ext, exts) {
+            foreach (QString ext, exts) {
                 if (file.suffix().compare(ext)) {
                     isImage = true; break;
                 }
             }
             if (!isImage) { continue; } else { isImage = false; }
 
+            QString filename2 = QString("%1%2").arg(m_inputDir, file.fileName());
             //compute optical flow
             if (img1 == NULL) {
-                img1 = new QImage(m_inputDir.append(file));
+                img1 = new QImage(filename2);
+                filename1 = filename2;
                 continue;
             }
-            img2 = new QImage(m_inputDir.append(file));
-            m_optflowtools->computeFlow(img1, img2, flow);
+            qDebug() << "image : " << filename2;
+            img2 = new QImage(filename2);
+            flow = m_optflowtools->computeFlow(img1, img2
+                                        , "..\\test1\\debug\\" + filename1
+                                        , "..\\test1\\debug\\" + filename2);
 
             //emit result
             emit flowComputed(img1, img2, flow);
 
             //manage images
             img1 = img2;
+            filename1 = filename2;
         }
-
+        m_alive = false;
     }
     qDebug() << "Optflow thread ended.";
 }

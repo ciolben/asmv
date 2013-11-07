@@ -5,9 +5,16 @@
 #-------------------------------------------------
 
 TARGET = opticalflowCV
-TEMPLATE = lib
 
-DEFINES += OPTICALFLOWCV_LIBRARY
+CONFIG += lib_conf
+CONFIG += console
+
+lib_conf {
+    DEFINES += OPTICALFLOWCV_LIBRARY
+    TEMPLATE = lib
+} else {
+    TEMPLATE = app
+}
 
 SOURCES += opticalflowcv.cpp
 
@@ -17,7 +24,7 @@ HEADERS += opticalflowcv.h\
 
 #--OPENCV stuff--
 
-OPENCV_PATH = "D:\Programs\opencvbuild\install"
+OPENCV_PATH = "D:\opencv246"
 OPENCV_INCLUDE = $$OPENCV_PATH\include
 
 OPENCV_LIBS = $$OPENCV_PATH\lib

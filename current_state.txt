@@ -23,8 +23,9 @@ to disk then read from disk as a workaround).
 BUG : see above *
 BUG : packed QML files into qrc because it's not convenient to put them 
 into a folder when distributing app.
+FIXED : every possible combinations I was able to think of with wrong input/lib loading when computing optical flow is handled. Executable for just computating flow now exists.
 
 NOTE
-CUDA : subproject is needed because cuda exe cannot be debugged 
-(issue?). It would broke video player executable otherwise.
-OpenCV 2.4.6 recompiled with GPU and OpenGL support.
+-CUDA : subproject is needed because cuda exe cannot be debugged (issue?). It would broke video player executable otherwise.
+-OpenCV 2.4.6 recompiled with GPU and OpenGL support (+ Eigen, OpenEXR, CUBLAS, TBB).
+-OpticalFlowCV.exe computes Optical Flow with args : optcv.exe in:frame1_path in:frame2_path out:flow_path [type=CPU|GPU|Matlab]
