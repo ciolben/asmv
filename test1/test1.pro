@@ -51,7 +51,8 @@ SOURCES += main.cpp\
     addsequencedialog.cpp \
     imageeaterthread.cpp \
     opticalflowui.cpp \
-    opticalflowthread.cpp
+    opticalflowthread.cpp \
+    interpolateui.cpp
 
 HEADERS  += mainwindow.h \
     customctrl.h \
@@ -78,14 +79,16 @@ HEADERS  += mainwindow.h \
     imageeaterthread.h \
     timelineQML/Sequence.hpp \
     opticalflowui.h \
-    opticalflowthread.h
+    opticalflowthread.h \
+    interpolateui.h
 
 
 FORMS    += mainwindow.ui \
     customctrl.ui \
     timeline.ui \
     addsequencedialog.ui \
-    opticalflowui.ui
+    opticalflowui.ui \
+    interpolateui.ui
 
 #win32:QMAKE_LFLAGS += -shared
 

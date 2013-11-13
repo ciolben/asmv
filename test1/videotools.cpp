@@ -305,7 +305,7 @@ QImage* VideoTools::seekNextFrame()
                         QRgb *scanLine = (QRgb *)qImage->scanLine(y);
                         for (int x = 0; x < w; x++)
                         {
-                            scanLine[x] = qRgb(src[3*x], src[3*x+1], src[3*x+2]); //TODO revise this part
+                            scanLine[x] = qRgb(src[3*x], src[3*x+1], src[3*x+2]); //ok I will not use it
                         }
                         src += frameDst->linesize[0];
                     }
@@ -323,7 +323,7 @@ QImage* VideoTools::seekNextFrame()
             
         }
 
-        curFrame++;
+        if (qImage != NULL) { curFrame++; }
         freeResources(packet, pCodecContext, frame, frameDst);
         return qImage; //TODO : return NULL if no change
     } else {
@@ -360,7 +360,7 @@ void VideoTools::cleanMem()
 
 ///
 /// \brief VideoTools::getCurrentFrameIndex
-/// The frame that is last decoded, including invalid ones.
+/// The frame that is last decoded, does not count NULL frames.
 /// \return
 ///
 int VideoTools::getCurrentFrameIndex() const {

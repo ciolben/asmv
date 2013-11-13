@@ -6,8 +6,8 @@
 
 TARGET = opticalflowCV
 
-CONFIG += lib_conf
-CONFIG += console
+#CONFIG += lib_conf
+#CONFIG += console
 
 lib_conf {
     DEFINES += OPTICALFLOWCV_LIBRARY

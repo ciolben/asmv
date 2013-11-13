@@ -12,12 +12,13 @@
 using namespace cv;
 using namespace cv::gpu;
 
-extern "C" OPTICALFLOWCVSHARED_EXPORT QImage* computeFlow(const QImage& frame1, const QImage& frame2);
-extern "C" OPTICALFLOWCVSHARED_EXPORT QImage* computeFlowCPU(const QImage& frame1, const QImage& frame2);
+extern "C" OPTICALFLOWCVSHARED_EXPORT QImage* computeFlow(const QImage& frame1, const QImage& frame2, const QString &basefilename);
+extern "C" OPTICALFLOWCVSHARED_EXPORT QImage* computeFlowCPU(const QImage& frame1, const QImage& frame2, const QString &basefilename);
+extern "C" OPTICALFLOWCVSHARED_EXPORT QImage* interpolate(const QImage& frame1, const QImage& frame2, const float factor, const QString& basefilename);
+extern "C" OPTICALFLOWCVSHARED_EXPORT QImage* interpolateCPU(const QImage& frame1, const QImage& frame2, const float factor, const QString& basefilename);
 extern "C" OPTICALFLOWCVSHARED_EXPORT QString* getGPUinfo();
 
-QImage* computeFlowCPU(const QImage& frame1, const QImage& frame2, Mat* qvisual);
-QImage *Mat2QImage(Mat const& src);
+QImage *Mat2QImage(Mat const& src, bool reversedRGB = true);
 Mat QImage2Mat(QImage const& src);
 
 Mat getColorField(Mat &imgU, Mat &imgV, Mat &imgColor);

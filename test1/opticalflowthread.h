@@ -12,7 +12,7 @@ class OpticalFlowThread : public QThread
 {
     Q_OBJECT
 public:
-    OpticalFlowThread(QObject *parent = 0, OpticalFlowTools* optflowtools);
+    OpticalFlowThread(OpticalFlowTools* optflowtools, QObject *parent = 0);
 
     void run() Q_DECL_OVERRIDE;
 

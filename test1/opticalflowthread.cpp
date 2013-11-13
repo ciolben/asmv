@@ -66,8 +66,8 @@ void OpticalFlowThread::run() {
             qDebug() << "image : " << filename2;
             img2 = new QImage(filename2);
             flow = m_optflowtools->computeFlow(img1, img2
-                                        , "..\\test1\\debug\\" + filename1
-                                        , "..\\test1\\debug\\" + filename2);
+                                        , filename1
+                                        , filename2);
 
             //emit result
             emit flowComputed(img1, img2, flow);

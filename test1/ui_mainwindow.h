@@ -36,28 +36,29 @@ class Ui_MainWindow
 public:
     QWidget *centralWidget;
     QGridLayout *gridLayout;
-    QLineEdit *txtFrame;
-    QLabel *label_4;
-    QLabel *label_3;
+    Timeline *wTimeline;
+    QPushButton *btInterpolate;
     QPushButton *btTimeline;
-    QLineEdit *txtDuration;
-    QLabel *label_5;
-    QLabel *label_6;
-    QLineEdit *txtSkipFrames;
-    QLineEdit *txtFile;
-    QPushButton *btFlow;
-    QPushButton *btOpen;
-    QPushButton *btGo;
-    QLabel *lblImage;
-    QPlainTextEdit *txtInfo;
     QSlider *slSpeed;
     QLabel *label_2;
-    QPushButton *btClose;
-    QLabel *label;
-    QLabel *label_7;
-    Timeline *wTimeline;
-    QProgressBar *pbBuffer;
     QComboBox *cboBuffer;
+    QProgressBar *pbBuffer;
+    QLabel *lblImage;
+    QPushButton *btGo;
+    QPushButton *btOpen;
+    QPushButton *btFlow;
+    QLineEdit *txtFile;
+    QLineEdit *txtSkipFrames;
+    QLabel *label_6;
+    QLabel *label_5;
+    QLineEdit *txtDuration;
+    QLabel *label_3;
+    QLabel *label_4;
+    QLineEdit *txtFrame;
+    QPushButton *btClose;
+    QLabel *label_7;
+    QPlainTextEdit *txtInfo;
+    QLabel *label;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -74,106 +75,25 @@ public:
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        txtFrame = new QLineEdit(centralWidget);
-        txtFrame->setObjectName(QStringLiteral("txtFrame"));
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        wTimeline = new Timeline(centralWidget);
+        wTimeline->setObjectName(QStringLiteral("wTimeline"));
+        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(txtFrame->sizePolicy().hasHeightForWidth());
-        txtFrame->setSizePolicy(sizePolicy);
-        txtFrame->setText(QStringLiteral("5"));
+        sizePolicy.setHeightForWidth(wTimeline->sizePolicy().hasHeightForWidth());
+        wTimeline->setSizePolicy(sizePolicy);
 
-        gridLayout->addWidget(txtFrame, 2, 1, 1, 1);
+        gridLayout->addWidget(wTimeline, 8, 1, 4, 5);
 
-        label_4 = new QLabel(centralWidget);
-        label_4->setObjectName(QStringLiteral("label_4"));
+        btInterpolate = new QPushButton(centralWidget);
+        btInterpolate->setObjectName(QStringLiteral("btInterpolate"));
 
-        gridLayout->addWidget(label_4, 3, 0, 1, 1);
-
-        label_3 = new QLabel(centralWidget);
-        label_3->setObjectName(QStringLiteral("label_3"));
-
-        gridLayout->addWidget(label_3, 2, 2, 1, 1);
+        gridLayout->addWidget(btInterpolate, 7, 1, 1, 1);
 
         btTimeline = new QPushButton(centralWidget);
         btTimeline->setObjectName(QStringLiteral("btTimeline"));
 
-        gridLayout->addWidget(btTimeline, 8, 0, 1, 1);
-
-        txtDuration = new QLineEdit(centralWidget);
-        txtDuration->setObjectName(QStringLiteral("txtDuration"));
-        sizePolicy.setHeightForWidth(txtDuration->sizePolicy().hasHeightForWidth());
-        txtDuration->setSizePolicy(sizePolicy);
-        txtDuration->setText(QStringLiteral("100"));
-
-        gridLayout->addWidget(txtDuration, 3, 1, 1, 1);
-
-        label_5 = new QLabel(centralWidget);
-        label_5->setObjectName(QStringLiteral("label_5"));
-
-        gridLayout->addWidget(label_5, 3, 2, 1, 2);
-
-        label_6 = new QLabel(centralWidget);
-        label_6->setObjectName(QStringLiteral("label_6"));
-
-        gridLayout->addWidget(label_6, 4, 0, 1, 1);
-
-        txtSkipFrames = new QLineEdit(centralWidget);
-        txtSkipFrames->setObjectName(QStringLiteral("txtSkipFrames"));
-        sizePolicy.setHeightForWidth(txtSkipFrames->sizePolicy().hasHeightForWidth());
-        txtSkipFrames->setSizePolicy(sizePolicy);
-
-        gridLayout->addWidget(txtSkipFrames, 4, 1, 1, 1);
-
-        txtFile = new QLineEdit(centralWidget);
-        txtFile->setObjectName(QStringLiteral("txtFile"));
-        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(txtFile->sizePolicy().hasHeightForWidth());
-        txtFile->setSizePolicy(sizePolicy1);
-        txtFile->setMinimumSize(QSize(200, 0));
-        txtFile->setReadOnly(true);
-
-        gridLayout->addWidget(txtFile, 0, 0, 1, 3, Qt::AlignHCenter);
-
-        btFlow = new QPushButton(centralWidget);
-        btFlow->setObjectName(QStringLiteral("btFlow"));
-
-        gridLayout->addWidget(btFlow, 7, 0, 1, 1);
-
-        btOpen = new QPushButton(centralWidget);
-        btOpen->setObjectName(QStringLiteral("btOpen"));
-
-        gridLayout->addWidget(btOpen, 0, 3, 1, 2);
-
-        btGo = new QPushButton(centralWidget);
-        btGo->setObjectName(QStringLiteral("btGo"));
-
-        gridLayout->addWidget(btGo, 1, 3, 1, 2);
-
-        lblImage = new QLabel(centralWidget);
-        lblImage->setObjectName(QStringLiteral("lblImage"));
-        QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(lblImage->sizePolicy().hasHeightForWidth());
-        lblImage->setSizePolicy(sizePolicy2);
-        lblImage->setMinimumSize(QSize(0, 255));
-        lblImage->setFrameShape(QFrame::Box);
-
-        gridLayout->addWidget(lblImage, 0, 5, 7, 1, Qt::AlignTop);
-
-        txtInfo = new QPlainTextEdit(centralWidget);
-        txtInfo->setObjectName(QStringLiteral("txtInfo"));
-        sizePolicy.setHeightForWidth(txtInfo->sizePolicy().hasHeightForWidth());
-        txtInfo->setSizePolicy(sizePolicy);
-        txtInfo->setMinimumSize(QSize(0, 100));
-        txtInfo->setMaximumSize(QSize(16777215, 100));
-        txtInfo->setReadOnly(true);
-        txtInfo->setCenterOnScroll(false);
-
-        gridLayout->addWidget(txtInfo, 6, 0, 1, 5);
+        gridLayout->addWidget(btTimeline, 10, 0, 1, 1);
 
         slSpeed = new QSlider(centralWidget);
         slSpeed->setObjectName(QStringLiteral("slSpeed"));
@@ -189,33 +109,12 @@ public:
 
         gridLayout->addWidget(label_2, 2, 0, 1, 1);
 
-        btClose = new QPushButton(centralWidget);
-        btClose->setObjectName(QStringLiteral("btClose"));
-        btClose->setCheckable(false);
+        cboBuffer = new QComboBox(centralWidget);
+        cboBuffer->setObjectName(QStringLiteral("cboBuffer"));
+        cboBuffer->setEditable(false);
+        cboBuffer->setMaxVisibleItems(15);
 
-        gridLayout->addWidget(btClose, 7, 3, 1, 2);
-
-        label = new QLabel(centralWidget);
-        label->setObjectName(QStringLiteral("label"));
-        sizePolicy.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
-        label->setSizePolicy(sizePolicy);
-
-        gridLayout->addWidget(label, 5, 0, 1, 1);
-
-        label_7 = new QLabel(centralWidget);
-        label_7->setObjectName(QStringLiteral("label_7"));
-
-        gridLayout->addWidget(label_7, 4, 2, 1, 3);
-
-        wTimeline = new Timeline(centralWidget);
-        wTimeline->setObjectName(QStringLiteral("wTimeline"));
-        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(wTimeline->sizePolicy().hasHeightForWidth());
-        wTimeline->setSizePolicy(sizePolicy3);
-
-        gridLayout->addWidget(wTimeline, 8, 1, 2, 5);
+        gridLayout->addWidget(cboBuffer, 12, 0, 1, 1);
 
         pbBuffer = new QProgressBar(centralWidget);
         pbBuffer->setObjectName(QStringLiteral("pbBuffer"));
@@ -223,14 +122,121 @@ public:
         pbBuffer->setValue(0);
         pbBuffer->setOrientation(Qt::Vertical);
 
-        gridLayout->addWidget(pbBuffer, 9, 0, 1, 1);
+        gridLayout->addWidget(pbBuffer, 11, 0, 1, 1);
 
-        cboBuffer = new QComboBox(centralWidget);
-        cboBuffer->setObjectName(QStringLiteral("cboBuffer"));
-        cboBuffer->setEditable(false);
-        cboBuffer->setMaxVisibleItems(15);
+        lblImage = new QLabel(centralWidget);
+        lblImage->setObjectName(QStringLiteral("lblImage"));
+        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(lblImage->sizePolicy().hasHeightForWidth());
+        lblImage->setSizePolicy(sizePolicy1);
+        lblImage->setMinimumSize(QSize(0, 255));
+        lblImage->setFrameShape(QFrame::Box);
 
-        gridLayout->addWidget(cboBuffer, 10, 0, 1, 1);
+        gridLayout->addWidget(lblImage, 0, 5, 7, 1, Qt::AlignTop);
+
+        btGo = new QPushButton(centralWidget);
+        btGo->setObjectName(QStringLiteral("btGo"));
+
+        gridLayout->addWidget(btGo, 1, 3, 1, 2);
+
+        btOpen = new QPushButton(centralWidget);
+        btOpen->setObjectName(QStringLiteral("btOpen"));
+
+        gridLayout->addWidget(btOpen, 0, 3, 1, 2);
+
+        btFlow = new QPushButton(centralWidget);
+        btFlow->setObjectName(QStringLiteral("btFlow"));
+
+        gridLayout->addWidget(btFlow, 7, 0, 1, 1);
+
+        txtFile = new QLineEdit(centralWidget);
+        txtFile->setObjectName(QStringLiteral("txtFile"));
+        QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(txtFile->sizePolicy().hasHeightForWidth());
+        txtFile->setSizePolicy(sizePolicy2);
+        txtFile->setMinimumSize(QSize(200, 0));
+        txtFile->setReadOnly(true);
+
+        gridLayout->addWidget(txtFile, 0, 0, 1, 3, Qt::AlignHCenter);
+
+        txtSkipFrames = new QLineEdit(centralWidget);
+        txtSkipFrames->setObjectName(QStringLiteral("txtSkipFrames"));
+        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(txtSkipFrames->sizePolicy().hasHeightForWidth());
+        txtSkipFrames->setSizePolicy(sizePolicy3);
+
+        gridLayout->addWidget(txtSkipFrames, 4, 1, 1, 1);
+
+        label_6 = new QLabel(centralWidget);
+        label_6->setObjectName(QStringLiteral("label_6"));
+
+        gridLayout->addWidget(label_6, 4, 0, 1, 1);
+
+        label_5 = new QLabel(centralWidget);
+        label_5->setObjectName(QStringLiteral("label_5"));
+
+        gridLayout->addWidget(label_5, 3, 2, 1, 2);
+
+        txtDuration = new QLineEdit(centralWidget);
+        txtDuration->setObjectName(QStringLiteral("txtDuration"));
+        sizePolicy3.setHeightForWidth(txtDuration->sizePolicy().hasHeightForWidth());
+        txtDuration->setSizePolicy(sizePolicy3);
+        txtDuration->setText(QStringLiteral("100"));
+
+        gridLayout->addWidget(txtDuration, 3, 1, 1, 1);
+
+        label_3 = new QLabel(centralWidget);
+        label_3->setObjectName(QStringLiteral("label_3"));
+
+        gridLayout->addWidget(label_3, 2, 2, 1, 1);
+
+        label_4 = new QLabel(centralWidget);
+        label_4->setObjectName(QStringLiteral("label_4"));
+
+        gridLayout->addWidget(label_4, 3, 0, 1, 1);
+
+        txtFrame = new QLineEdit(centralWidget);
+        txtFrame->setObjectName(QStringLiteral("txtFrame"));
+        sizePolicy3.setHeightForWidth(txtFrame->sizePolicy().hasHeightForWidth());
+        txtFrame->setSizePolicy(sizePolicy3);
+        txtFrame->setText(QStringLiteral("5"));
+
+        gridLayout->addWidget(txtFrame, 2, 1, 1, 1);
+
+        btClose = new QPushButton(centralWidget);
+        btClose->setObjectName(QStringLiteral("btClose"));
+        btClose->setCheckable(false);
+
+        gridLayout->addWidget(btClose, 7, 3, 1, 2);
+
+        label_7 = new QLabel(centralWidget);
+        label_7->setObjectName(QStringLiteral("label_7"));
+
+        gridLayout->addWidget(label_7, 4, 2, 1, 3);
+
+        txtInfo = new QPlainTextEdit(centralWidget);
+        txtInfo->setObjectName(QStringLiteral("txtInfo"));
+        sizePolicy3.setHeightForWidth(txtInfo->sizePolicy().hasHeightForWidth());
+        txtInfo->setSizePolicy(sizePolicy3);
+        txtInfo->setMinimumSize(QSize(0, 100));
+        txtInfo->setMaximumSize(QSize(16777215, 100));
+        txtInfo->setReadOnly(true);
+        txtInfo->setCenterOnScroll(false);
+
+        gridLayout->addWidget(txtInfo, 6, 0, 1, 5);
+
+        label = new QLabel(centralWidget);
+        label->setObjectName(QStringLiteral("label"));
+        sizePolicy3.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
+        label->setSizePolicy(sizePolicy3);
+
+        gridLayout->addWidget(label, 5, 0, 1, 1);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
@@ -252,21 +258,9 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
-        label_4->setText(QApplication::translate("MainWindow", "Seq duration :", 0));
-        label_3->setText(QApplication::translate("MainWindow", "ms", 0));
+        btInterpolate->setText(QApplication::translate("MainWindow", "Interpolate", 0));
         btTimeline->setText(QApplication::translate("MainWindow", "Add sequence", 0));
-        label_5->setText(QApplication::translate("MainWindow", "frames", 0));
-        label_6->setText(QApplication::translate("MainWindow", "Save each ", 0));
-        txtSkipFrames->setText(QApplication::translate("MainWindow", "0", 0));
-        txtFile->setText(QApplication::translate("MainWindow", "C:\\Users\\Loic\\ppt-24.s03e01.avi", 0));
-        btFlow->setText(QApplication::translate("MainWindow", "OpticalFlow", 0));
-        btOpen->setText(QApplication::translate("MainWindow", "Open file", 0));
-        btGo->setText(QApplication::translate("MainWindow", "Go", 0));
-        lblImage->setText(QString());
         label_2->setText(QApplication::translate("MainWindow", "Time bw frame :", 0));
-        btClose->setText(QApplication::translate("MainWindow", "Close", 0));
-        label->setText(QApplication::translate("MainWindow", "Media info :", 0));
-        label_7->setText(QApplication::translate("MainWindow", "frames to disk", 0));
         cboBuffer->clear();
         cboBuffer->insertItems(0, QStringList()
          << QApplication::translate("MainWindow", "3", 0)
@@ -290,6 +284,19 @@ public:
          << QApplication::translate("MainWindow", "19", 0)
          << QApplication::translate("MainWindow", "20", 0)
         );
+        lblImage->setText(QString());
+        btGo->setText(QApplication::translate("MainWindow", "Go", 0));
+        btOpen->setText(QApplication::translate("MainWindow", "Open file", 0));
+        btFlow->setText(QApplication::translate("MainWindow", "OpticalFlow", 0));
+        txtFile->setText(QApplication::translate("MainWindow", "C:\\Users\\Loic\\ppt-24.s03e01.avi", 0));
+        txtSkipFrames->setText(QApplication::translate("MainWindow", "0", 0));
+        label_6->setText(QApplication::translate("MainWindow", "Save each ", 0));
+        label_5->setText(QApplication::translate("MainWindow", "frames", 0));
+        label_3->setText(QApplication::translate("MainWindow", "ms", 0));
+        label_4->setText(QApplication::translate("MainWindow", "Seq duration :", 0));
+        btClose->setText(QApplication::translate("MainWindow", "Close", 0));
+        label_7->setText(QApplication::translate("MainWindow", "frames to disk", 0));
+        label->setText(QApplication::translate("MainWindow", "Media info :", 0));
     } // retranslateUi
 
 };

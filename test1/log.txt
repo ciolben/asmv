@@ -1,2 +1,2 @@
-..\test1\debug\out/img1150.jpg ..\test1\debug\out/img1153.jpg flow.jpg CPU
+interpolate out/img727.jpg out/img747.jpg img72705.jpg CPU 0.5
 OK

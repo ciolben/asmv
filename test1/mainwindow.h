@@ -9,6 +9,7 @@
 #include "timeline.h"
 
 #include "opticalflowtools.h"
+#include "interpolateui.h"
 
 #define LEAK_DETECT 0
 //**memory leak detector
@@ -34,6 +35,7 @@ public slots:
     void threadFinished();
     void handleImageEaten();
     void handleTimeout();
+    void handleNeedSequences(QList<Sequence *> &sequences);
 
 private slots:
     void on_btClose_clicked();
@@ -52,6 +54,8 @@ private slots:
 
     void on_slSpeed_sliderReleased();
 
+    void on_btInterpolate_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString filename;
@@ -60,6 +64,8 @@ private:
     ImageEaterThread* imageEater;
     SplineDrawer* spline;
     OpticalFlowTools* m_optflowtools;
+
+    InterpolateUi* m_interpUi;
 
     QTimer timer;
 

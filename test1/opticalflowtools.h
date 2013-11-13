@@ -23,6 +23,7 @@ public:
 
     QImage* computeFlow(const QImage* frame1, const QImage* frame2, const QString& f1 = "", const QString& f2 = "");
     QList<float>* getInterpolationFactors(int tpf, ulong time);
+    QImage* interpolate(const QImage* frame1, const QImage* frame2, const float factor, const QString& f1 = "", const QString &f2 = "", const QString& suffix = "i", const bool compressedFormat = true);
 
     QList<Sequence *> getSequences() const { return m_sequences; }
     void setSequences(const QList<Sequence *> &sequences) { m_sequences = sequences; }
@@ -33,8 +34,10 @@ private:
     ComputationMods m_computationMod;
 
     QLibrary* m_optflowLib;
-    typedef QImage*(*computeOptflowFunction)(const QImage& frame1, const QImage& frame2);
+    typedef QImage*(*computeOptflowFunction)(const QImage& frame1, const QImage& frame2, const QString& basefilename);
     computeOptflowFunction computeOptFlow;
+    typedef QImage*(*computeInterpolationFunction)(const QImage& frame1, const QImage& frame2, const float factor, const QString& basefilename);
+    computeInterpolationFunction computeInterpolation;
 
     QProcess* m_process;
 

@@ -29,7 +29,7 @@ void WorkerThread::run() {
 
     //*****setup imageEater
     imageEater.setBufferSize(3);
-    imageEater.setRate(1000);
+    //imageEater.setRate(1000);
     imageEater.start();
     //*****
 
@@ -64,7 +64,8 @@ void WorkerThread::run() {
     }
 
     char buff[100];
-    sprintf_s(buff, "current raw frame : %d", vtools->getCurrentFrameIndex());
+    sprintf_s(buff, "current raw frame : %d (%d)", vtools->getCurrentFrameIndex()
+              , vtools->getCurrentTs());
     QString* result = new QString(buff);
     qDebug() << result;
 

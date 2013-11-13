@@ -54,13 +54,6 @@ void OpticalFlowUI::on_btStart_clicked()
     m_inputDir = ui->txtInput->text();
     m_outputDir = ui->txtOutput->text();
 
-    //test
-//    QImage* img1 = new QImage("car1.jpg");
-//    QImage* img2 = new QImage("car2.jpg");
-//    QImage* flow;
-//    ui->lblFrame1->setPixmap(QPixmap::fromImage(*img1));
-//    ui->lblFrame2->setPixmap(QPixmap::fromImage(*img2));
-
     //m_optflowtools->computeFlow(img1, img2, flow);
 
     //ui->lblFlow->setPixmap(QPixmap::fromImage(flow));

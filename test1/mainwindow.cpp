@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
   , spline(NULL)
   , m_optflowtools(NULL)
   , timer(this)
+  , m_interpUi(NULL)
 {
     ui->setupUi(this);
     connect(&timer, &QTimer::timeout, this, &MainWindow::handleTimeout);
@@ -85,7 +86,14 @@ void MainWindow::handleTimeout()
     }
     //too heavy
 //    SplineDrawer* spline = (SplineDrawer*)QMLRegister::getQMLObject("spline");
-//    spline->update();
+    //    spline->update();
+}
+
+void MainWindow::handleNeedSequences(QList<Sequence *>& sequences)
+{
+    if (spline != NULL) {
+        sequences = spline->getSequences();
+    }
 }
 
 void MainWindow::on_btClose_clicked()
@@ -142,6 +150,7 @@ void MainWindow::on_btGo_clicked()
 
     //interconnect elements
     vtools.setFramesToSkip(ui->txtSkipFrames->text().toInt());
+    if (imageEater != NULL) { imageEater->close(); delete imageEater; }
     imageEater = new ImageEaterThread(this, ui->lblImage);
     imageEater->setRate(ui->slSpeed->value());
     ui->pbBuffer->setValue(0);
@@ -232,4 +241,11 @@ void MainWindow::on_cboBuffer_currentTextChanged(const QString &arg1)
 void MainWindow::on_slSpeed_sliderReleased()
 {
     logText(&QString("speed : %1").arg(ui->slSpeed->value()));
+}
+
+void MainWindow::on_btInterpolate_clicked()
+{
+    InterpolateUi* interpui = new InterpolateUi();
+    connect(interpui, &InterpolateUi::needSequences, this, &MainWindow::handleNeedSequences);
+    interpui->show();
 }

@@ -8,10 +8,10 @@ Find frames of interest
 	-implement opticalflow cuda (tk) -> ok
 		-setup cuda 5.5 in qt 5.1 -> ok (no debug with qt)
 		-setup opencv 2.4.6 in qt 5.1 -> ok (with debug)
-		-interface for computing opticalflow (dll) (almost done, 
-need to find correct image import format (jpg gives strange vertical 
-lines when copied into cv::mat), however, the flow seems correct -> 
-BUG*)
+		-interface for computing opticalflow (dll, exe) -> ok
+	-use particle video lib
+		-make it run -> ok
+		-extract particle information
 
 BUG LIST
 FIXED : On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.
@@ -20,7 +20,7 @@ FIXED : memory leak on QImage pointer.
 FIXED : memory leak in FFMPEG decoder (frame's packet were not correctly freed).
 FIXED  : cannot load DImage (from OpticalFlow lib) in QImage (need save 
 to disk then read from disk as a workaround).
-BUG : see above *
+FIXED : need to find correct image import format (jpg gives strange vertical lines when copied into cv::mat)
 BUG : packed QML files into qrc because it's not convenient to put them 
 into a folder when distributing app.
 FIXED : every possible combinations I was able to think of with wrong input/lib loading when computing optical flow is handled. Executable for just computating flow now exists.
@@ -28,4 +28,4 @@ FIXED : every possible combinations I was able to think of with wrong input/lib 
 NOTE
 -CUDA : subproject is needed because cuda exe cannot be debugged (issue?). It would broke video player executable otherwise.
 -OpenCV 2.4.6 recompiled with GPU and OpenGL support (+ Eigen, OpenEXR, CUBLAS, TBB).
--OpticalFlowCV.exe computes Optical Flow with args : optcv.exe in:frame1_path in:frame2_path out:flow_path [type=CPU|GPU|Matlab]
+-OpticalFlowCV.exe computes Optical Flow with args : optcv.exe [flow|interpolate] frame1_path frame2_path out_path [CPU|GPU|Matlab] interpolationFactor[0..1]
