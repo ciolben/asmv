@@ -11,7 +11,8 @@ Find frames of interest
 		-interface for computing opticalflow (dll, exe) -> ok
 	-use particle video lib
 		-make it run -> ok
-		-extract particle information
+		-extract particle information -> ok
+		-cluster with cc toolbox
 
 BUG LIST
 FIXED : On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.
