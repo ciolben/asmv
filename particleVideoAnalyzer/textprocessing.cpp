@@ -23,6 +23,13 @@ TextProcessing::TextProcessing() :
 {
 }
 
+///
+/// \brief TextProcessing::setContent
+///If a content has been previously set, it will be replaced by the one
+///provided.
+/// \param filename
+/// \return The number of particles in the file, or -1 if error.
+///
 int TextProcessing::setContent(const QString& filename)
 {
     if (m_stream != NULL) {
@@ -77,11 +84,12 @@ bool TextProcessing::getNextParticle(TextProcessing::Particle& particle) const
             hasIntermediateCount = true;
         }
     }
-    particle.positionsCount = hasIntermediateCount ? ceil((parts.size() - 3) / 3.f) * 2 : parts.size() - 3;
+    //size of ..f f 1 f f.. + extra 1 at the end gives number of pairs (a pair corresponding to 'f f 1').
+    particle.positionsCount = hasIntermediateCount ? (((parts.size() - 3) + 1) / 3) * 2 : parts.size() - 3;
     float* positions = (float*) malloc(sizeof(float) * particle.positionsCount);
     particle.positions = positions;
     for (int i = 0; i < particle.positionsCount; i++) {
-        positions[i] = parts.at(i + 3 + (hasIntermediateCount ? floor((i+1) / 3.f) : 0)).toFloat();
+        positions[i] = parts.at(i + 3 + (hasIntermediateCount ? floor(i / 2.f) : 0)).toFloat();
     }
     return true;
 }

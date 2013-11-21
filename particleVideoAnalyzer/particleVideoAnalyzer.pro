@@ -14,8 +14,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    textprocessing.cpp \
-    analyzer.cpp
+    textprocessing.cpp
 
 HEADERS  += mainwindow.h \
     textprocessing.h \

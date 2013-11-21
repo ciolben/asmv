@@ -12,7 +12,12 @@ Find frames of interest
 	-use particle video lib
 		-make it run -> ok
 		-extract particle information -> ok
-		-cluster with cc toolbox
+		-cluster with cc toolbox -> ok
+	-use "better action detection"(1) + "Graph Based Video 
+Segmentation"(2)
+		-integrate 1
+		-integrate 2
+		-interface both
 
 BUG LIST
 FIXED : On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.

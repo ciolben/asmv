@@ -36,6 +36,7 @@ public:
     QAction *actionStop;
     QAction *actionClear;
     QAction *actionStart_2;
+    QAction *actionDump_to_Matlab_format;
     QWidget *centralWidget;
     QVBoxLayout *verticalLayout;
     QGraphicsView *graphicsView;
@@ -66,6 +67,8 @@ public:
         actionClear->setObjectName(QStringLiteral("actionClear"));
         actionStart_2 = new QAction(MainWindow);
         actionStart_2->setObjectName(QStringLiteral("actionStart_2"));
+        actionDump_to_Matlab_format = new QAction(MainWindow);
+        actionDump_to_Matlab_format->setObjectName(QStringLiteral("actionDump_to_Matlab_format"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         verticalLayout = new QVBoxLayout(centralWidget);
@@ -74,7 +77,7 @@ public:
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
         graphicsView = new QGraphicsView(centralWidget);
         graphicsView->setObjectName(QStringLiteral("graphicsView"));
-        graphicsView->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
+        graphicsView->setAlignment(Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft);
 
         verticalLayout->addWidget(graphicsView);
 
@@ -109,6 +112,7 @@ public:
         menuFile->addSeparator();
         menuFile->addAction(actionQuit);
         menuAbout->addAction(actionAbout);
+        menuOperations->addAction(actionDump_to_Matlab_format);
         menuOperations->addAction(actionStart);
         menuOperations->addAction(actionStart_2);
         menuOperations->addAction(actionStop);
@@ -131,6 +135,10 @@ public:
         actionClear->setText(QApplication::translate("MainWindow", "Clear", 0));
         actionClear->setShortcut(QApplication::translate("MainWindow", "Alt+C", 0));
         actionStart_2->setText(QApplication::translate("MainWindow", "Start", 0));
+        actionDump_to_Matlab_format->setText(QApplication::translate("MainWindow", "Dump to Matlab format", 0));
+#ifndef QT_NO_STATUSTIP
+        menuFile->setStatusTip(QString());
+#endif // QT_NO_STATUSTIP
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
         menuAbout->setTitle(QApplication::translate("MainWindow", "Help", 0));
         menuOperations->setTitle(QApplication::translate("MainWindow", "Analyze", 0));

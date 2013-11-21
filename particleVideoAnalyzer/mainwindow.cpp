@@ -4,7 +4,6 @@
 #include <QDebug>
 #include <QFile>
 #include <QFileDialog>
-#include <QBrush>
 
 #include <QThread>
 
@@ -13,15 +12,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
   , m_tproc(TextProcessing())
   , m_scene(this)
-  , m_maxx(0)
-  , m_maxy(1)
+  , m_maxWidth(0)
+  , m_maxHeight(0)
   , m_maxparticle(0)
   , m_count(0)
+  , m_pix(NULL)
+  , m_analyzers(QList<process>())
 {
     ui->setupUi(this);
     ui->graphicsView->setScene(&m_scene);
-    //m_maxx = ui->graphicsView->width();
-    m_maxy = 10000;
+    m_maxWidth = ui->graphicsView->width();
+    m_maxHeight = ui->graphicsView->height();
+
     int number = m_tproc.setContent("C:/Users/Loic/Coding_Main/ADM/pvl/VCars-pv.txt");
     ui->statusBar->showMessage(QString("File : %1 | Number of particles : %2").arg("VCars-pv.txt").arg(number));
     m_maxparticle  = number;
@@ -36,83 +38,38 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::processNextEntry()
-{
-    //qDebug() << "aaaa";
-    TextProcessing::Particle p;
-    bool ok = m_tproc.getNextParticle(p);
-    if (!ok) { return ok; }
-    //qDebug() << TextProcessing::particleToString(p);
-
-    QPen pen(Qt::blue);
-    pen.setWidth(1);
-
-    bool hasChanged = false;
-    int max = p.positionsCount;
-    if (max <= 3) {
-        //m_scene.addRect(p.start, p.positions[0], 1, 1, pen);
-
-    } else {
-        float distx, disty, lastdist, newdist;
-        distx = p.positions[0] - p.positions[2];
-        disty = p.positions[1] - p.positions[3];
-        lastdist = sqrt(distx * distx + disty * disty);
-
-        for (int i = 2; i <= max - 4; i += 2) {
-
-            distx = p.positions[i] - p.positions[i + 2];
-            disty = p.positions[i + 1] - p.positions[i + 3];
-            newdist = sqrt(distx * distx + disty * disty);
-            m_scene.addLine(  p.start + i/2 - 1 //x1
-                            , lastdist //y1
-                            , p.start + i/2 //x2
-                            , newdist); //y2
-
-//            qDebug() << "(" << p.start + i/2 - 1 << "," << lastdist << ")<->(" << p.start + i/2
-//                     << ", " << newdist << ")";
-
-            if (m_maxy < lastdist) { m_maxy = lastdist; hasChanged = true; }
-            lastdist = newdist;
-
-            if (m_maxx < p.start + i/2 - 1) { m_maxx = p.start + i/2 - 1; hasChanged = true; }
-            if (m_maxy < newdist) { m_maxy = newdist; hasChanged = true; }
-
-        }
-//        for (int i = 0; i <= max - 4; i += 2) {
-//            if (m_maxx < p.positions[i+1]) {
-//                m_maxx = p.positions[i+1]; hasChanged = true;
-//            }
-//            if (m_maxx < p.positions[i+3]) {
-//                m_maxx = p.positions[i+3]; hasChanged = true;
-//            }
-//            if (m_maxy < p.positions[i]) {
-//                m_maxy = p.positions[i]; hasChanged = true;
-//            }
-//            if (m_maxy < p.positions[i+2]) {
-//                m_maxy = p.positions[i+2]; hasChanged = true;
-//            }
-
-////            m_scene.addLine(p.positions[i], p.positions[i + 1],
-////                    p.positions[i + 2], p.positions[i + 3], pen);
-////            qDebug() << "p1(" << p.positions[i]
-////                         << "," << p.positions[i+1]
-////                            << ") <-> p2(" << p.positions[i+2]
-////                               << "," << p.positions[i+3] << ")";
-//        }
-    }
-
-    if (hasChanged) {
-        m_scene.setSceneRect(0, 0, m_maxx, m_maxy);
-        ui->graphicsView->fitInView(m_scene.sceneRect());
-    }
-
-    return true;
-}
-
-void MainWindow::handleEnryProcessed()
+void MainWindow::handleEntryProcessed()
 {
     m_count++;
     ui->pbAnalyze->setValue(m_count);
+//    if (m_count % 1000 == 0) {
+//        QCoreApplication::processEvents(); //very slow
+//    }
+}
+
+void MainWindow::handleNeedResize(int width, int height)
+{
+    bool hasChanged = false;
+    if (width > m_maxWidth) {
+        m_maxWidth = width;
+        hasChanged = true;
+    }
+    if (height > m_maxHeight) {
+        m_maxHeight = height;
+        hasChanged = true;
+    }
+
+    if (hasChanged) {
+//        ui->graphicsView->fitInView(m_scene.sceneRect());
+//        update();
+    }
+}
+
+void MainWindow::handleAnalyzeFinished()
+{
+    m_tproc.resetToBegining();
+    m_count = 0;
+    ui->statusBar->showMessage(QString("Analyze finished"));
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -127,12 +84,20 @@ void MainWindow::on_actionOpen_triggered()
     }
     int number = m_tproc.setContent(res);
     ui->statusBar->showMessage(QString("File : %1 | Number of particles : %2").arg(file.fileName()).arg(number));
+    if (number == -1) {
+        return;
+    }
+    ui->pbAnalyze->setMaximum(number);
     m_maxparticle = number;
 }
 
 void MainWindow::on_actionStart_triggered()
 {
-    if (processNextEntry()) { ui->graphicsView->update(); }
+    if (m_analyzers.size() == 0) {
+        addAnalyzer();
+    }
+    process proc = m_analyzers.at(0);
+    proc.first->processNextEntry();
 }
 
 void MainWindow::on_actionClear_triggered()
@@ -143,14 +108,39 @@ void MainWindow::on_actionClear_triggered()
 
 void MainWindow::on_actionStart_2_triggered()
 {
-    //Start
-//    while (processNextEntry()) {
-//        ui->graphicsView->update();
-//    }
+    startAnayzing(Analyzer::Draw);
+}
 
+void MainWindow::on_actionDump_to_Matlab_format_triggered()
+{
+    startAnayzing(Analyzer::ToFile);
+}
+
+void MainWindow::addAnalyzer()
+{
+    QThread* thread = new QThread();
+    Analyzer* a = new Analyzer(&m_tproc, &m_scene, this);
+    m_analyzers.append(process(a, thread));
+    connect(a, &Analyzer::entryProcessed, this, &MainWindow::handleEntryProcessed);
+    connect(a, &Analyzer::needResize, this, &MainWindow::handleNeedResize);
+    connect(a, &Analyzer::finished, this, &MainWindow::handleAnalyzeFinished);
+    a->moveToThread(thread);
+}
+
+void MainWindow::startAnayzing(Analyzer::AnalyzeMod mod)
+{
+    //start a new worker
     if (m_count > 0) { return; }
-    Analyzer* a = new Analyzer(*ui->graphicsView, this);
-    a->start();
-    connect(a, &Analyzer::entryProcessed, this, &MainWindow::handleEnryProcessed);
 
+    //TODO : check nb cpu
+    if (m_analyzers.size() == 0) {
+        addAnalyzer();
+    }
+    foreach(process proc, m_analyzers) {
+        Analyzer* analyzer = proc.first;
+        QThread* thread = proc.second;
+        thread->start();
+        analyzer->setMod(mod);
+        analyzer->analyze();
+    }
 }

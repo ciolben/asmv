@@ -23,6 +23,7 @@ public:
     TextProcessing();
     ~TextProcessing() {
         if (m_stream != NULL) {
+            m_stream->close();
             delete m_stream;
         }
     }
