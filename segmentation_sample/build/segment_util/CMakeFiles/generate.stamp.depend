@@ -1,0 +1,7 @@
+# CMake generation dependency list for this directory.
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/segment_util/CMakeLists.txt
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/cmake/common.cmake
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/segmentation_sample/depend.cmake
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/cmake/FindOpenCV.cmake
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/segment_util/depend.cmake
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/cmake/FindProtoBuf.cmake

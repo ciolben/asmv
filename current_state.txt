@@ -16,7 +16,7 @@ Find frames of interest
 	-use "better action detection"(1) + "Graph Based Video 
 Segmentation"(2)
 		-integrate 1 -> compile it ok (tooks me about 12-14h), interface it
-		-integrate 2
+		-integrate 2 -> compile sample + viewer ok, interface it
 		-interface both
 
 BUG LIST

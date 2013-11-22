@@ -1,0 +1,23 @@
+﻿La génération a démarré 22.11.2013 18:33:44.
+     1>Projet "C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\assert_log\assert_log.vcxproj" sur le nœud 3 (build cible(s)).
+     1>PrepareForBuild:
+         Création du répertoire "C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\assert_log\Release\".
+       InitializeBuildStatus:
+         Création de "assert_log.dir\Release\assert_log.unsuccessfulbuild", car "AlwaysCreate" a été spécifié.
+       CustomBuild:
+         Building Custom Rule C:/Users/Loic/Coding_Main/ADM/segmentation_sample/assert_log/CMakeLists.txt
+         CMake does not need to re-run because C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\assert_log\CMakeFiles\generate.stamp is up-to-date.
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ID:/opencv246/include /ID:/opencv246/include/opencv2 /nologo /W3 /WX- /O2 /Ob2 /Oy- /D WIN32 /D _WINDOWS /D NDEBUG /D "CMAKE_INTDIR=\"Release\"" /D _MBCS /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"assert_log.dir\Release\\" /Fd"C:/Users/Loic/Coding_Main/ADM/segmentation_sample/build/assert_log/Release/assert_log.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\assert_log\assert_log.cpp
+         assert_log.cpp
+       Lib:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\assert_log\Release\assert_log.lib" /NOLOGO assert_log.dir\Release\assert_log.obj
+         assert_log.vcxproj -> C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\assert_log\Release\assert_log.lib
+       FinalizeBuildStatus:
+         Suppression du fichier "assert_log.dir\Release\assert_log.unsuccessfulbuild".
+         Mise à jour de l'horodatage "assert_log.dir\Release\assert_log.lastbuildstate".
+     1>Génération du projet "C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\assert_log\assert_log.vcxproj" terminée (build cible(s)).
+
+La génération a réussi.
+
+Temps écoulé 00:00:02.59

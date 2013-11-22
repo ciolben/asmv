@@ -1,0 +1,34 @@
+﻿La génération a démarré 22.11.2013 18:33:47.
+     1>Projet "C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\segment_util\segment_util.vcxproj" sur le nœud 3 (build cible(s)).
+     1>PrepareForBuild:
+         Création du répertoire "C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\segment_util\Release\".
+       InitializeBuildStatus:
+         Création de "segment_util.dir\Release\segment_util.unsuccessfulbuild", car "AlwaysCreate" a été spécifié.
+       CustomBuild:
+         Building Custom Rule C:/Users/Loic/Coding_Main/ADM/segmentation_sample/segment_util/CMakeLists.txt
+         CMake does not need to re-run because C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\segment_util\CMakeFiles\generate.stamp is up-to-date.
+         Running protocol buffer compiler on segmentation.proto
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /IC:/Users/Loic/Coding_Main/ADM/segmentation_sample/segmentation_sample/../assert_log /IC:/Users/Loic/Coding_Main/ADM/segmentation_sample/build/assert_log /IC:/Users/Loic/Coding_Main/ADM/segmentation_sample/build/segment_util /I"C:/Users/Loic/Coding_Main/ADM/segmentation_sample/protobuf-2.5.0/include" /IC:/Users/Loic/Coding_Main/ADM/segmentation_sample/segment_util/../assert_log /nologo /W3 /WX- /O2 /Ob2 /Oy- /D WIN32 /D _WINDOWS /D NDEBUG /D "CMAKE_INTDIR=\"Release\"" /D _MBCS /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /GR /Fo"segment_util.dir\Release\\" /Fd"C:/Users/Loic/Coding_Main/ADM/segmentation_sample/build/segment_util/Release/segment_util.pdb" /Gd /TP /analyze- /errorReport:prompt ..\..\segment_util\segmentation_io.cpp ..\..\segment_util\segmentation_util.cpp segmentation.pb.cc
+         segmentation_io.cpp
+     1>..\..\segment_util\segmentation_io.cpp(43): warning C4018: '<' : incompatibilité signed/unsigned
+         segmentation_util.cpp
+     1>..\..\segment_util\segmentation_util.cpp(229): warning C4018: '>=' : incompatibilité signed/unsigned
+     1>..\..\segment_util\segmentation_util.cpp(229): warning C4018: '<' : incompatibilité signed/unsigned
+     1>..\..\segment_util\segmentation_util.cpp(236): warning C4018: '>=' : incompatibilité signed/unsigned
+     1>..\..\segment_util\segmentation_util.cpp(236): warning C4018: '<=' : incompatibilité signed/unsigned
+         segmentation.pb.cc
+         Génération de code en cours...
+       Lib:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\segment_util\Release\segment_util.lib" /NOLOGO segment_util.dir\Release\segmentation_io.obj
+         segment_util.dir\Release\segmentation_util.obj
+         segment_util.dir\Release\segmentation.pb.obj
+         segment_util.vcxproj -> C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\segment_util\Release\segment_util.lib
+       FinalizeBuildStatus:
+         Suppression du fichier "segment_util.dir\Release\segment_util.unsuccessfulbuild".
+         Mise à jour de l'horodatage "segment_util.dir\Release\segment_util.lastbuildstate".
+     1>Génération du projet "C:\Users\Loic\Coding_Main\ADM\segmentation_sample\build\segment_util\segment_util.vcxproj" terminée (build cible(s)).
+
+La génération a réussi.
+
+Temps écoulé 00:00:03.56

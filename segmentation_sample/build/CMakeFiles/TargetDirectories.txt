@@ -1,0 +1,5 @@
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/build/assert_log/CMakeFiles/assert_log.dir
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/build/segment_util/CMakeFiles/segment_util.dir
+C:/Users/Loic/Coding_Main/ADM/segmentation_sample/build/CMakeFiles/segmentation_sample.dir
