@@ -1,0 +1,8 @@
+# Compiling
+CONF_CXX		= CC
+CONF_CXX_VERSION	= CC-7.3.1.3m
+CONF_CXXFLAGS		= -LANG:std -g
+
+# Linking
+RANLIB			= ar ts
+AR			= $(CONF_CXX) -ar -o

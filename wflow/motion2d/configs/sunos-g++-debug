@@ -1,0 +1,8 @@
+# Compiling
+CONF_CXX		= g++
+CONF_CXX_VERSION	= 2.7.2
+CONF_CXXFLAGS		= -Wall -O2 -g -D__SunOS_
+
+# Linking
+RANLIB		= ranlib
+AR		= ar r

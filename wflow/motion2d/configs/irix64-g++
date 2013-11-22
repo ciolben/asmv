@@ -1,0 +1,8 @@
+# Compiling
+CONF_CXX		= g++
+CONF_CXX_VERSION	= $(shell $(CONF_CXX) -dumpversion)
+CONF_CXXFLAGS		= -Wall -O2 -funroll-loops -finline-functions
+
+# Linking
+RANLIB		= ar ts
+AR		= ar r

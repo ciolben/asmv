@@ -1,0 +1,9 @@
+cd src; make
+make[1]: Entering directory '/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src'
+*
+* Add /cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/image/Motion2DImage_PNG.cpp in library /cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/lib/CYGWIN_NT-6.1-WOW64/4.8.2/libMotion2D.a 
+*
+g++ -Wall -O2 -pipe -funroll-loops -finline-functions  -I/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/include -I/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/inc -I/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/mat_sym -I/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/cprim -I/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/pyramide -I/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/memoire -I/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/compense -I/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/contrib/localpng -I/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/contrib/mpeg2dec -c /cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/image/Motion2DImage_PNG.cpp -o /cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/image/Motion2DImage_PNG.o
+Makefile:169: recipe for target '/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/lib/CYGWIN_NT-6.1-WOW64/4.8.2/libMotion2D.a(/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/image/Motion2DImage_PNG.o)' failed
+make[1]: Leaving directory '/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src'
+Makefile:19: recipe for target 'lib-src' failed

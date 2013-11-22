@@ -1,0 +1,8 @@
+# Compiling
+CONF_CXX		= insure g++
+CONF_CXX_VERSION	= insure
+CONF_CXXFLAGS		= -Wall -g
+
+# Linking
+RANLIB		= ranlib
+AR		= ar r
