@@ -128,7 +128,7 @@ void write_motionModels(char *video, char *model_path, char *mod)
 	// Compute motion model
 	sprintf(cmd,"%s -m %s  -p \"%s/Frames/%%05d.png\" -f 0 -i %d -r \"%s/%s.mod\"",motion2D_path,mod,model_path,frameNum-1,model_path,mod);
 	printf("cmd= %s\n",cmd);
-	result = exec(cmd);
+    result = exec(cmd); _exec("");
 	sprintf(cmd,"rm -rf %s/Frames",model_path);
 	result = exec(cmd);				// delete the frames
 	
@@ -273,7 +273,7 @@ int main( int argc, char** argv )
 
 		float modAff[8];		// for affine model parameters
 
-		for( int ixyScale = 0; ixyScale < scale_num; ++ixyScale ) {
+        for( int ixyScale = 0; ixyScale < scale_num; ++ixyScale ) {
 			// track feature points in each scale separately
 			std::vector<CvPoint2D32f> points_in(0);
 			std::list<Track>& tracks = xyScaleTracks[ixyScale];
@@ -336,6 +336,8 @@ int main( int argc, char** argv )
 				OpticalFlowTracker(flowDiff, points_in, points_out, status);
 			else
 				OpticalFlowTracker(flow, points_in, points_out, status);
+
+
 
 			int width = grey_temp->width;
 			int height = grey_temp->height;
@@ -447,10 +449,24 @@ int main( int argc, char** argv )
 
 			cvReleaseImage( &prev_grey_temp );
 			cvReleaseImage( &grey_temp );
-			cvReleaseImage( &flow );
+            cvReleaseImage( &flow ); //*********************************************************
 			cvReleaseImage( &flowAff );
-			cvReleaseImage( &flowDiff );
+            //cvReleaseImage( &flowDiff );
+
+            //save wflow
+            if (ixyScale == 0) {
+                char buff[256];
+                sprintf(buff, "%s/wflow%d.yml.gz", model_path, frameNum);
+                cv::FileStorage file(buff, cv::FileStorage::WRITE);
+                file << "wflow" << flowDiff;
+                file.release();
+            }
+
+            cvReleaseImage( &flowDiff );
 		}
+
+//skeep features
+if (false) {
 
 		for( int ixyScale = 0; ixyScale < scale_num; ++ixyScale ) {
 		std::list<Track>& tracks = xyScaleTracks[ixyScale]; // output the features for each scale
@@ -574,6 +590,22 @@ int main( int argc, char** argv )
 				iTrack++;
 		    }
 		}
+
+}  else {
+    //minimal
+    for( int ixyScale = 0; ixyScale < scale_num; ++ixyScale ) {
+        std::list<Track>& tracks = xyScaleTracks[ixyScale]; // output the features for each scale
+        for( std::list<Track>::iterator iTrack = tracks.begin(); iTrack != tracks.end(); ) {
+            if( iTrack->pointDescs.size() >= tracker.trackLength+1 ) {
+                iTrack = tracks.erase(iTrack);
+            }
+            else {
+                iTrack++;
+            }
+        }
+    }
+}
+//end skeep features
 
 		if( init_counter == tracker.initGap ) { // detect new feature points every initGap frames
 		init_counter = 0;

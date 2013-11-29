@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
   , m_optflowtools(NULL)
   , timer(this)
   , m_interpUi(NULL)
+  , m_motionUi(NULL)
 {
     ui->setupUi(this);
     connect(&timer, &QTimer::timeout, this, &MainWindow::handleTimeout);
@@ -33,6 +34,8 @@ MainWindow::~MainWindow()
     if(worker != NULL) {
         worker->close();
     }
+    if(m_interpUi != NULL) { delete m_interpUi; }
+    if(m_motionUi != NULL) { delete m_motionUi; }
     delete ui;
 }
 
@@ -245,7 +248,14 @@ void MainWindow::on_slSpeed_sliderReleased()
 
 void MainWindow::on_btInterpolate_clicked()
 {
-    InterpolateUi* interpui = new InterpolateUi();
-    connect(interpui, &InterpolateUi::needSequences, this, &MainWindow::handleNeedSequences);
-    interpui->show();
+    m_interpUi = new InterpolateUi();
+    connect(m_interpUi, &InterpolateUi::needSequences, this, &MainWindow::handleNeedSequences);
+    m_interpUi->show();
+}
+
+void MainWindow::on_btMotion_clicked()
+{
+    m_motionUi = new MotionUi();
+    m_motionUi->setVideoSource(ui->txtFile->text());
+    m_motionUi->show();
 }

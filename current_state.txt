@@ -13,11 +13,17 @@ Find frames of interest
 		-make it run -> ok
 		-extract particle information -> ok
 		-cluster with cc toolbox -> ok
-	-use "better action detection"(1) + "Graph Based Video 
-Segmentation"(2)
-		-integrate 1 -> compile it ok (tooks me about 12-14h), interface it
-		-integrate 2 -> compile sample + viewer ok, interface it
-		-interface both
+	-use "better action detection"(1) + "Graph Based Video Segmentation"(2)
+		-integrate 1 -> compile it ok (tooks me about 12-14h), interface it -> ok
+		-integrate 2 -> compile sample + viewer ok, interface it -> ok
+		-interface both -> switch to an other algorithm
+	-use own solution with (1)
+		-interface 1 -> ok
+		-solution :
+			1. dump wflow -> ok
+			2. compute clusters -> ok (uses multithread for sorting and computing clusters)
+			3. output final result -> (need to prune some results)
+			4. add viewer
 
 BUG LIST
 FIXED : On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.
@@ -30,8 +36,10 @@ FIXED : need to find correct image import format (jpg gives strange vertical lin
 BUG : packed QML files into qrc because it's not convenient to put them 
 into a folder when distributing app.
 FIXED : every possible combinations I was able to think of with wrong input/lib loading when computing optical flow is handled. Executable for just computating flow now exists.
+FIXED : cannot use mapreduce for sorting (use Release profile and not Debug with MSVC2010).
 
 NOTE
 -CUDA : subproject is needed because cuda exe cannot be debugged (issue?). It would broke video player executable otherwise.
 -OpenCV 2.4.6 recompiled with GPU and OpenGL support (+ Eigen, OpenEXR, CUBLAS, TBB).
 -OpticalFlowCV.exe computes Optical Flow with args : optcv.exe [flow|interpolate] frame1_path frame2_path out_path [CPU|GPU|Matlab] interpolationFactor[0..1]
+-Original code from "Better action detection" has been modified to dump the w-flow, and skip useless descriptors printing.

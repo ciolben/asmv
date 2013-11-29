@@ -52,7 +52,9 @@ SOURCES += main.cpp\
     imageeaterthread.cpp \
     opticalflowui.cpp \
     opticalflowthread.cpp \
-    interpolateui.cpp
+    interpolateui.cpp \
+    motionui.cpp \
+    motionthread.cpp
 
 HEADERS  += mainwindow.h \
     customctrl.h \
@@ -80,7 +82,10 @@ HEADERS  += mainwindow.h \
     timelineQML/Sequence.hpp \
     opticalflowui.h \
     opticalflowthread.h \
-    interpolateui.h
+    interpolateui.h \
+    motionui.h \
+    utils/iocompression.h \
+    motionthread.h
 
 
 FORMS    += mainwindow.ui \
@@ -88,9 +93,12 @@ FORMS    += mainwindow.ui \
     timeline.ui \
     addsequencedialog.ui \
     opticalflowui.ui \
-    interpolateui.ui
+    interpolateui.ui \
+    motionui.ui
 
 #win32:QMAKE_LFLAGS += -shared
+
+LIBS += -lQt5Concurrent
 
 DEFINES += __STDC_CONSTANT_MACROS
 

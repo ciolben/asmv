@@ -59,6 +59,7 @@ public:
     QLabel *label_7;
     QPlainTextEdit *txtInfo;
     QLabel *label;
+    QPushButton *btMotion;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -238,6 +239,11 @@ public:
 
         gridLayout->addWidget(label, 5, 0, 1, 1);
 
+        btMotion = new QPushButton(centralWidget);
+        btMotion->setObjectName(QStringLiteral("btMotion"));
+
+        gridLayout->addWidget(btMotion, 8, 0, 1, 1);
+
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -297,6 +303,7 @@ public:
         btClose->setText(QApplication::translate("MainWindow", "Close", 0));
         label_7->setText(QApplication::translate("MainWindow", "frames to disk", 0));
         label->setText(QApplication::translate("MainWindow", "Media info :", 0));
+        btMotion->setText(QApplication::translate("MainWindow", "Motion", 0));
     } // retranslateUi
 
 };

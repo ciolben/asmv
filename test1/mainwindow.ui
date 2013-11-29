@@ -378,6 +378,13 @@
       </property>
      </widget>
     </item>
+    <item row="8" column="0">
+     <widget class="QPushButton" name="btMotion">
+      <property name="text">
+       <string>Motion</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">

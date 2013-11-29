@@ -10,6 +10,7 @@
 
 #include "opticalflowtools.h"
 #include "interpolateui.h"
+#include "motionui.h"
 
 #define LEAK_DETECT 0
 //**memory leak detector
@@ -56,6 +57,8 @@ private slots:
 
     void on_btInterpolate_clicked();
 
+    void on_btMotion_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString filename;
@@ -66,6 +69,7 @@ private:
     OpticalFlowTools* m_optflowtools;
 
     InterpolateUi* m_interpUi;
+    MotionUi* m_motionUi;
 
     QTimer timer;
 
