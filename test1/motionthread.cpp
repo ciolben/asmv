@@ -58,7 +58,9 @@ void MotionThread::run()
 {
     if (m_filename.isEmpty()) { emit logText("Filename not correct.", "red"); return; }
     QString cmd = "wflow.exe";
-    QString resultDir = "motionData";
+    QFileInfo fileinfo = QFileInfo(m_filename);
+    if (!fileinfo.exists()) { emit logText("Input file does not exist.", "red"); return; }
+    QString resultDir = fileinfo.baseName() + "motionData";
     QProcess process;
     QStringList args;
 
@@ -131,6 +133,7 @@ void MotionThread::run()
 
     emit logText("profiling... (3/3)", "orange");
 
+    int count = 0;
     if (m_continue && ((m_steps & Profile) == Profile)) {
         QDir dir(resultDir);
         if (!dir.exists()) {
@@ -186,8 +189,8 @@ void MotionThread::run()
                      * 1.2 do mr, and wait it finishes
                      */
 
-                    //IMPORTANT : do not work in debug mode with MSVC (error in msvcrt100)
-                    motions motionResults = QtConcurrent::mappedReduced(mapInput, parse, reduce);
+                    //IMPORTANT : does not work in debug mode with MSVC (error in msvcrt100)
+                    motions motionResults = QtConcurrent::mappedReduced(mapInput, parse, reduce);                    
 
                     //2.clusterizing
 
@@ -216,12 +219,20 @@ void MotionThread::run()
                         future.waitForFinished();
                     }
 
+//                    QFile out2(QString("testCluster%1.txt").arg(file.fileName()));
+//                    out2.open(QFile::WriteOnly);
+//                    QList<float> keystest = motionResults.keys();
+//                    foreach (float f, keystest) {
+//                        out2.write(QString(QString::number(f) + "\n").toLocal8Bit().constData());
+//                    }
+//                    out2.close();
+
                     //merge clusters
                     QList<cluster> result;
                     foreach (QList<cluster>* clustList, results) {
                         for (int i = 0; i < clustList->size(); ++i) {
                             if (i == 0 && result.size() != 0) {
-                                cluster c1 = result.last();
+                                cluster c1 = result.last(); result.removeLast(); //pop
                                 cluster c2 = clustList->at(i);
                                 if (c2.start - c1.end < _maxDistInsideCluster) {
                                     cluster c12;
@@ -249,16 +260,28 @@ void MotionThread::run()
                      * 2.2 prune the extra clusters regarding its neighbors frames
                      */
 
+                    //TODO (first need to test)
 
 
                     //3.saving clusters
 
                     QFile out(QString("%1/%2.clust").arg(clusterPath).arg(file.fileName()));
                     out.open(QFile::WriteOnly);
+
+                    //compute object motion avg
+
+                    float sum(0.f);
+                    int size(0);
                     foreach (cluster c, result) {
-                        out.write(QString(QString::number(c.avg) + "\n").toLocal8Bit().constData());
+                        sum += c.avg;
+                        ++size;
                     }
+                    out.write(QString(QString::number(sum / size) + "\n").toLocal8Bit().constData());
                     out.close();
+
+                    //debug
+//                    count++;
+//                    if (count == 10) { break; }
             }
 
 

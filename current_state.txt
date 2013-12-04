@@ -16,14 +16,16 @@ Find frames of interest
 	-use "better action detection"(1) + "Graph Based Video Segmentation"(2)
 		-integrate 1 -> compile it ok (tooks me about 12-14h), interface it -> ok
 		-integrate 2 -> compile sample + viewer ok, interface it -> ok
-		-interface both -> switch to an other algorithm
+		-interface both -> switch to an other algorithm -> no need (ok)
 	-use own solution with (1)
 		-interface 1 -> ok
 		-solution :
 			1. dump wflow -> ok
 			2. compute clusters -> ok (uses multithread for sorting and computing clusters)
 			3. output final result -> (need to prune some results)
-			4. add viewer
+			4. add viewer -> matlab -> ok
+Time remapping
+	find the right level of remapping without noise (probably using natural smoothing of splines).
 
 BUG LIST
 FIXED : On some videos, "access violation" shows at the first frame or at the very beginning when button "go" is pressed.

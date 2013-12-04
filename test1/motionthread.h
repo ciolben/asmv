@@ -34,8 +34,13 @@ public:
 
     enum Step { None = 0x0, Affine = 0x1, wflow = 0x2, Profile = 0x4 };
     Q_DECLARE_FLAGS(Steps, Step)
+    enum DebugFlag { WSorted = 0x1, WClust = 0x2 };
+    Q_DECLARE_FLAGS(DebugFlags, DebugFlag)
 
     void setSteps(Steps steps);
+    void setDebug(DebugFlags debugFlags) {}; //TODO
+    void setParameters() {}; //TODO
+
     void close();
 
     void run();
