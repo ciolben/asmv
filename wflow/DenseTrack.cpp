@@ -450,18 +450,23 @@ int main( int argc, char** argv )
 			cvReleaseImage( &prev_grey_temp );
 			cvReleaseImage( &grey_temp );
             cvReleaseImage( &flow ); //*********************************************************
-			cvReleaseImage( &flowAff );
+            //cvReleaseImage( &flowAff );
             //cvReleaseImage( &flowDiff );
 
             //save wflow
             if (ixyScale == 0) {
                 char buff[256];
                 sprintf(buff, "%s/wflow%d.yml.gz", model_path, frameNum);
-                cv::FileStorage file(buff, cv::FileStorage::WRITE);
-                file << "wflow" << flowDiff;
-                file.release();
+                cv::FileStorage file1(buff, cv::FileStorage::WRITE);
+                file1 << "wflow" << flowDiff;
+                file1.release();
+                sprintf(buff, "%s/afflow%d.yml.gz", model_path, frameNum);
+                cv::FileStorage file2(buff, cv::FileStorage::WRITE);
+                file2 << "afflow" << flowAff;
+                file2.release();
             }
 
+            cvReleaseImage( &flowAff );
             cvReleaseImage( &flowDiff );
 		}
 
