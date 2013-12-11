@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHeaderView>
@@ -60,6 +61,7 @@ public:
     QPlainTextEdit *txtInfo;
     QLabel *label;
     QPushButton *btMotion;
+    QCheckBox *chkRemapped;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -244,6 +246,11 @@ public:
 
         gridLayout->addWidget(btMotion, 8, 0, 1, 1);
 
+        chkRemapped = new QCheckBox(centralWidget);
+        chkRemapped->setObjectName(QStringLiteral("chkRemapped"));
+
+        gridLayout->addWidget(chkRemapped, 1, 1, 1, 1);
+
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -263,7 +270,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "ASMV", 0));
         btInterpolate->setText(QApplication::translate("MainWindow", "Interpolate", 0));
         btTimeline->setText(QApplication::translate("MainWindow", "Add sequence", 0));
         label_2->setText(QApplication::translate("MainWindow", "Time bw frame :", 0));
@@ -291,7 +298,7 @@ public:
          << QApplication::translate("MainWindow", "20", 0)
         );
         lblImage->setText(QString());
-        btGo->setText(QApplication::translate("MainWindow", "Go", 0));
+        btGo->setText(QApplication::translate("MainWindow", "Play", 0));
         btOpen->setText(QApplication::translate("MainWindow", "Open file", 0));
         btFlow->setText(QApplication::translate("MainWindow", "OpticalFlow", 0));
         txtFile->setText(QApplication::translate("MainWindow", "C:\\Users\\Loic\\ppt-24.s03e01.avi", 0));
@@ -302,8 +309,9 @@ public:
         label_4->setText(QApplication::translate("MainWindow", "Seq duration :", 0));
         btClose->setText(QApplication::translate("MainWindow", "Close", 0));
         label_7->setText(QApplication::translate("MainWindow", "frames to disk", 0));
-        label->setText(QApplication::translate("MainWindow", "Media info :", 0));
+        label->setText(QApplication::translate("MainWindow", "Player info :", 0));
         btMotion->setText(QApplication::translate("MainWindow", "Motion", 0));
+        chkRemapped->setText(QApplication::translate("MainWindow", "Play remapped video", 0));
     } // retranslateUi
 
 };

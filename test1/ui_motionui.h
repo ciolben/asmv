@@ -48,12 +48,14 @@ public:
     QLabel *label_8;
     QLineEdit *txtMinClustSize;
     QLineEdit *txtMinValue;
+    QLabel *label_9;
+    QCheckBox *chkWriteMotion;
 
     void setupUi(QDialog *MotionUi)
     {
         if (MotionUi->objectName().isEmpty())
             MotionUi->setObjectName(QStringLiteral("MotionUi"));
-        MotionUi->resize(384, 412);
+        MotionUi->resize(384, 440);
         label = new QLabel(MotionUi);
         label->setObjectName(QStringLiteral("label"));
         label->setGeometry(QRect(10, 10, 71, 16));
@@ -62,14 +64,14 @@ public:
         txtSource->setGeometry(QRect(90, 10, 271, 20));
         txtOut = new QTextEdit(MotionUi);
         txtOut->setObjectName(QStringLiteral("txtOut"));
-        txtOut->setGeometry(QRect(10, 160, 351, 201));
+        txtOut->setGeometry(QRect(10, 190, 351, 201));
         txtOut->setReadOnly(true);
         label_2 = new QLabel(MotionUi);
         label_2->setObjectName(QStringLiteral("label_2"));
-        label_2->setGeometry(QRect(10, 130, 46, 13));
+        label_2->setGeometry(QRect(10, 160, 46, 13));
         btStart = new QPushButton(MotionUi);
         btStart->setObjectName(QStringLiteral("btStart"));
-        btStart->setGeometry(QRect(290, 380, 75, 23));
+        btStart->setGeometry(QRect(290, 410, 75, 23));
         label_3 = new QLabel(MotionUi);
         label_3->setObjectName(QStringLiteral("label_3"));
         label_3->setGeometry(QRect(10, 50, 46, 13));
@@ -90,16 +92,16 @@ public:
         splitter->addWidget(chkProfiling);
         label_4 = new QLabel(MotionUi);
         label_4->setObjectName(QStringLiteral("label_4"));
-        label_4->setGeometry(QRect(10, 100, 46, 13));
+        label_4->setGeometry(QRect(10, 130, 46, 13));
         chkWrtieSorted = new QCheckBox(MotionUi);
         chkWrtieSorted->setObjectName(QStringLiteral("chkWrtieSorted"));
-        chkWrtieSorted->setGeometry(QRect(70, 100, 121, 17));
+        chkWrtieSorted->setGeometry(QRect(70, 130, 121, 17));
         chkComputeFirstNth = new QCheckBox(MotionUi);
         chkComputeFirstNth->setObjectName(QStringLiteral("chkComputeFirstNth"));
-        chkComputeFirstNth->setGeometry(QRect(210, 100, 91, 17));
+        chkComputeFirstNth->setGeometry(QRect(210, 130, 91, 17));
         txtFirstNth = new QLineEdit(MotionUi);
         txtFirstNth->setObjectName(QStringLiteral("txtFirstNth"));
-        txtFirstNth->setGeometry(QRect(300, 100, 41, 20));
+        txtFirstNth->setGeometry(QRect(300, 130, 41, 20));
         label_5 = new QLabel(MotionUi);
         label_5->setObjectName(QStringLiteral("label_5"));
         label_5->setGeometry(QRect(10, 70, 51, 21));
@@ -121,6 +123,13 @@ public:
         txtMinValue = new QLineEdit(MotionUi);
         txtMinValue->setObjectName(QStringLiteral("txtMinValue"));
         txtMinValue->setGeometry(QRect(310, 70, 31, 20));
+        label_9 = new QLabel(MotionUi);
+        label_9->setObjectName(QStringLiteral("label_9"));
+        label_9->setGeometry(QRect(10, 100, 46, 13));
+        chkWriteMotion = new QCheckBox(MotionUi);
+        chkWriteMotion->setObjectName(QStringLiteral("chkWriteMotion"));
+        chkWriteMotion->setGeometry(QRect(70, 100, 111, 17));
+        chkWriteMotion->setChecked(true);
 
         retranslateUi(MotionUi);
 
@@ -148,6 +157,8 @@ public:
         label_8->setText(QApplication::translate("MotionUi", "Bkg : ", 0));
         txtMinClustSize->setText(QApplication::translate("MotionUi", "10", 0));
         txtMinValue->setText(QApplication::translate("MotionUi", "0.5", 0));
+        label_9->setText(QApplication::translate("MotionUi", "Others :", 0));
+        chkWriteMotion->setText(QApplication::translate("MotionUi", "Write motion.clust", 0));
     } // retranslateUi
 
 };

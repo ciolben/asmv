@@ -45,6 +45,8 @@ public:
 
     bool isCurrentFrameValid() const;
 
+    bool isConfigured() const;
+
 private:
     QString filename;
     AVFormatContext* pFormatContext;

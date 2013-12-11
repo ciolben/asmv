@@ -90,14 +90,12 @@ QImage *OpticalFlowTools::interpolate(const QImage *frame1, const QImage *frame2
     }
 
     if (m_process == NULL && m_optflowLib == NULL) {
-        //QString libpath = "../../build-opticalflowCV-Desktop_Qt_5_1_1_MSVC2010_32bit_OpenGL-Debug/debug/";
         QString libpath = "";
         QLibrary* library = new QLibrary(libpath + "opticalflowCV.dll");
         if (!library->load()) {
             qDebug() << "Cannot load opticalflowCV.dll : " << library->errorString();
             qDebug() << "Will use chain tools instead";
 
-            //QString exepath = QString("../build-opticalflowCV-Desktop_Qt_5_1_1_MSVC2010_32bit_OpenGL-Debug/debug/") + "opticalflowCV.exe";
             QString exepath = QString("opticalflowCV.exe");
             QFile file(exepath); qDebug() << "file exist ? : " << file.exists();
             qDebug() << "exe path : " << exepath;

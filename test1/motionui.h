@@ -2,6 +2,7 @@
 #define MOTIONUI_H
 
 #include <QDialog>
+#include <QCloseEvent>
 
 #include "motionthread.h"
 
@@ -19,8 +20,14 @@ public:
 
     void setVideoSource(const QString& source);
 
+signals:
+    void motionProfileComputed(const QString& filename, std::vector<float> data, float ampFactor = 1.f);
+    void windowClosed(const QString& identifier);
+
 private slots:
     void on_btStart_clicked();
+
+    virtual void closeEvent(QCloseEvent*);
 
 private:
     Ui::MotionUi *ui;

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>ASMV</string>
   </property>
   <property name="animated">
    <bool>false</bool>
@@ -213,7 +213,7 @@
     <item row="1" column="3" colspan="2">
      <widget class="QPushButton" name="btGo">
       <property name="text">
-       <string>Go</string>
+       <string>Play</string>
       </property>
      </widget>
     </item>
@@ -374,7 +374,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>Media info :</string>
+       <string>Player info :</string>
       </property>
      </widget>
     </item>
@@ -382,6 +382,13 @@
      <widget class="QPushButton" name="btMotion">
       <property name="text">
        <string>Motion</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QCheckBox" name="chkRemapped">
+      <property name="text">
+       <string>Play remapped video</string>
       </property>
      </widget>
     </item>

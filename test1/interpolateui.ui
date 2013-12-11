@@ -35,6 +35,9 @@
       </item>
       <item row="0" column="2">
        <widget class="QLineEdit" name="txtRate">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="text">
          <string>40</string>
         </property>
@@ -43,7 +46,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Rate :</string>
+         <string>Time per frame :</string>
         </property>
        </widget>
       </item>
@@ -62,9 +65,12 @@
        </widget>
       </item>
       <item row="4" column="0">
-       <widget class="QPushButton" name="btLoad">
+       <widget class="QPushButton" name="btOpticalFlow">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="text">
-         <string>Load sequences</string>
+         <string>OpticalFlow</string>
         </property>
        </widget>
       </item>

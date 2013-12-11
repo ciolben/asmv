@@ -4,6 +4,10 @@
 #include <QThread>
 #include <QFlags>
 
+#include <vector>
+
+Q_DECLARE_METATYPE(std::vector<float>)
+
 //PARAMETERS
 //***************
 ///
@@ -23,6 +27,19 @@ const float _maxDistInsideCluster = 0.5f;
 ///     Minimum cluster size.
 ///
 const float _minClusterSize = 10;
+
+///
+/// \brief _windowSizeFirstPass
+///     First pass window size for the running average
+///
+const float _windowSizeFirstPass = 24;
+
+///
+/// \brief _windowSizeSecondPass
+///     Second pass window size for the running average
+///
+const float _windowSizeSecondPass = 23;
+
 //***************
 
 class MotionThread : public QThread
@@ -37,9 +54,13 @@ public:
     enum DebugFlag { WSorted = 0x1, WClust = 0x2 };
     Q_DECLARE_FLAGS(DebugFlags, DebugFlag)
 
+    enum OtherFlag { NoOther = 0x0, WriteMotion = 0x1 };
+    Q_DECLARE_FLAGS(OtherFlags, OtherFlag)
+
     void setSteps(Steps steps);
     void setDebug(DebugFlags debugFlags) {}; //TODO
     void setParameters() {}; //TODO
+    void setOthers(OtherFlags flags);
 
     void close();
 
@@ -49,12 +70,14 @@ public:
 
 signals:
     void logText(const QString& info, const QString& color = "", bool bold = false, bool italic = false);
+    void motionProfileComputed(const QString& filename, std::vector<float> data, float ampFactor = 1.f);
 
 public slots:
 
 private:
     QString m_filename;
     Steps m_steps;
+    OtherFlags m_others;
     bool m_continue;
 
     struct cluster {

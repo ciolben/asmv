@@ -2,7 +2,9 @@
 #define INTERPOLATEUI_H
 
 #include <QDialog>
+#include <QCloseEvent>
 
+#include "timelineQML/splinedrawer.h"
 #include "timelineQML/Sequence.hpp"
 #include "opticalflowtools.h"
 
@@ -15,21 +17,25 @@ class InterpolateUi : public QDialog
     Q_OBJECT
 
 public:
-    explicit InterpolateUi(QWidget *parent = 0);
+    explicit InterpolateUi(SplineDrawer *spline, QWidget *parent = 0);
     ~InterpolateUi();
 
 private slots:
     void on_btInterpolate_clicked();
 
-    void on_btLoad_clicked();
+    void on_btOpticalFlow_clicked();
+
+    virtual void closeEvent(QCloseEvent*);
 
 signals:
     //want to load sequences
     void needSequences(QList<Sequence*>& sequences);
+    void windowClosed(const QString& identifier);
 
 private:
     Ui::InterpolateUi *ui;
     QList<Sequence*> m_sequences;
+    SplineDrawer* m_spline;
     OpticalFlowTools m_optflowtools;
 
 };

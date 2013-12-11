@@ -46,7 +46,7 @@ MotionUi::~MotionUi()
 void MotionUi::setVideoSource(const QString &source)
 {
     //ui->txtSource->setText(source);
-    ui->txtSource->setText("C:/Users/Loic/Coding_Main/ADM/test1/debug/test_sequences/reenc.mp4");
+    ui->txtSource->setText("C:/Users/Loic/Coding_Main/ADM/test1/snow1.mp4");
 }
 
 void MotionUi::logText(const QString &text, const QString &color, bool bold, bool italic)
@@ -78,6 +78,16 @@ void MotionUi::on_btStart_clicked()
     m_thread->setSteps( ((ui->chkAffine->isChecked()) ? MotionThread::Affine : MotionThread::None)
                       | ((ui->chkwflow->isChecked()) ? MotionThread::wflow : MotionThread::None)
                       | ((ui->chkProfiling->isChecked()) ? MotionThread::Profile : MotionThread::None));
+    m_thread->setOthers( (ui->chkWriteMotion->isChecked()) ? MotionThread::WriteMotion: MotionThread::NoOther);
     connect(m_thread, &MotionThread::logText, this, &MotionUi::logText);
+
+    //forward signal
+    connect(m_thread, &MotionThread::motionProfileComputed, this, &MotionUi::motionProfileComputed);
+
     m_thread->start();
+}
+
+void MotionUi::closeEvent(QCloseEvent*)
+{
+    emit windowClosed("motion");
 }

@@ -18,6 +18,7 @@ VideoTools::VideoTools()
     , curTs(0)
     , framesToSkip(0)
     , optUseMemcpy(true)
+    , filename("")
 {
     //don
 }
@@ -83,7 +84,7 @@ int VideoTools::testFfmpeg(const QString &qfile)
     avformat_free_context(pFormatContext_tmp);
     return 0;
 }
-
+#include <iostream>
 int VideoTools::initFfmpeg(const QString &qfile)
 {
     av_register_all();
@@ -177,6 +178,7 @@ int VideoTools::initFfmpeg(const QString &qfile)
     ulong l = secs*1000 + us/1000;
     duration = l;
 
+    filename = qfile;
     return 0;
 }
 
@@ -401,6 +403,11 @@ int64_t VideoTools::getCurrentTs() const {
 bool VideoTools::isCurrentFrameValid() const
 {
     return curDts > lastDts;
+}
+
+bool VideoTools::isConfigured() const
+{
+    return filename.isEmpty();
 }
 
 

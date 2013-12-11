@@ -37,6 +37,8 @@ public slots:
     void handleImageEaten();
     void handleTimeout();
     void handleNeedSequences(QList<Sequence *> &sequences);
+    void loadMotionProfile(const QString& file, std::vector<float> profile, float ampFactor = 1.f);
+    void handleWindowDestroyed(const QString& windowName);
 
 private slots:
     void on_btClose_clicked();
@@ -58,6 +60,10 @@ private slots:
     void on_btInterpolate_clicked();
 
     void on_btMotion_clicked();
+
+    void on_chkRemapped_clicked();
+
+    void on_chkRemapped_stateChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

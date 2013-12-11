@@ -16,13 +16,16 @@ FFMPEG_INCLUDES = ffmpeg/include/
 FFMPEG_LIBS32 = ffmpeg/lib/
 OPTICALFLOW_INCLUDES = opticalflow/include
 
+#FFMPEG flag
+QMAKE_LFLAGS += /OPT:NOREF
+
 INCLUDEPATH += $$FFMPEG_INCLUDES
 INCLUDEPATH += $$OPTICALFLOW_INCLUDES \
                 $$BOOST_PATH
 
 SUBDIRS += timelineQML
 
-win32:LIBS += -L$$FFMPEG_LIBS32 -lavformat\
+LIBS += -L$$FFMPEG_LIBS32 -lavformat\
             -lavcodec \
             -lavdevice \
             -lavutil \
@@ -85,7 +88,8 @@ HEADERS  += mainwindow.h \
     interpolateui.h \
     motionui.h \
     utils/iocompression.h \
-    motionthread.h
+    motionthread.h \
+    mathlib/filtering.h
 
 
 FORMS    += mainwindow.ui \

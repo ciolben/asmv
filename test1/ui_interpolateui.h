@@ -36,7 +36,7 @@ public:
     QLabel *label;
     QLabel *label_4;
     QLabel *label_3;
-    QPushButton *btLoad;
+    QPushButton *btOpticalFlow;
     QLineEdit *txtSrc;
     QPushButton *btInterpolate;
     QLineEdit *txtOut;
@@ -64,6 +64,7 @@ public:
 
         txtRate = new QLineEdit(groupBox);
         txtRate->setObjectName(QStringLiteral("txtRate"));
+        txtRate->setEnabled(true);
 
         gridLayout_2->addWidget(txtRate, 0, 2, 1, 1);
 
@@ -82,10 +83,11 @@ public:
 
         gridLayout_2->addWidget(label_3, 2, 0, 1, 1);
 
-        btLoad = new QPushButton(groupBox);
-        btLoad->setObjectName(QStringLiteral("btLoad"));
+        btOpticalFlow = new QPushButton(groupBox);
+        btOpticalFlow->setObjectName(QStringLiteral("btOpticalFlow"));
+        btOpticalFlow->setEnabled(true);
 
-        gridLayout_2->addWidget(btLoad, 4, 0, 1, 1);
+        gridLayout_2->addWidget(btOpticalFlow, 4, 0, 1, 1);
 
         txtSrc = new QLineEdit(groupBox);
         txtSrc->setObjectName(QStringLiteral("txtSrc"));
@@ -131,10 +133,10 @@ public:
         groupBox->setTitle(QString());
         label_2->setText(QApplication::translate("InterpolateUi", "ms", 0));
         txtRate->setText(QApplication::translate("InterpolateUi", "40", 0));
-        label->setText(QApplication::translate("InterpolateUi", "Rate :", 0));
+        label->setText(QApplication::translate("InterpolateUi", "Time per frame :", 0));
         label_4->setText(QApplication::translate("InterpolateUi", "Output dir :", 0));
         label_3->setText(QApplication::translate("InterpolateUi", "Source dir :", 0));
-        btLoad->setText(QApplication::translate("InterpolateUi", "Load sequences", 0));
+        btOpticalFlow->setText(QApplication::translate("InterpolateUi", "OpticalFlow", 0));
         txtSrc->setText(QApplication::translate("InterpolateUi", "out/", 0));
         btInterpolate->setText(QApplication::translate("InterpolateUi", "Interpolate", 0));
         txtOut->setText(QApplication::translate("InterpolateUi", "interpolated/", 0));

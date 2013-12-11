@@ -5,6 +5,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "utils/iocompression.h"
+#include "mathlib/filtering.h"
 
 MotionThread::MotionThread(QObject *parent) :
     QThread(parent), m_continue(true)
@@ -21,6 +22,11 @@ void MotionThread::setSteps(Steps steps)
     m_steps = steps;
 }
 
+void MotionThread::setOthers(OtherFlags flags)
+{
+    m_others = flags;
+}
+
 void MotionThread::close()
 {
     m_continue = false;
@@ -32,15 +38,34 @@ MotionThread::motions parse(const QByteArray& piece)
     QTextStream textStream(piece, QIODevice::ReadOnly);
     MotionThread::motions m;
 
+    /*
+     * format of the file :
+     * dx, dy, dx, dy, ...
+     */
+    bool pairFound = false;
+    float dx, dy;
+
     while (textStream.atEnd() == false) {
+
         foreach (QString number, textStream.readLine().split(",")) {
-            float num = number.trimmed().toFloat();
-            num = num < 0 ? -num : num;
-            //exclude too small values
-            if (num < _minThreshold) { continue; }
-            m[num] += 1;
+            QString trim = number.trimmed();
+            if (trim.isEmpty()) { continue; }
+            float num = trim.toFloat();
+
+            if (!pairFound) {
+                dx = num;
+            } else {
+                dy = num;
+                float sqrtnorm = dx*dx + dy*dy;
+                //exclude too small values
+                if (sqrtnorm >= _minThreshold) {
+                    m[sqrtnorm] += 1;
+                }
+            }
+            pairFound = !pairFound;
         }
     }
+
     return m;
 }
 void reduce(MotionThread::motions &result, const MotionThread::motions &w)
@@ -61,6 +86,7 @@ void MotionThread::run()
     QFileInfo fileinfo = QFileInfo(m_filename);
     if (!fileinfo.exists()) { emit logText("Input file does not exist.", "red"); return; }
     QString resultDir = fileinfo.baseName() + "motionData";
+    QString clusterPath = resultDir + "/clusters";
     QProcess process;
     QStringList args;
 
@@ -145,15 +171,37 @@ void MotionThread::run()
              */
             int threadCount = QThread::idealThreadCount();
             if (threadCount == 0) { threadCount = 1; }
-            emit logText("Processing with" + QString::number(threadCount) + " thread(s)");
+            emit logText("Processing with " + QString::number(threadCount) + " thread(s)");
             dir.mkdir("clusters");
-            QString clusterPath = resultDir + "/clusters";
             QFileInfoList files = dir.entryInfoList(QDir::Files, QDir::Name);
+
+            //filter and order the files (the default Name ordering is wrong)
+            QFileInfoList flowFiles;
+            flowFiles.reserve(files.size());
             for (int fpos = 0; fpos < files.size(); ++fpos){
                 QFileInfo file = files.at(fpos);
                 if (file.suffix().compare("gz") != 0) { continue; }
+                flowFiles.append(file);
+            }
+            qSort(flowFiles.begin(), flowFiles.end(), []
+            (const QFileInfo f1, const QFileInfo f2) -> bool {
+                int l1 = f1.baseName().length();
+                int l2 = f2.baseName().length();
+                if (l1 < l2) { return true; }
+                if (l2 < l1) { return false; }
+                return f1.baseName().compare(f2.baseName()) < 0;
+            });
+
+            //curve container
+            std::vector<float> values;
+            values.reserve(files.size());
+
+            //go through all files that contains the w-flow
+            for (int fpos = 0; fpos < flowFiles.size(); ++fpos){
+                QFileInfo file = flowFiles.at(fpos);
+//                if (file.suffix().compare("gz") != 0) { continue; }
                 emit logText("<font color=\"blue\">("
-                        + QString::number((int)((float)fpos / (float)files.size() * 100.f))
+                        + QString::number((int)ceil(((float)fpos / (float)files.size() * 100.f)))
                         + "%)</font> Processing file : <i>" + file.fileName() + "</i>");
                     QByteArray content = gzipUncompress(file.absoluteFilePath());
 
@@ -172,10 +220,19 @@ void MotionThread::run()
 
                     char sep = ',';
                     int last = dataBegin;
+                    bool adjust = false;
                     QList<QByteArray> mapInput;
                     for (int i = dataBegin + cut; i < length; i++) {
                         if (content.at(i) == sep) {
-                            mapInput.append(content.mid(last + 1, i - last - 1));
+                            QByteArray ar = content.mid(last + 1, i - last - 1);
+                            //fix : ensure we are not cutting a pair
+                            if (!adjust && ar.count(sep) % 2 == 0) {
+                                adjust = true;
+                                continue;
+                            }
+
+                            adjust = false;
+                            mapInput.append(ar);
                             last = i + 1;
                             i += cut;
                             if (i >= length) { // we are cutting a too big piece, this is the last one
@@ -183,7 +240,6 @@ void MotionThread::run()
                             }
                         }
                     }
-
 
                     /*
                      * 1.2 do mr, and wait it finishes
@@ -262,11 +318,7 @@ void MotionThread::run()
 
                     //TODO (first need to test)
 
-
                     //3.saving clusters
-
-                    QFile out(QString("%1/%2.clust").arg(clusterPath).arg(file.fileName()));
-                    out.open(QFile::WriteOnly);
 
                     //compute object motion avg
 
@@ -276,18 +328,69 @@ void MotionThread::run()
                         sum += c.avg;
                         ++size;
                     }
-                    out.write(QString(QString::number(sum / size) + "\n").toLocal8Bit().constData());
-                    out.close();
+
+//                    if ((m_others & WriteMotion) == WriteMotion) {
+//                        QFile out(QString("%1/%2.clust").arg(clusterPath).arg(file.fileName()));
+//                        out.open(QFile::WriteOnly);
+//                        out.write(QString(QString::number(sum / size) + "\n").toLocal8Bit().constData());
+//                        out.close();
+//                    }
+
+                    values.push_back(sum / size);
 
                     //debug
 //                    count++;
-//                    if (count == 10) { break; }
+//                    if (count == 30) { break; }
             }
 
+            //we have the values, apply filters
+
+            emit logText("finalizing...");
+            std::vector<float> filtered;
+            std::vector<float> filtered2;
+            filtered.reserve(values.size());
+            filtered2.reserve(values.size());
+            filter::movingAverage(values, filtered, _windowSizeFirstPass);
+            filter::movingAverage(filtered, filtered2, _windowSizeSecondPass);
+
+            //save filtered values
+            if ((m_others & WriteMotion) == WriteMotion) {
+                QFile out(QString("%1/motion.clust").arg(clusterPath));
+                out.open(QFile::WriteOnly);
+                foreach (float f, filtered2) {
+                    out.write(QString(QString::number(f) + "\n").toLocal8Bit().constData());
+                }
+                out.close();
+            }
+
+            emit motionProfileComputed(m_filename, filtered2);
 
         }
     } else {
         emit logText("Skipped.");
+    }
+
+    if (m_continue && (m_steps == None)) {
+        emit logText("Searching for existing data...");
+
+        QFile filec(clusterPath + "/motion.clust");
+        if (!filec.open(QFile::ReadOnly)) {
+            emit logText("Could not find motion.clust under " + clusterPath, "red");
+        } else {
+            QByteArray buff = filec.readLine();
+            std::vector<float> profile;
+
+            while (!buff.isEmpty()) {
+                profile.push_back(QString(buff).toFloat());
+                buff = filec.readLine();
+            }
+
+            filec.close();
+
+            emit motionProfileComputed(m_filename, profile);
+            emit logText("Motion profile loaded into main window.");
+        }
+
     }
 
     emit logText("Ended", "green", false, true);

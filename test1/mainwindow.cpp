@@ -27,6 +27,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(&timer, &QTimer::timeout, this, &MainWindow::handleTimeout);
+    spline = (SplineDrawer*)QMLRegister::getQMLObject("spline");
+
+    qRegisterMetaType<std::vector<float> >("std::vector<float>");
 }
 
 MainWindow::~MainWindow()
@@ -50,8 +53,8 @@ void MainWindow::handleResult(const QString *res)
 
 void MainWindow::handleNewValidFrame(qlonglong time)
 {
-    SplineDrawer* spline = (SplineDrawer*)QMLRegister::getQMLObject("spline");
-    spline->addKey(time, time);
+    //SplineDrawer* spline = (SplineDrawer*)QMLRegister::getQMLObject("spline");
+    //spline->addKey(time, time);
    // logText(&QString("ts : %1").arg(time));
 }
 
@@ -99,6 +102,65 @@ void MainWindow::handleNeedSequences(QList<Sequence *>& sequences)
     }
 }
 
+void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profile, float ampFactor)
+{
+//    std::cout << "file : " << file.toStdString() << " profilesize : " << profile.size() << " ampf : " << ampFactor << std::endl;
+    //ui stuff
+    ui->txtFile->setText(file);
+    ui->chkRemapped->setChecked(true);
+
+    //reset videotools
+    vtools.initFfmpeg(file);
+
+    //get duration and sample the space
+    int duration = vtools.getDurationMs();
+    qDebug() << "duration : " << duration;
+    qDebug() << "size : " << profile.size();
+    double sampling = duration / profile.size();
+    qDebug() << "sample space : " << sampling;
+
+    //compute the main motion tendency
+    float varianceCenter(0);
+    foreach (float f, profile) {
+        varianceCenter += f;
+    }
+
+    varianceCenter /= profile.size();
+
+    //set up sequence
+    int seqId = spline->addSequence(0, duration);
+    if (seqId == -1) {
+        qDebug() << "Cannot modify motion profile.";
+        return;
+    }
+
+    spline->initView(duration);
+
+    int count(0);
+    foreach (float f, profile) {
+        spline->addKey(seqId, count * sampling,
+                       (f - varianceCenter) * ampFactor);
+        count++;
+    }
+
+    spline->updatePoints();
+
+}
+
+void MainWindow::handleWindowDestroyed(const QString& windowName)
+{
+    if (windowName.compare("motion") == 0) {
+        delete m_motionUi;
+        m_motionUi = NULL;
+    } else if (windowName.compare("flow") == 0) {
+        delete m_optflowtools;
+        m_optflowtools = NULL;
+    } else if (windowName.compare("interpolation") == 0) {
+        delete m_interpUi;
+        m_interpUi = NULL;
+    }
+}
+
 void MainWindow::on_btClose_clicked()
 {
     if(worker != NULL) {
@@ -125,6 +187,20 @@ void MainWindow::on_btGo_clicked()
         return;
     }
 
+    if (ui->chkRemapped->isChecked()) {
+        //check if vtools is configured, if not, motion ui has probably not called
+        //loadMotionProfile function
+
+        if (!vtools.isConfigured()) {
+            logText("Load motion profile.");
+            ui->chkRemapped->setChecked(false);
+            return;
+        }
+
+        on_btInterpolate_clicked();
+        return;
+
+    }
     QString txtContent = ui->txtFile->text();
     if (filename.isEmpty() || txtContent.compare(filename) != 0) {
         filename = txtContent;
@@ -140,7 +216,7 @@ void MainWindow::on_btGo_clicked()
         logText(&QString("FFmpeg initialized. Video length : %1 ms").arg(vtools.getDurationMs()));
 
         //add two points for the spline
-        SplineDrawer* spline = (SplineDrawer*)QMLRegister::getQMLObject("spline");
+        spline = (SplineDrawer*)QMLRegister::getQMLObject("spline");
 
         spline->setduration(vtools.getDurationMs());
         spline->initView();
@@ -248,14 +324,37 @@ void MainWindow::on_slSpeed_sliderReleased()
 
 void MainWindow::on_btInterpolate_clicked()
 {
-    m_interpUi = new InterpolateUi();
-    connect(m_interpUi, &InterpolateUi::needSequences, this, &MainWindow::handleNeedSequences);
+    //only one interpolation ui is allowed
+    if (m_interpUi != NULL) { return; }
+    m_interpUi = new InterpolateUi(spline, this);
+    connect(m_interpUi, &InterpolateUi::windowClosed, this, &MainWindow::handleWindowDestroyed);
+    connect(m_interpUi, &InterpolateUi::needSequences, this, &MainWindow::handleNeedSequences
+            , Qt::DirectConnection);
     m_interpUi->show();
 }
 
 void MainWindow::on_btMotion_clicked()
 {
+    //only one motion ui is allowed
+    if (m_motionUi != NULL) { return; }
     m_motionUi = new MotionUi();
+
+    connect(m_motionUi, &MotionUi::windowClosed, this, &MainWindow::handleWindowDestroyed);
+    connect(m_motionUi, &MotionUi::motionProfileComputed, this, &MainWindow::loadMotionProfile);
+
     m_motionUi->setVideoSource(ui->txtFile->text());
     m_motionUi->show();
+}
+
+void MainWindow::on_chkRemapped_clicked()
+{
+    bool enabled = !ui->chkRemapped->isChecked();
+    ui->txtFrame->setEnabled(enabled);
+    ui->txtDuration->setEnabled(enabled);
+    ui->txtSkipFrames->setEnabled(enabled);
+}
+
+void MainWindow::on_chkRemapped_stateChanged(int arg1)
+{
+    on_chkRemapped_clicked();
 }
