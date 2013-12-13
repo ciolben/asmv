@@ -79,6 +79,10 @@ void MotionUi::on_btStart_clicked()
                       | ((ui->chkwflow->isChecked()) ? MotionThread::wflow : MotionThread::None)
                       | ((ui->chkProfiling->isChecked()) ? MotionThread::Profile : MotionThread::None));
     m_thread->setOthers( (ui->chkWriteMotion->isChecked()) ? MotionThread::WriteMotion: MotionThread::NoOther);
+    if (ui->rdAfflow) { m_thread->addFilesFilters("afflow"); }
+    if (ui->rdAfflow) { m_thread->addFilesFilters("wflow"); }
+    if (ui->rdAfflow) { m_thread->addFilesFilters("afflow"); m_thread->addFilesFilters("wflow"); }
+    m_thread->setSmootingIntensity(ui->slSmooth->value());
     connect(m_thread, &MotionThread::logText, this, &MotionUi::logText);
 
     //forward signal

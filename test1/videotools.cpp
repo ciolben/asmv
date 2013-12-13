@@ -410,6 +410,11 @@ bool VideoTools::isConfigured() const
     return filename.isEmpty();
 }
 
+QString VideoTools::getFilename() const
+{
+    return filename;
+}
+
 
 
 

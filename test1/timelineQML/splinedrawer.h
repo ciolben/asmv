@@ -31,13 +31,18 @@ public:
     void setplayposition(const int& playPosition) { m_playPosition = playPosition; emit playpositionChanged(playPosition);}
     QList<Sequence*> getSequences() const { return m_sequences; }
 
-    void addKey(ulong time, long map);
+    void addKey(int seqId, ulong time, double map);
     void modifyKey(ulong time, long new_map);
     void beginAddSequence() { m_editing = true; }
 
-    QList<float> *getInterpolationFactors(int tpf, ulong time);
+    QList<float> getInterpolationFactors(int tpf, ulong time);
 
     void initView(const ulong& duration = 0);
+    void updatePoints();
+
+    int addSequence(ulong start, ulong end);
+    void removeSequence(int sequenceId);
+
 signals:
     void durationChanged(int);
     void playpositionChanged(int);
@@ -68,8 +73,7 @@ private:
     Sequence* m_currentSequence;
     QList<Sequence*> m_sequences;
 
-    void addSequence(ulong start, ulong end);
-    void removeSequence(Sequence* seq);
+    void removeSequence(Sequence *seq);
 
     inline void fromPlanToLocal(double &x, double &y);
     inline long SplineDrawer::computeDiff(ulong time, long map);

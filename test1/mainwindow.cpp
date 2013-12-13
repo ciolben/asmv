@@ -9,6 +9,7 @@
 #include "opticalflowtools.h"
 
 #include "qmlregister.h"
+#include "mathlib/bsplinefitter.h"
 
 #include <QtQuick/QQuickView>
 
@@ -102,15 +103,17 @@ void MainWindow::handleNeedSequences(QList<Sequence *>& sequences)
     }
 }
 
-void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profile, float ampFactor)
+void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profile
+                                   , int keySimplificationFactor, float ampFactor)
 {
-//    std::cout << "file : " << file.toStdString() << " profilesize : " << profile.size() << " ampf : " << ampFactor << std::endl;
     //ui stuff
     ui->txtFile->setText(file);
     ui->chkRemapped->setChecked(true);
 
     //reset videotools
-    vtools.initFfmpeg(file);
+    if (vtools.getFilename().compare(file) != 0) {
+        vtools.initFfmpeg(file);
+    }
 
     //get duration and sample the space
     int duration = vtools.getDurationMs();
@@ -127,6 +130,8 @@ void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profi
 
     varianceCenter /= profile.size();
 
+    spline->initView(duration);
+
     //set up sequence
     int seqId = spline->addSequence(0, duration);
     if (seqId == -1) {
@@ -134,15 +139,54 @@ void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profi
         return;
     }
 
-    spline->initView(duration);
+    //(re)save current profile
+    m_currentProfile = profile;
 
+    //create raw spline
     int count(0);
     foreach (float f, profile) {
+        float ratio = f / varianceCenter;
+        float sign = -1.f;
+        //check if range is 1 to inf
+        if (ratio < 1) {
+            //if not, need to convert from [0,1[ space to [1, inf] space
+            ratio = varianceCenter / f;
+            sign = 1.f;
+        }
         spline->addKey(seqId, count * sampling,
-                       (f - varianceCenter) * ampFactor);
+                       (sign * (ratio - 1.0) * ampFactor));
         count++;
     }
 
+    //simplify curve
+    if (keySimplificationFactor > 0 && profile.size() / keySimplificationFactor > 4) {
+        float reductionFactor = keySimplificationFactor;
+        int dimension = 2;
+        int numSamples = profile.size();
+        int degree = 3;
+        int numCtrlPoints = profile.size() / reductionFactor;
+        float* samples = (float*) malloc(numSamples * sizeof(float) * dimension);
+
+        Sequence* seq = spline->getSequences().first(); //we know there is only one sequence at this time
+
+        for (int i = 0; i < numSamples * dimension; i += dimension) {
+            //x
+            samples[i] = (int) i / dimension;
+            //y
+            samples[i + 1] = (float) seq->computeSpline(samples[i]);
+        }
+
+        const float* simplified = BSplineFitter::reduceKeys(numSamples, samples, degree, numCtrlPoints);
+        spline->removeSequence(seqId);
+        seqId = spline->addSequence(0, duration);
+
+        for (int i = 0; i < numCtrlPoints * dimension; i += dimension) {
+            int index = (int) simplified[i];
+            spline->addKey(seqId, (ulong) index * sampling, simplified[i+1]);
+        }
+    }
+
+    //update points
     spline->updatePoints();
 
 }
@@ -357,4 +401,11 @@ void MainWindow::on_chkRemapped_clicked()
 void MainWindow::on_chkRemapped_stateChanged(int arg1)
 {
     on_chkRemapped_clicked();
+}
+
+void MainWindow::on_sbReduction_valueChanged(int arg1)
+{
+    if (vtools.getFilename().isEmpty()) { return; }
+    if (m_currentProfile.empty()) { return; }
+    loadMotionProfile(vtools.getFilename(), m_currentProfile, arg1);
 }

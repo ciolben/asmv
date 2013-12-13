@@ -25,6 +25,7 @@
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
+#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
@@ -62,6 +63,8 @@ public:
     QLabel *label;
     QPushButton *btMotion;
     QCheckBox *chkRemapped;
+    QLabel *label_8;
+    QSpinBox *sbReduction;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -251,6 +254,17 @@ public:
 
         gridLayout->addWidget(chkRemapped, 1, 1, 1, 1);
 
+        label_8 = new QLabel(centralWidget);
+        label_8->setObjectName(QStringLiteral("label_8"));
+        label_8->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout->addWidget(label_8, 12, 1, 1, 1);
+
+        sbReduction = new QSpinBox(centralWidget);
+        sbReduction->setObjectName(QStringLiteral("sbReduction"));
+
+        gridLayout->addWidget(sbReduction, 12, 3, 1, 1);
+
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -312,6 +326,7 @@ public:
         label->setText(QApplication::translate("MainWindow", "Player info :", 0));
         btMotion->setText(QApplication::translate("MainWindow", "Motion", 0));
         chkRemapped->setText(QApplication::translate("MainWindow", "Play remapped video", 0));
+        label_8->setText(QApplication::translate("MainWindow", "Reduce key nb by ", 0));
     } // retranslateUi
 
 };

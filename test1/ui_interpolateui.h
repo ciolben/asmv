@@ -129,7 +129,7 @@ public:
 
     void retranslateUi(QDialog *InterpolateUi)
     {
-        InterpolateUi->setWindowTitle(QApplication::translate("InterpolateUi", "Dialog", 0));
+        InterpolateUi->setWindowTitle(QApplication::translate("InterpolateUi", "Interpolate Frames", 0));
         groupBox->setTitle(QString());
         label_2->setText(QApplication::translate("InterpolateUi", "ms", 0));
         txtRate->setText(QApplication::translate("InterpolateUi", "40", 0));

@@ -392,6 +392,19 @@
       </property>
      </widget>
     </item>
+    <item row="12" column="1">
+     <widget class="QLabel" name="label_8">
+      <property name="text">
+       <string>Reduce key nb by </string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="3">
+     <widget class="QSpinBox" name="sbReduction"/>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">

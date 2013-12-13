@@ -10,18 +10,15 @@ InterpolateUi::InterpolateUi(SplineDrawer* spline, QWidget *parent) :
     ui(new Ui::InterpolateUi)
     , m_sequences(QList<Sequence*>())
     , m_spline(spline)
-    , m_optflowtools(OpticalFlowTools())
-{
+    , m_optflowtools(OpticalFlowTools()) {
     ui->setupUi(this);
 }
 
-InterpolateUi::~InterpolateUi()
-{
+InterpolateUi::~InterpolateUi() {
     delete ui;
 }
 
-void InterpolateUi::on_btInterpolate_clicked()
-{
+void InterpolateUi::on_btInterpolate_clicked() {
     ui->btInterpolate->setEnabled(false);
 
     //load sequences profile
@@ -32,36 +29,64 @@ void InterpolateUi::on_btInterpolate_clicked()
 
     //check dirs
     QString strOutdir = ui->txtOut->text();
-    if (strOutdir.isEmpty()) { return; }
+    if (strOutdir.isEmpty()) {
+        return;
+    }
     QString strSrcdir = ui->txtSrc->text();
-    if (strSrcdir.isEmpty()) { return; }
+    if (strSrcdir.isEmpty()) {
+        return;
+    }
     int tps = 0;
-    try { tps = ui->txtRate->text().toInt();
-    } catch (...) { return; }
+    try {
+        tps = ui->txtRate->text().toInt();
+    } catch (...) {
+        return;
+    }
 
 
     QDir srcdir(strSrcdir);
-    QStringList filterImg; filterImg << "*.png" << "*.jpg" << "*.jpeg";
-    QStringList filterFlow; filterFlow << "*.gz";
+    QStringList filterImg;
+    filterImg << "*.png" << "*.jpg" << "*.jpeg";
+    QStringList filterFlow;
+    filterFlow << "*.gz";
     QFileInfoList images = srcdir.entryInfoList(filterImg
-                                             , QDir::Files
-                                             , QDir::Name);
+                           , QDir::Files
+                           , QDir::Name);
     QFileInfoList flows = srcdir.entryInfoList(filterFlow
-                                                 , QDir::Files
-                                                 , QDir::Name);
+                          , QDir::Files
+                          , QDir::Name);
 
     QDir destdir("./");
     destdir.mkdir(strOutdir);
     destdir.cd(strOutdir);
 
     auto sortfun = []
-            (const QFileInfo f1, const QFileInfo f2) -> bool {
-                int l1 = f1.baseName().length();
-                int l2 = f2.baseName().length();
-                if (l1 < l2) { return true; }
-                if (l2 < l1) { return false; }
-                return f1.baseName().compare(f2.baseName()) < 0;
-            };
+    (const QFileInfo f1, const QFileInfo f2) -> bool {
+        QString s1 = f1.fileName();
+        QString s2 = f2.fileName();
+        int l1 = s1.length();
+        int l2 = s2.length();
+        int l = std::min(l1, l2);
+        QString nums1;
+        QString nums2;
+        for (int i = 0; i < l; ++i) {
+            QChar c(s1.at(i));
+            QChar c2(s2.at(i));
+            if (c.isDigit()) {
+                if (c2.isDigit()) {
+                    nums1.push_back(c);
+                    nums2.push_back(c2);
+                } else {
+                    return false;
+                }
+            } else if (c < c2) {
+                return true;
+            } else if (c > c2) {
+                return false;
+            }
+        }
+        return nums1.compare(nums2) < 0;
+    };
 
     qSort(images.begin(), images.end(), sortfun);
     qSort(flows.begin(), flows.end(), sortfun);
@@ -84,17 +109,18 @@ void InterpolateUi::on_btInterpolate_clicked()
             dbg += " : " + QString::number(f);
         }
         qDebug() << dbg;
+
+        //interpolate
+        //...
     }
 
     ui->btInterpolate->setEnabled(true);
 }
 
-void InterpolateUi::closeEvent(QCloseEvent*)
-{
+void InterpolateUi::closeEvent(QCloseEvent*) {
     emit windowClosed("interpolation");
 }
 
-void InterpolateUi::on_btOpticalFlow_clicked()
-{
+void InterpolateUi::on_btOpticalFlow_clicked() {
 
 }

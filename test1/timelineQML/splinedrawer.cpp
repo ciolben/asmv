@@ -159,10 +159,21 @@ inline long SplineDrawer::computeDiff(ulong time, long map) {
     return diff;
 }
 
-void SplineDrawer::addKey(ulong time, long map) {
-    //m_spline.addPoint((double) time, computeDiff(time, map));
-    //m_keys[time] = map;
-    //m_numKeys++;
+///
+/// \brief SplineDrawer::addKey
+///     Add a key by sequence id. Create a sequence with
+///     <i> addSequence </i> before.
+/// \param seqId the sequence id.
+/// \param time  =x
+/// \param map  =y
+///
+void SplineDrawer::addKey(int seqId, ulong time, double map) {
+
+    if (!(seqId >= 0 && seqId < m_sequences.size())) { return; }
+    Sequence* seq = m_sequences.at(seqId);
+    if (!(time <= seq->getBeginning() || time >= seq->getEnding())) {
+        seq->addPoint(time, map);
+    }
 }
 
 void SplineDrawer::modifyKey(ulong time, long new_map) {
@@ -174,19 +185,21 @@ void SplineDrawer::modifyKey(ulong time, long new_map) {
 /// \brief SplineDrawer::getInterpolationFactor
 ///         Assume that rate of video is constant
 /// \param tpf time per frame
-/// \param time when the frame wants to be played in not remaped time
-/// \return set of interpolation factors (note: delete pointer)
+/// \param time when the frame wants to be played in original time
+/// \return set of interpolation factors
 ///
-QList<float>* SplineDrawer::getInterpolationFactors(int tpf, ulong time)
+QList<float> SplineDrawer::getInterpolationFactors(int tpf, ulong time)
 {
+    auto ratios = QList<float>();
+
     //coherence check
     if (tpf <= 0) {
         qDebug() << "getInterpolationFactor : warning : fps <= 0";
-        return NULL;
+        return ratios;
     }
-    if (time == 0) {
-        qDebug() << "getInterpolationFactor : warning : time = 0";
-        return NULL;
+    if (time < 0) {
+        qDebug() << "getInterpolationFactor : warning : time < 0";
+        return ratios;
     }
 
     //find to which sequence time is part of (time given in ms)
@@ -197,7 +210,7 @@ QList<float>* SplineDrawer::getInterpolationFactors(int tpf, ulong time)
     ulong nextSeqBegin = 0;
     Sequence* selectedSeq;
     for (int i = 0; i < m_sequences.size(); i++) {
-        Sequence* selectedSeq = m_sequences[i];
+        selectedSeq = m_sequences[i];
         accumulatedTime = selectedSeq->getBeginning();
         if (time >= selectedSeq->getBeginning()) {
             if (time <= selectedSeq->getEnding()) {
@@ -213,37 +226,53 @@ QList<float>* SplineDrawer::getInterpolationFactors(int tpf, ulong time)
     }
 
     //find interpolation factor based on the space bw two frames
-    auto ratios = new QList<float>();
     if (!found) { //I'm not in sequence (at least at the beginning)
-        ratios->append(1.f);
+        ratios.append(1.f);
         return ratios;
     }
 
-    float cumulatedRatio = 0;
-    float rate = 0;
-    ulong resetTime = time - selectedSeq->getBeginning();
+    float cumulatedRatio(0);
+    float splineValue(0);
+    float ratio;
+    //rescaling
+    ulong rescaledTime = time - selectedSeq->getBeginning();
+
     do {
-        if (cumulatedRatio != 0) { ratios->append(cumulatedRatio); }
-        rate = (float) selectedSeq->computeSpline(resetTime);
-        if (rate < 0) { //slowmotion
-            rate = -1.f / rate;
-            resetTime += tpf * rate;
+        splineValue = (float) selectedSeq->computeSpline(rescaledTime);
+
+        if (splineValue < 0) { //slowmotion
+            //convert to ratio ([0,1] space)
+            ratio = 1 / (-1.f * splineValue + 1.f);
+            rescaledTime += tpf * ratio;
         } else { //acceleration
-            /* not yet implemented */
-            rate = 1.f; //just highpass filtering
+            //keep ratio in [1,inf] space
+            //(2.5 means skip t and t+1 frames and dump image in the middle of t+1 and t+2)
+            ratio = splineValue + 1.f;
         }
-    } while ((cumulatedRatio += rate) <= 1.f);
+
+        ratios.append(ratio);
+    } while ((cumulatedRatio += ratio) <= 1.f);
+
     return ratios;
 }
 
-void SplineDrawer::addSequence(ulong start, ulong end) {
+int SplineDrawer::addSequence(ulong start, ulong end) {
+    if (start >= end) { return -1; }
     Sequence* seq = new Sequence(start, end);
     m_sequences.append(seq);
     qSort(m_sequences.begin(), m_sequences.end(), []
     (const Sequence* s1, const Sequence* s2) {
         return s1->getBeginning() < s2->getBeginning();
     });
-    m_curIndex = m_sequences.indexOf(seq);
+    return m_sequences.indexOf(seq);
+}
+
+void SplineDrawer::removeSequence(int sequenceId)
+{
+    if (sequenceId < 0 || sequenceId >= m_sequences.size()) {
+        return;
+    }
+    removeSequence(m_sequences[sequenceId]);
 }
 
 void SplineDrawer::removeSequence(Sequence *seq) {
@@ -268,11 +297,18 @@ void SplineDrawer::initView(const ulong &duration) {
         m_duration = duration;
     }
 
-    /*
-     * Add equally spaced points to the spline, from 0 to maxtime
-     */
+    //clean data
+    foreach (Sequence* seq, m_sequences) {
+        delete seq;
+    }
+    m_sequences.clear();
+    m_currentSequence = NULL;
 
+}
 
+void SplineDrawer::updatePoints()
+{
+    this->update();
 }
 
 void SplineDrawer::mouseOnClick(int x, int y) {

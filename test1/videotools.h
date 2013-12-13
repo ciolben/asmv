@@ -47,6 +47,8 @@ public:
 
     bool isConfigured() const;
 
+    QString getFilename() const;
+
 private:
     QString filename;
     AVFormatContext* pFormatContext;

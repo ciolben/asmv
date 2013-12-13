@@ -10,14 +10,23 @@
 using namespace cv;
 void drawColorField(Mat &imgU, Mat &imgV, Mat &imgColor);
 std::vector<String> listOfFiles();
-void convertFlowToImage(String filename);
+Mat *convertFlowToImage(String filename, bool save = true);
 
 int main(int argc, char *argv[]) {
-    if (argc != 1 && argc != 2) { return 0; }
-
+    if (argc < 1 || argc > 2) { return 0; }
+    bool modeVideo = false;
     if (argc == 2) {
+        String opt(argv[1]);
+        if (opt.compare("-v") == 0) {
+            modeVideo = true;
+        }
+    }
+
+    if (!modeVideo && argc == 2) {
         convertFlowToImage(argv[1]);
     } else {
+        VideoWriter writer;
+        bool initialized = false;
         auto files = listOfFiles();
         for (auto it = files.begin(); it != files.end(); ++it) {
             String filename = *it;
@@ -29,8 +38,22 @@ int main(int argc, char *argv[]) {
             if (filename.substr(id).compare(".gz") == 0
                     || filename.substr(id).compare(".yml") == 0) {
                 std::cout << "Processing " << filename << "..." << std::endl;
-                convertFlowToImage(filename);
+
+                Mat* colored = convertFlowToImage(filename, !modeVideo);
+                if (modeVideo && !initialized) {
+                    Size size(colored->rows, colored->cols);
+                    //CV_FOURCC('D', 'I', 'V', 'X');
+                    writer.open("colored.avi", CV_FOURCC('F', 'L', 'V', '1'), 30, size, true);
+                    initialized = true;
+                }
+                if (modeVideo) {
+                    writer << *colored;
+                }
+                delete colored;
             }
+        }
+        if (modeVideo) {
+            writer.release();
         }
         std::cout << "Finished." << std::endl;
     }
@@ -38,7 +61,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void convertFlowToImage(String filename) {
+Mat* convertFlowToImage(String filename, bool save) {
     //load the optical flow
     String filter;
     FileStorage file(filename, FileStorage::READ);
@@ -73,13 +96,16 @@ void convertFlowToImage(String filename) {
     flowU = mats[0];
     flowV = mats[1];
 
-    Mat colorImg(flow.rows, flow.cols, CV_8UC3);
-    drawColorField(flowU, flowV, colorImg);
+    Mat* colorImg = new Mat(flow.rows, flow.cols, CV_8UC3);
+    drawColorField(flowU, flowV, *colorImg);
 
-    //save the optical flow
-    imwrite(filename.append(".png"), colorImg);
-
+    if (save) {
+        //save the optical flow
+        imwrite(filename.append(".png"), *colorImg);
+    }
     file.release();
+
+    return colorImg;
 }
 
 /** This function calculates rgb values from hsv color space                     */

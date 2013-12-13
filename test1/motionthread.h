@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QFlags>
+#include <QStringList>
 
 #include <vector>
 
@@ -61,6 +62,8 @@ public:
     void setDebug(DebugFlags debugFlags) {}; //TODO
     void setParameters() {}; //TODO
     void setOthers(OtherFlags flags);
+    void addFilesFilters(QString filter);
+    void setSmootingIntensity(int smoothing);
 
     void close();
 
@@ -70,15 +73,17 @@ public:
 
 signals:
     void logText(const QString& info, const QString& color = "", bool bold = false, bool italic = false);
-    void motionProfileComputed(const QString& filename, std::vector<float> data, float ampFactor = 1.f);
+    void motionProfileComputed(const QString& filename, std::vector<float> data, int f = 0, float ampFactor = 1.f);
 
 public slots:
 
 private:
     QString m_filename;
+    QStringList m_filesFilters;
     Steps m_steps;
     OtherFlags m_others;
     bool m_continue;
+    int m_smoothingIntensity;
 
     struct cluster {
         float start;

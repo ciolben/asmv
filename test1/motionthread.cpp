@@ -8,12 +8,12 @@
 #include "mathlib/filtering.h"
 
 MotionThread::MotionThread(QObject *parent) :
-    QThread(parent), m_continue(true)
+    QThread(parent), m_continue(true), m_smoothingIntensity(_windowSizeFirstPass)
 {
 }
 
 MotionThread::MotionThread(const QString& filename, QObject *parent) :
-    QThread(parent), m_filename(filename), m_continue(true)
+    QThread(parent), m_filename(filename), m_continue(true), m_smoothingIntensity(_windowSizeFirstPass)
 {
 }
 
@@ -25,6 +25,19 @@ void MotionThread::setSteps(Steps steps)
 void MotionThread::setOthers(OtherFlags flags)
 {
     m_others = flags;
+}
+
+void MotionThread::addFilesFilters(QString filter)
+{
+    if (filter.isEmpty()) { return; }
+    m_filesFilters << filter;
+}
+
+void MotionThread::setSmootingIntensity(int smoothing)
+{
+    if (smoothing >= 0) {
+        m_smoothingIntensity = smoothing;
+    }
 }
 
 void MotionThread::close()
@@ -181,15 +194,35 @@ void MotionThread::run()
             for (int fpos = 0; fpos < files.size(); ++fpos){
                 QFileInfo file = files.at(fpos);
                 if (file.suffix().compare("gz") != 0) { continue; }
-                flowFiles.append(file);
+                bool found = false;
+                foreach (QString filter, m_filesFilters) {
+                    if (file.baseName().contains(filter)) {
+                        found = true; break;
+                    }
+                }
+
+                if (found) { flowFiles.append(file); }
             }
+
             qSort(flowFiles.begin(), flowFiles.end(), []
             (const QFileInfo f1, const QFileInfo f2) -> bool {
-                int l1 = f1.baseName().length();
-                int l2 = f2.baseName().length();
-                if (l1 < l2) { return true; }
-                if (l2 < l1) { return false; }
-                return f1.baseName().compare(f2.baseName()) < 0;
+                QString s1 = f1.fileName(); QString s2 = f2.fileName();
+                int l1 = s1.length(); int l2 = s2.length();
+                int l = std::min(l1, l2);
+                QString nums1; QString nums2;
+                for (int i = 0; i < l; ++i) {
+                    QChar c(s1.at(i)); QChar c2(s2.at(i));
+                    if (c.isDigit()) {
+                        if (c2.isDigit()) {
+                            nums1.push_back(c);
+                            nums2.push_back(c2);
+                        } else {
+                            return false;
+                        }
+                    } else if (c < c2) { return true; }
+                      else if (c > c2) { return false; }
+                }
+                return nums1.compare(nums2) < 0;
             });
 
             //curve container
@@ -201,7 +234,7 @@ void MotionThread::run()
                 QFileInfo file = flowFiles.at(fpos);
 //                if (file.suffix().compare("gz") != 0) { continue; }
                 emit logText("<font color=\"blue\">("
-                        + QString::number((int)ceil(((float)fpos / (float)files.size() * 100.f)))
+                        + QString::number((int)ceil(((float)fpos+1.f / (float)files.size() * 100.f)))
                         + "%)</font> Processing file : <i>" + file.fileName() + "</i>");
                     QByteArray content = gzipUncompress(file.absoluteFilePath());
 
@@ -346,12 +379,16 @@ void MotionThread::run()
             //we have the values, apply filters
 
             emit logText("finalizing...");
-            std::vector<float> filtered;
             std::vector<float> filtered2;
-            filtered.reserve(values.size());
-            filtered2.reserve(values.size());
-            filter::movingAverage(values, filtered, _windowSizeFirstPass);
-            filter::movingAverage(filtered, filtered2, _windowSizeSecondPass);
+            if (m_smoothingIntensity != 0) {
+                std::vector<float> filtered;
+                filtered.reserve(values.size());
+                filtered2.reserve(values.size());
+                filter::movingAverage(values, filtered, m_smoothingIntensity);
+                filter::movingAverage(filtered, filtered2, m_smoothingIntensity - 1);
+            } else {
+                filtered2 = values;
+            }
 
             //save filtered values
             if ((m_others & WriteMotion) == WriteMotion) {

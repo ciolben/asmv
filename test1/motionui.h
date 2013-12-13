@@ -21,7 +21,8 @@ public:
     void setVideoSource(const QString& source);
 
 signals:
-    void motionProfileComputed(const QString& filename, std::vector<float> data, float ampFactor = 1.f);
+    void motionProfileComputed(const QString& filename, std::vector<float> data
+                               , int keySimplificationFactor = 0, float ampFactor = 1.f);
     void windowClosed(const QString& identifier);
 
 private slots:

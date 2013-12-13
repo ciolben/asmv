@@ -37,7 +37,7 @@ public slots:
     void handleImageEaten();
     void handleTimeout();
     void handleNeedSequences(QList<Sequence *> &sequences);
-    void loadMotionProfile(const QString& file, std::vector<float> profile, float ampFactor = 1.f);
+    void loadMotionProfile(const QString& file, std::vector<float> profile, int keySimplificationFactor = 0, float ampFactor = 1.f);
     void handleWindowDestroyed(const QString& windowName);
 
 private slots:
@@ -65,6 +65,8 @@ private slots:
 
     void on_chkRemapped_stateChanged(int arg1);
 
+    void on_sbReduction_valueChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
     QString filename;
@@ -85,6 +87,7 @@ private:
     }
 
     int dc;
+    std::vector<float> m_currentProfile;
 };
 
 #endif // MAINWINDOW_H

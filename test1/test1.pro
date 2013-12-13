@@ -12,6 +12,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets quick qml
 
 BOOST_PATH = "C:\Program Files\boost\boost_1_54_0"
 
+GEOMETRICTOOLS_PATH = "D:/wildmagic5p10/SDK"
+
 FFMPEG_INCLUDES = ffmpeg/include/
 FFMPEG_LIBS32 = ffmpeg/lib/
 OPTICALFLOW_INCLUDES = opticalflow/include
@@ -21,9 +23,17 @@ QMAKE_LFLAGS += /OPT:NOREF
 
 INCLUDEPATH += $$FFMPEG_INCLUDES
 INCLUDEPATH += $$OPTICALFLOW_INCLUDES \
-                $$BOOST_PATH
+                $$BOOST_PATH \
+                $$GEOMETRICTOOLS_PATH/Include
 
 SUBDIRS += timelineQML
+
+LIBS += -L$$GEOMETRICTOOLS_PATH/Library -lWm5Core \
+            -lWm5Imagics \
+            -lWm5Mathematics \
+            -lWm5Physics \
+            -lWm5WglApplications \
+            -lWm5WglGraphics
 
 LIBS += -L$$FFMPEG_LIBS32 -lavformat\
             -lavcodec \
@@ -89,7 +99,8 @@ HEADERS  += mainwindow.h \
     motionui.h \
     utils/iocompression.h \
     motionthread.h \
-    mathlib/filtering.h
+    mathlib/filtering.h \
+    mathlib/bsplinefitter.h
 
 
 FORMS    += mainwindow.ui \
