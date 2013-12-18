@@ -83,7 +83,10 @@ QList<float>* OpticalFlowTools::getInterpolationFactors(int tpf, ulong time)
     return ratios;
 }
 
-QImage *OpticalFlowTools::interpolate(const QImage *frame1, const QImage *frame2, const float factor, const QString &f1, const QString &f2, const QString& suffix, const bool compressedFormat)
+QImage *OpticalFlowTools::interpolate(const QImage *frame1, const QImage *frame2
+                                      , const float factor, const QString &f1, const QString &f2
+                                      , const QString& outFolderCst
+                                      , const QString& suffix, const bool compressedFormat)
 {
     if (frame1 == NULL || frame2 == NULL) {
         return NULL;
@@ -98,7 +101,7 @@ QImage *OpticalFlowTools::interpolate(const QImage *frame1, const QImage *frame2
 
             QString exepath = QString("opticalflowCV.exe");
             QFile file(exepath); qDebug() << "file exist ? : " << file.exists();
-            qDebug() << "exe path : " << exepath;
+//            qDebug() << "exe path : " << exepath;
             if (!file.exists()) {
                 return NULL;
             }
@@ -106,21 +109,28 @@ QImage *OpticalFlowTools::interpolate(const QImage *frame1, const QImage *frame2
 
             int id = f1.lastIndexOf(".");
             if (id == -1) { id = f1.length(); }
-            QString outName = f1.mid(0, id) + suffix + f1.mid(id);
-            QStringList args; args.append("interpolation"); args.append(f1); args.append(f2);
-            args.append(outName); args.append("-"); args.append(QString("%1").arg(factor));
+            int id_b = f1.lastIndexOf("/");
+            if (id_b == -1) { id_b = f1.lastIndexOf("\\"); }
+            if (id_b == -1) { id_b = 0; }
+            QString outFolder(outFolderCst);
+            if (!(outFolder.endsWith("/") || outFolder.endsWith("\\"))) {
+                outFolder += "/";
+            }
+            QString outName = f1.mid(id_b + 1, id) + suffix + f1.mid(id);
+            QStringList args; args.append("interpolate"); args.append(f1); args.append(f2);
+            args.append(outFolder + outName); args.append("-"); args.append(QString("%1").arg(factor));
 
             int exitCode;
             qDebug() << "execute : " << m_process->execute(exepath, args);
-            qDebug() << "error : " << m_process->errorString();
+//            qDebug() << "error : " << m_process->errorString();
             m_process->waitForFinished();
-            qDebug() << "Output : " << QString(m_process->readAll());
+//            qDebug() << "Output : " << QString(m_process->readAll());
             qDebug() << "exit code : " << (exitCode = m_process->exitCode());
 
             QImage* res = NULL;
-            if (exitCode == 0) {
-                res = new QImage(outName);
-            }
+//            if (exitCode == 0) {
+//                res = new QImage(outName);
+//            }
             delete m_process;
             m_process = NULL;
             return res;

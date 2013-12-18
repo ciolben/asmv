@@ -23,7 +23,7 @@ public:
 
     QImage* computeFlow(const QImage* frame1, const QImage* frame2, const QString& f1 = "", const QString& f2 = "");
     QList<float>* getInterpolationFactors(int tpf, ulong time);
-    QImage* interpolate(const QImage* frame1, const QImage* frame2, const float factor, const QString& f1 = "", const QString &f2 = "", const QString& suffix = "i", const bool compressedFormat = true);
+    QImage* interpolate(const QImage* frame1, const QImage* frame2, const float factor, const QString& f1 = "", const QString &f2 = "", const QString& outFolder = "", const QString& suffix = "i", const bool compressedFormat = true);
 
     QList<Sequence *> getSequences() const { return m_sequences; }
     void setSequences(const QList<Sequence *> &sequences) { m_sequences = sequences; }
