@@ -164,6 +164,10 @@ void InterpolateUi::on_btInterpolate_clicked() {
         if (offset == -1) {
             accf = 0; //then reset accumulator
         }
+
+        //update progress bar
+        ui->pbProgress->setValue(ceil((float)((i+1) / images.size() * 100)));
+        ui->pbProgress->update();
        }
 
     ui->btInterpolate->setEnabled(true);
