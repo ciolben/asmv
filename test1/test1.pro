@@ -44,7 +44,7 @@ LIBS += -L$$FFMPEG_LIBS32 -lavformat\
             -lswresample \
             -lswscale
 
-TARGET = test1
+TARGET = ASMV
 TEMPLATE = app
 
 SOURCES += main.cpp\

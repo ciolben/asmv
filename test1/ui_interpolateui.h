@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QGroupBox>
@@ -39,6 +40,7 @@ public:
     QLineEdit *txtSrc;
     QPushButton *btInterpolate;
     QLineEdit *txtOut;
+    QCheckBox *chkLog;
     QGroupBox *groupBox_2;
     QHBoxLayout *horizontalLayout;
     QProgressBar *pbProgress;
@@ -97,6 +99,11 @@ public:
 
         gridLayout_2->addWidget(txtOut, 3, 2, 1, 1);
 
+        chkLog = new QCheckBox(groupBox);
+        chkLog->setObjectName(QStringLiteral("chkLog"));
+
+        gridLayout_2->addWidget(chkLog, 4, 0, 1, 1);
+
 
         gridLayout->addWidget(groupBox, 0, 0, 1, 1);
 
@@ -132,6 +139,7 @@ public:
         txtSrc->setText(QApplication::translate("InterpolateUi", "out/", 0));
         btInterpolate->setText(QApplication::translate("InterpolateUi", "Interpolate", 0));
         txtOut->setText(QApplication::translate("InterpolateUi", "interpolated/", 0));
+        chkLog->setText(QApplication::translate("InterpolateUi", "Log to file", 0));
         groupBox_2->setTitle(QApplication::translate("InterpolateUi", "Progression", 0));
     } // retranslateUi
 

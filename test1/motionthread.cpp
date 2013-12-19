@@ -216,7 +216,7 @@ void MotionThread::run()
                 QFileInfo file = flowFiles.at(fpos);
 //                if (file.suffix().compare("gz") != 0) { continue; }
                 emit logText("<font color=\"blue\">("
-                        + QString::number((int)ceil(((float)fpos+1.f / (float)files.size() * 100.f)))
+                        + QString::number((int)ceil((((float)fpos+1.f) / (float)flowFiles.size() * 100.f)))
                         + "%)</font> Processing file : <i>" + file.fileName() + "</i>");
                     QByteArray content = gzipUncompress(file.absoluteFilePath());
 

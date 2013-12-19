@@ -116,7 +116,7 @@ QImage *OpticalFlowTools::interpolate(const QImage *frame1, const QImage *frame2
             if (!(outFolder.endsWith("/") || outFolder.endsWith("\\"))) {
                 outFolder += "/";
             }
-            QString outName = f1.mid(id_b + 1, id) + suffix + f1.mid(id);
+            QString outName = f1.mid(id_b + 1, id - id_b - 1) + suffix + f1.mid(id);
             QStringList args; args.append("interpolate"); args.append(f1); args.append(f2);
             args.append(outFolder + outName); args.append("-"); args.append(QString("%1").arg(factor));
 
