@@ -2,6 +2,7 @@
 
 #include <QTime>
 #include <QStringBuilder>
+#include <QDir>
 #include <QDebug>
 
 WorkerThread::WorkerThread(QObject *parent, QLabel *renderTarget, VideoTools* vTools, ImageEaterThread& _imageEater)
@@ -32,6 +33,21 @@ void WorkerThread::run() {
     //imageEater.setRate(1000);
     imageEater.start();
     //*****
+
+    //check if filename ends with /
+    if (!(filename.endsWith("/") || filename.endsWith("\\"))) {
+        filename += "/";
+    }
+    QDir outdir(filename);
+    if (!outdir.exists()) {
+        if (outdir.isRelative()) {
+            QDir root(".");
+            root.mkpath(filename);
+        } else {
+            QDir root(filename.mid(0, 3) + "/");
+            root.mkpath(filename.mid(4, -1));
+        }
+    }
 
     while (curCounter < duration) {
         curCounter++;
@@ -78,4 +94,9 @@ void WorkerThread::setTiming(int bwFrames, int duration)
 {
     this->bwFrames = bwFrames;
     this->duration = duration;
+}
+
+void WorkerThread::setOutputDir(const QString &outputDir)
+{
+    filename = outputDir;
 }

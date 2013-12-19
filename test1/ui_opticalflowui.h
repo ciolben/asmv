@@ -19,6 +19,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QVBoxLayout>
@@ -48,7 +49,7 @@ public:
     QLabel *lblFrame2;
     QGroupBox *groupBox_3;
     QHBoxLayout *horizontalLayout_6;
-    QLabel *label_5;
+    QProgressBar *pbProgress;
     QGroupBox *groupBox_4;
     QHBoxLayout *horizontalLayout_7;
     QLabel *label_6;
@@ -56,8 +57,8 @@ public:
     QLabel *label_7;
     QLineEdit *txtOutput;
     QPushButton *btStart;
-    QPushButton *pushButton;
-    QPushButton *pushButton_2;
+    QPushButton *btPause;
+    QPushButton *btClose;
 
     void setupUi(QDialog *OpticalFlowUI)
     {
@@ -221,10 +222,11 @@ public:
         groupBox_3->setObjectName(QStringLiteral("groupBox_3"));
         horizontalLayout_6 = new QHBoxLayout(groupBox_3);
         horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
-        label_5 = new QLabel(groupBox_3);
-        label_5->setObjectName(QStringLiteral("label_5"));
+        pbProgress = new QProgressBar(groupBox_3);
+        pbProgress->setObjectName(QStringLiteral("pbProgress"));
+        pbProgress->setValue(0);
 
-        horizontalLayout_6->addWidget(label_5);
+        horizontalLayout_6->addWidget(pbProgress);
 
 
         verticalLayout->addWidget(groupBox_3);
@@ -250,23 +252,33 @@ public:
 
         txtOutput = new QLineEdit(groupBox_4);
         txtOutput->setObjectName(QStringLiteral("txtOutput"));
+        txtOutput->setEnabled(false);
 
         horizontalLayout_7->addWidget(txtOutput);
 
         btStart = new QPushButton(groupBox_4);
         btStart->setObjectName(QStringLiteral("btStart"));
+        QIcon icon;
+        icon.addFile(QStringLiteral(":/icons/play.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btStart->setIcon(icon);
 
         horizontalLayout_7->addWidget(btStart);
 
-        pushButton = new QPushButton(groupBox_4);
-        pushButton->setObjectName(QStringLiteral("pushButton"));
+        btPause = new QPushButton(groupBox_4);
+        btPause->setObjectName(QStringLiteral("btPause"));
+        QIcon icon1;
+        icon1.addFile(QStringLiteral(":/icons/pause.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btPause->setIcon(icon1);
 
-        horizontalLayout_7->addWidget(pushButton);
+        horizontalLayout_7->addWidget(btPause);
 
-        pushButton_2 = new QPushButton(groupBox_4);
-        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
+        btClose = new QPushButton(groupBox_4);
+        btClose->setObjectName(QStringLiteral("btClose"));
+        QIcon icon2;
+        icon2.addFile(QStringLiteral(":/icons/stop.png"), QSize(), QIcon::Normal, QIcon::Off);
+        btClose->setIcon(icon2);
 
-        horizontalLayout_7->addWidget(pushButton_2);
+        horizontalLayout_7->addWidget(btClose);
 
 
         verticalLayout->addWidget(groupBox_4);
@@ -292,16 +304,15 @@ public:
         lblFlow->setText(QApplication::translate("OpticalFlowUI", "TextLabel", 0));
         groupBox_7->setTitle(QApplication::translate("OpticalFlowUI", "Frame i+1", 0));
         lblFrame2->setText(QApplication::translate("OpticalFlowUI", "TextLabel", 0));
-        groupBox_3->setTitle(QApplication::translate("OpticalFlowUI", "Movement", 0));
-        label_5->setText(QApplication::translate("OpticalFlowUI", "No graph", 0));
+        groupBox_3->setTitle(QApplication::translate("OpticalFlowUI", "Progress", 0));
         groupBox_4->setTitle(QString());
         label_6->setText(QApplication::translate("OpticalFlowUI", "Input dir: ", 0));
         txtInput->setText(QApplication::translate("OpticalFlowUI", "out/", 0));
         label_7->setText(QApplication::translate("OpticalFlowUI", "Output dir :", 0));
         txtOutput->setText(QApplication::translate("OpticalFlowUI", "out/flow/", 0));
         btStart->setText(QApplication::translate("OpticalFlowUI", "Start", 0));
-        pushButton->setText(QApplication::translate("OpticalFlowUI", "Pause", 0));
-        pushButton_2->setText(QApplication::translate("OpticalFlowUI", "Close", 0));
+        btPause->setText(QApplication::translate("OpticalFlowUI", "Pause", 0));
+        btClose->setText(QApplication::translate("OpticalFlowUI", "Close", 0));
     } // retranslateUi
 
 };

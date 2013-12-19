@@ -19,12 +19,13 @@ public:
     void pause();
     void resume();
     void stop();
+    bool isRunning();
 
     void setInputDir(QString inputDir) { m_inputDir = inputDir; }
     void setOutputDir(QString outputDir) { m_outputDir = outputDir; }
 
 signals:
-    void flowComputed(QImage* img1, QImage* img2, QImage* flow);
+    void flowComputed(QImage* img1, QImage* img2, QImage* flow, int progress);
 
 private:
     OpticalFlowTools* m_optflowtools;
@@ -34,6 +35,7 @@ private:
 
     bool m_pause;
     bool m_alive;
+    bool m_running;
 
     QString m_inputDir;
     QString m_outputDir;

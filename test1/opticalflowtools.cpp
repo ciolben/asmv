@@ -100,7 +100,7 @@ QImage *OpticalFlowTools::interpolate(const QImage *frame1, const QImage *frame2
             qDebug() << "Will use chain tools instead";
 
             QString exepath = QString("opticalflowCV.exe");
-            QFile file(exepath); qDebug() << "file exist ? : " << file.exists();
+            QFile file(exepath); /*qDebug() << "file exist ? : " << file.exists();*/
 //            qDebug() << "exe path : " << exepath;
             if (!file.exists()) {
                 return NULL;
@@ -156,13 +156,16 @@ QImage *OpticalFlowTools::interpolate(const QImage *frame1, const QImage *frame2
 /// Open a new QT object window.
 /// Note used anymore : Once created, the object opticalflow tools is available
 /// in QMLRegister.
-OpticalFlowTools* OpticalFlowTools::createWindow(QWidget *parent)
+OpticalFlowTools* OpticalFlowTools::createWindow(QWidget *parent, const QString& indir = "")
 {
     /*
      * CPP version
      */
 
     OpticalFlowUI* ui = new OpticalFlowUI(parent);
+    if (!indir.isEmpty()) {
+        ui->setInputDir(indir);
+    }
     ui->show();
 
     OpticalFlowTools* optflowTools = new OpticalFlowTools();
@@ -204,15 +207,15 @@ QImage* OpticalFlowTools::computeFlow(const QImage* frame1, const QImage* frame2
 
     //try to load dll
     if (m_process == NULL && m_optflowLib == NULL) {
-        QString libpath = "../../build-opticalflowCV-Desktop_Qt_5_1_1_MSVC2010_32bit_OpenGL-Debug/debug/";
+        QString libpath = "";
         QLibrary* library = new QLibrary(libpath + "opticalflowCV.dll");
         if (!library->load()) {
             qDebug() << "Cannot load opticalflowCV.dll : " << library->errorString();
             qDebug() << "Will use chain tools instead";
 
-            QString exepath = QString("../build-opticalflowCV-Desktop_Qt_5_1_1_MSVC2010_32bit_OpenGL-Debug/debug/") + "opticalflowCV.exe";
-            QFile file(exepath); qDebug() << "file exist ? : " << file.exists();
-            qDebug() << "exe path : " << exepath;
+            QString exepath = "opticalflowCV.exe";
+            QFile file(exepath); /*qDebug() << "file exist ? : " << file.exists();*/
+//            qDebug() << "exe path : " << exepath;
             if (!file.exists()) {
                 return NULL;
             }
@@ -230,9 +233,9 @@ QImage* OpticalFlowTools::computeFlow(const QImage* frame1, const QImage* frame2
 
             int exitCode;
             qDebug() << "execute : " << m_process->execute(exepath, args);
-            qDebug() << "error : " << m_process->errorString();
+//            qDebug() << "error : " << m_process->errorString();
             m_process->waitForFinished();
-            qDebug() << "Output : " << QString(m_process->readAll());
+//            qDebug() << "Output : " << QString(m_process->readAll());
             qDebug() << "exit code : " << (exitCode = m_process->exitCode());
 
             QImage* res = NULL;

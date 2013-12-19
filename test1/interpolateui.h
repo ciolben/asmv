@@ -20,10 +20,10 @@ public:
     explicit InterpolateUi(SplineDrawer *spline, QWidget *parent = 0);
     ~InterpolateUi();
 
+    void addBaseName(const QString& basename);
+
 private slots:
     void on_btInterpolate_clicked();
-
-    void on_btOpticalFlow_clicked();
 
     virtual void closeEvent(QCloseEvent*);
 

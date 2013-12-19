@@ -5,6 +5,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "utils/iocompression.h"
+#include "utils/filesutils.h"
 #include "mathlib/filtering.h"
 
 MotionThread::MotionThread(QObject *parent) :
@@ -204,26 +205,7 @@ void MotionThread::run()
                 if (found) { flowFiles.append(file); }
             }
 
-            qSort(flowFiles.begin(), flowFiles.end(), []
-            (const QFileInfo f1, const QFileInfo f2) -> bool {
-                QString s1 = f1.fileName(); QString s2 = f2.fileName();
-                int l1 = s1.length(); int l2 = s2.length();
-                int l = std::min(l1, l2);
-                QString nums1; QString nums2;
-                for (int i = 0; i < l; ++i) {
-                    QChar c(s1.at(i)); QChar c2(s2.at(i));
-                    if (c.isDigit()) {
-                        if (c2.isDigit()) {
-                            nums1.push_back(c);
-                            nums2.push_back(c2);
-                        } else {
-                            return false;
-                        }
-                    } else if (c < c2) { return true; }
-                      else if (c > c2) { return false; }
-                }
-                return nums1.compare(nums2) < 0;
-            });
+            sortFiles(flowFiles);
 
             //curve container
             std::vector<float> values;

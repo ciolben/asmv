@@ -64,16 +64,6 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QPushButton" name="btOpticalFlow">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>OpticalFlow</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="2">
        <widget class="QLineEdit" name="txtSrc">
         <property name="text">

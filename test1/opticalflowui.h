@@ -21,15 +21,19 @@ public:
     void setOpticalFlowTools(OpticalFlowTools* optflowtools);
 
     QString getOutputDir() const { return m_outputDir; }
-    void setOutputDir(const QString &outputDir) { m_outputDir = outputDir; }
+    void setOutputDir(const QString &outputDir) { m_outputDir = outputDir;}
     QString getInputDir() const { return m_inputDir; }
-    void setInputDir(const QString &inputDir) { m_inputDir = inputDir; }
+    void setInputDir(const QString &inputDir);
 
 public slots:
-    void handleNewFlow(QImage* img1, QImage* img2, QImage* flow);
+    void handleNewFlow(QImage* img1, QImage* img2, QImage* flow, int progress);
 
 private slots:
     void on_btStart_clicked();
+
+    void on_btClose_clicked();
+
+    void on_btPause_clicked();
 
 private:
     Ui::OpticalFlowUI *ui;

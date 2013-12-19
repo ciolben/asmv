@@ -3,6 +3,8 @@
 
 #include <QDir>
 
+#include "utils/filesutils.h"
+
 #include <QDebug>
 
 InterpolateUi::InterpolateUi(SplineDrawer* spline, QWidget *parent) :
@@ -16,6 +18,12 @@ InterpolateUi::InterpolateUi(SplineDrawer* spline, QWidget *parent) :
 
 InterpolateUi::~InterpolateUi() {
     delete ui;
+}
+
+void InterpolateUi::addBaseName(const QString &basename)
+{
+    ui->txtSrc->setText(basename + "_Frames/");
+    ui->txtOut->setText(basename + "_InterpFrames/");
 }
 
 void InterpolateUi::on_btInterpolate_clicked() {
@@ -45,11 +53,9 @@ void InterpolateUi::on_btInterpolate_clicked() {
 
 
     QDir srcdir(strSrcdir);
-    QStringList filterImg;
-    filterImg << "*.png" << "*.jpg" << "*.jpeg";
     QStringList filterFlow;
     filterFlow << "*.gz";
-    QFileInfoList images = srcdir.entryInfoList(filterImg
+    QFileInfoList images = srcdir.entryInfoList(getSupportedImagesFilter()
                            , QDir::Files
                            , QDir::Name);
     QFileInfoList flows = srcdir.entryInfoList(filterFlow
@@ -63,36 +69,8 @@ void InterpolateUi::on_btInterpolate_clicked() {
         strOutdir += "/";
     }
 
-    auto sortfun = []
-    (const QFileInfo f1, const QFileInfo f2) -> bool {
-        QString s1 = f1.fileName();
-        QString s2 = f2.fileName();
-        int l1 = s1.length();
-        int l2 = s2.length();
-        int l = std::min(l1, l2);
-        QString nums1;
-        QString nums2;
-        for (int i = 0; i < l; ++i) {
-            QChar c(s1.at(i));
-            QChar c2(s2.at(i));
-            if (c.isDigit()) {
-                if (c2.isDigit()) {
-                    nums1.push_back(c);
-                    nums2.push_back(c2);
-                } else {
-                    return false;
-                }
-            } else if (c < c2) {
-                return true;
-            } else if (c > c2) {
-                return false;
-            }
-        }
-        return nums1.compare(nums2) < 0;
-    };
-
-    qSort(images.begin(), images.end(), sortfun);
-    qSort(flows.begin(), flows.end(), sortfun);
+    sortFiles(images);
+    sortFiles(flows);
 
     ulong currentTime = 0;
 
@@ -175,8 +153,4 @@ void InterpolateUi::on_btInterpolate_clicked() {
 
 void InterpolateUi::closeEvent(QCloseEvent*) {
     emit windowClosed("interpolation");
-}
-
-void InterpolateUi::on_btOpticalFlow_clicked() {
-
 }

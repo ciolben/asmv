@@ -11,8 +11,10 @@ OpticalFlowUI::OpticalFlowUI(QWidget *parent) :
   , m_inputDir("")
   , m_outputDir("")
   , m_optflowtools(NULL)
+  , m_thread(NULL)
 {
     ui->setupUi(this);
+    ui->btPause->setEnabled(false);
 }
 
 OpticalFlowUI::~OpticalFlowUI()
@@ -25,15 +27,33 @@ void OpticalFlowUI::setOpticalFlowTools(OpticalFlowTools *optflowtools)
     m_optflowtools = optflowtools;
 }
 
-void OpticalFlowUI::handleNewFlow(QImage *img1, QImage *img2, QImage *flow)
+void OpticalFlowUI::setInputDir(const QString &inputDir)
+{
+     m_inputDir = inputDir;
+     ui->txtInput->setText(inputDir);
+}
+
+void OpticalFlowUI::handleNewFlow(QImage *img1, QImage *img2, QImage *flow, int progress)
 {
     if (img1 != NULL) { ui->lblFrame1->setPixmap(QPixmap::fromImage(*img1)); }
     if (img2 != NULL) { ui->lblFrame2->setPixmap(QPixmap::fromImage(*img2)); }
     if (flow != NULL) { ui->lblFlow->setPixmap(QPixmap::fromImage(*flow)); }
+    if (progress >= 0 && progress <= 100) {
+        ui->pbProgress->setValue(progress);
+        ui->pbProgress->update();
+    }
 }
 
 void OpticalFlowUI::on_btStart_clicked()
 {
+
+    ui->btPause->setEnabled(true);
+
+    if (m_thread != NULL) {
+        //wake it up or do nothing
+        m_thread->resume();
+        return;
+    }
 
     //check folder
     if (ui->txtInput->text().isEmpty() || ui->txtOutput->text().isEmpty()) {
@@ -63,4 +83,22 @@ void OpticalFlowUI::on_btStart_clicked()
     m_thread->setOutputDir(m_outputDir);
     connect(m_thread, &OpticalFlowThread::flowComputed, this, &OpticalFlowUI::handleNewFlow);
     m_thread->start();
+}
+
+void OpticalFlowUI::on_btClose_clicked()
+{
+    if(m_thread != NULL) {
+        m_thread->stop();
+        while(m_thread->isRunning()) { this->thread()->msleep(100);}
+        delete m_thread;
+    }
+    this->close();
+}
+
+void OpticalFlowUI::on_btPause_clicked()
+{
+    if(m_thread != NULL) {
+        m_thread->pause();
+        ui->btPause->setEnabled(false);
+    }
 }

@@ -17,6 +17,7 @@ public:
     void close();
 
     void setTiming(int bwFrames, int duration);
+    void setOutputDir(const QString& outputDir);
 
 signals:
     void resultReady(const QString* s);

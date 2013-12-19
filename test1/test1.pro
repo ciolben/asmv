@@ -100,7 +100,8 @@ HEADERS  += mainwindow.h \
     utils/iocompression.h \
     motionthread.h \
     mathlib/filtering.h \
-    mathlib/bsplinefitter.h
+    mathlib/bsplinefitter.h \
+    utils/filesutils.h
 
 
 FORMS    += mainwindow.ui \
@@ -122,3 +123,6 @@ OTHER_FILES += \
     timelineQML/timeline.qml \
     timelineQML/Line.qml \
     opticalflowUI.qml
+
+RESOURCES += \
+    icons.qrc

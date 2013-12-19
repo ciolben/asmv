@@ -10,6 +10,7 @@
 
 #include "qmlregister.h"
 #include "mathlib/bsplinefitter.h"
+#include "utils/filesutils.h"
 
 #include <QtQuick/QQuickView>
 
@@ -271,6 +272,8 @@ void MainWindow::on_btGo_clicked()
         }
     }
 
+    QString outdir(getNameOfFile(filename) + "_Frames/");
+
     //interconnect elements
     vtools.setFramesToSkip(ui->txtSkipFrames->text().toInt());
     if (imageEater != NULL) { imageEater->close(); delete imageEater; }
@@ -281,6 +284,7 @@ void MainWindow::on_btGo_clicked()
     ui->pbBuffer->setMaximum(ui->cboBuffer->currentText().toInt());
     WorkerThread *workerThread = new WorkerThread(this, ui->lblImage, &vtools, *imageEater);
     workerThread->setTiming(ui->txtFrame->text().toInt(), ui->txtDuration->text().toInt());
+    workerThread->setOutputDir(outdir);
     connect(workerThread, &WorkerThread::resultReady, this, &MainWindow::handleResult);
     connect(workerThread, &WorkerThread::newValidFrame, this, &MainWindow::handleNewValidFrame);
     connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
@@ -317,7 +321,7 @@ void MainWindow::logText(const QString *text)
 void MainWindow::on_btFlow_clicked()
 {
 
-    m_optflowtools = OpticalFlowTools::createWindow(this);
+    m_optflowtools = OpticalFlowTools::createWindow(this, getNameOfFile(ui->txtFile->text()) + "_Frames/");
     if (spline != NULL) {
         m_optflowtools->setSequences(spline->getSequences());
     }
@@ -371,6 +375,7 @@ void MainWindow::on_btInterpolate_clicked()
     //only one interpolation ui is allowed
     if (m_interpUi != NULL) { return; }
     m_interpUi = new InterpolateUi(spline, this);
+    m_interpUi->addBaseName(getNameOfFile(ui->txtFile->text()));
     connect(m_interpUi, &InterpolateUi::windowClosed, this, &MainWindow::handleWindowDestroyed);
     connect(m_interpUi, &InterpolateUi::needSequences, this, &MainWindow::handleNeedSequences
             , Qt::DirectConnection);

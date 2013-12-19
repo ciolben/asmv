@@ -12,7 +12,7 @@ class OpticalFlowTools {
 
 public:
     static QImage* computeCoarse2Fine(const QString& im1, const QString& im2);
-    static OpticalFlowTools *createWindow(QWidget *parent);
+    static OpticalFlowTools *createWindow(QWidget *parent, const QString &indir);
 
     OpticalFlowTools();
     ~OpticalFlowTools() {}
