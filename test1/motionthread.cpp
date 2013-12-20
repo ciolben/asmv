@@ -331,7 +331,7 @@ void MotionThread::run()
                      * 2.2 prune the extra clusters regarding its neighbors frames
                      */
 
-                    //TODO (first need to test)
+                    //Done with spline fitter
 
                     //3.saving clusters
 

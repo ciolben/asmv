@@ -172,7 +172,7 @@ public:
 
     void retranslateUi(QDialog *MotionUi)
     {
-        MotionUi->setWindowTitle(QApplication::translate("MotionUi", "Dialog", 0));
+        MotionUi->setWindowTitle(QApplication::translate("MotionUi", "SceneMotion", 0));
         label->setText(QApplication::translate("MotionUi", "Video source :", 0));
         label_2->setText(QApplication::translate("MotionUi", "Output :", 0));
         btStart->setText(QApplication::translate("MotionUi", "Start", 0));

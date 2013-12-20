@@ -10,6 +10,7 @@
 
 #include "qmlregister.h"
 #include "mathlib/bsplinefitter.h"
+#include "mathlib/filtering.h"
 #include "utils/filesutils.h"
 
 #include <QtQuick/QQuickView>
@@ -104,18 +105,31 @@ void MainWindow::handleNeedSequences(QList<Sequence *>& sequences)
     }
 }
 
-void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profile
-                                   , int keySimplificationFactor, float ampFactor)
+void MainWindow::initializeNewProfile(const QString &file, std::vector<float> profile)
 {
+    m_currentProfile = profile;
+    m_profile = profile;
+
     //ui stuff
     ui->txtFile->setText(file);
     ui->chkRemapped->setChecked(true);
+    ui->sbReduction->setValue(0);
+    ui->lblSplineInfo->setText("Profile loaded.");
 
     //reset videotools
     if (vtools.getFilename().compare(file) != 0) {
         vtools.initFfmpeg(file);
     }
 
+    //set spTolerance to max value (so user have an idea)
+    ui->spTolerance->setValue(filter::findAbsMax<float>(profile));
+
+    loadMotionProfile(profile);
+}
+
+void MainWindow::loadMotionProfile(std::vector<float> profile
+                                   , double keySimplificationFactor, float ampFactor)
+{
     //get duration and sample the space
     int duration = vtools.getDurationMs();
     qDebug() << "duration : " << duration;
@@ -140,9 +154,6 @@ void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profi
         return;
     }
 
-    //(re)save current profile
-    m_currentProfile = profile;
-
     //create raw spline
     int count(0);
     foreach (float f, profile) {
@@ -164,7 +175,7 @@ void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profi
         float reductionFactor = keySimplificationFactor;
         int dimension = 2;
         int numSamples = profile.size();
-        int degree = 3;
+        int degree = 1;
         int numCtrlPoints = profile.size() / reductionFactor;
         float* samples = (float*) malloc(numSamples * sizeof(float) * dimension);
 
@@ -174,10 +185,12 @@ void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profi
             //x
             samples[i] = (int) i / dimension;
             //y
-            samples[i + 1] = (float) seq->computeSpline(samples[i]);
+            samples[i + 1] = (float) seq->computeSpline(samples[i] * sampling);
         }
 
-        const float* simplified = BSplineFitter::reduceKeys(numSamples, samples, degree, numCtrlPoints);
+        std::pair<float*, char*> simplout = BSplineFitter::reduceKeys(numSamples, samples
+                                                                      , degree, numCtrlPoints, true);
+        float* simplified = simplout.first;
         spline->removeSequence(seqId);
         seqId = spline->addSequence(0, duration);
 
@@ -185,6 +198,13 @@ void MainWindow::loadMotionProfile(const QString &file, std::vector<float> profi
             int index = (int) simplified[i];
             spline->addKey(seqId, (ulong) index * sampling, simplified[i+1]);
         }
+
+        QString errors(simplout.second);
+        QStringList errList = errors.split(",");
+        ui->lblSplineInfo->setText(QString("RMSD : %1, average distance : %2").arg(errList[0], errList[1]));
+
+        delete []simplout.first;
+        delete []simplout.second;
     }
 
     //update points
@@ -389,7 +409,7 @@ void MainWindow::on_btMotion_clicked()
     m_motionUi = new MotionUi();
 
     connect(m_motionUi, &MotionUi::windowClosed, this, &MainWindow::handleWindowDestroyed);
-    connect(m_motionUi, &MotionUi::motionProfileComputed, this, &MainWindow::loadMotionProfile);
+    connect(m_motionUi, &MotionUi::motionProfileComputed, this, &MainWindow::initializeNewProfile);
 
     m_motionUi->setVideoSource(ui->txtFile->text());
     m_motionUi->show();
@@ -408,9 +428,38 @@ void MainWindow::on_chkRemapped_stateChanged(int arg1)
     on_chkRemapped_clicked();
 }
 
-void MainWindow::on_sbReduction_valueChanged(int arg1)
+void MainWindow::on_sbReduction_valueChanged(double arg1)
 {
     if (vtools.getFilename().isEmpty()) { return; }
     if (m_currentProfile.empty()) { return; }
-    loadMotionProfile(vtools.getFilename(), m_currentProfile, arg1);
+    loadMotionProfile(m_currentProfile, arg1);
+}
+
+void MainWindow::on_pbResetSpline_clicked()
+{
+    initializeNewProfile(vtools.getFilename(), m_profile);
+}
+
+void MainWindow::on_pbRemoveOutliers_clicked()
+{
+    qDebug() << filter::rescaleExcentricValues(m_currentProfile
+                                               , (float) ui->spTolerance->value()
+                                               , (double) ui->slOutliers->value() / 100.0);
+    loadMotionProfile(m_currentProfile, ui->sbReduction->value());
+}
+
+void MainWindow::on_slOutliers_valueChanged(int value)
+{
+    QStringList parts = ui->lblSplineInfo->text().split("|");
+    QString fpart = parts.at(0);
+    ui->lblSplineInfo->setText(fpart
+                               + "| cutoff : " + QString::number((float)value / 100.f));
+}
+
+void MainWindow::on_spTolerance_valueChanged(double arg1)
+{
+    QStringList parts = ui->lblSplineInfo->text().split("|");
+    QString fpart = parts.at(0);
+    ui->lblSplineInfo->setText(fpart
+                               + "| tolerance : " + QString::number((float)arg1));
 }

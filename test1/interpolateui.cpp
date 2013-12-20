@@ -107,7 +107,7 @@ void InterpolateUi::on_btInterpolate_clicked() {
             if (log) { *out << "fatal error : residual accf > 1 or < 0 (" << accf << ") !\n"; }
             qDebug() << "fatal error : residual accf > 1 or < 0 (" << accf << ") !";
             break;
-        } else if (accf < 0) {
+        } else if (accf < 1) {
             //directly interpolate and reset accf
             QString interpNameFull = interpName + QString::number(count) + ext;
             QImage* interpolatedFrame;

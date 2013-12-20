@@ -73,7 +73,7 @@ public:
 
 signals:
     void logText(const QString& info, const QString& color = "", bool bold = false, bool italic = false);
-    void motionProfileComputed(const QString& filename, std::vector<float> data, int f = 0, float ampFactor = 1.f);
+    void motionProfileComputed(const QString& filename, std::vector<float> data);
 
 public slots:
 
