@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     spline = (SplineDrawer*)QMLRegister::getQMLObject("spline");
 
     qRegisterMetaType<std::vector<float> >("std::vector<float>");
+
 }
 
 MainWindow::~MainWindow()
@@ -128,8 +129,12 @@ void MainWindow::initializeNewProfile(const QString &file, std::vector<float> pr
 }
 
 void MainWindow::loadMotionProfile(std::vector<float> profile
-                                   , double keySimplificationFactor, float ampFactor)
+                                   , double keySimplificationFactor
+                                   , bool recomputeAverage
+                                   , float ampFactor)
 {
+    if (profile.empty()) { return; }
+
     //get duration and sample the space
     int duration = vtools.getDurationMs();
     qDebug() << "duration : " << duration;
@@ -139,12 +144,21 @@ void MainWindow::loadMotionProfile(std::vector<float> profile
 
     //compute the main motion tendency
     float varianceCenter(0);
-    foreach (float f, profile) {
-        varianceCenter += f;
+    if (recomputeAverage) {
+        foreach (float f, profile) {
+            varianceCenter += f;
+        }
+        varianceCenter /= profile.size();
     }
 
-    varianceCenter /= profile.size();
+    //save filter points
+    QList<std::pair<ulong, float>> filterPoints;
+    if (!spline->getSequences().isEmpty()) {
+        foreach (auto p, spline->getSequences().first()->extraPointsList)
+        filterPoints.append(p);
+    }
 
+    //init spline
     spline->initView(duration);
 
     //set up sequence
@@ -154,19 +168,29 @@ void MainWindow::loadMotionProfile(std::vector<float> profile
         return;
     }
 
+    //setup filter points
+    foreach (auto p, filterPoints) {
+        spline->getSequences().first()->extraPointsList.append(p);
+    }
+
     //create raw spline
     int count(0);
     foreach (float f, profile) {
-        float ratio = f / varianceCenter;
-        float sign = -1.f;
-        //check if range is 1 to inf
-        if (ratio < 1) {
-            //if not, need to convert from [0,1[ space to [1, inf] space
-            ratio = varianceCenter / f;
-            sign = 1.f;
+        if (recomputeAverage) {
+            float ratio = f / varianceCenter;
+            float sign = -1.f;
+            //check if range is 1 to inf
+            if (ratio < 1) {
+                //if not, need to convert from [0,1[ space to [1, inf] space
+                ratio = varianceCenter / f;
+                sign = 1.f;
+            }
+            spline->addKey(seqId, count * sampling,
+                           (sign * (ratio - 1.0) * ampFactor));
+        } else {
+            spline->addKey(seqId, count * sampling,
+                           (f * ampFactor));
         }
-        spline->addKey(seqId, count * sampling,
-                       (sign * (ratio - 1.0) * ampFactor));
         count++;
     }
 
@@ -462,4 +486,39 @@ void MainWindow::on_spTolerance_valueChanged(double arg1)
     QString fpart = parts.at(0);
     ui->lblSplineInfo->setText(fpart
                                + "| tolerance : " + QString::number((float)arg1));
+}
+
+void MainWindow::on_btFilter_clicked()
+{
+    if (spline == NULL) { return; }
+    if (spline->getSequences().isEmpty()) { return; }
+    Sequence* seq = spline->getSequences().first();
+    pair<ulong, float> test(vtools.getDurationMs() / 2, -2.f);
+
+    seq->extraPointsList.clear();
+    seq->extraPointsList.append(test);
+
+    //dump spline values to array for applying fitler on them
+    vector<float> splineValues; splineValues.reserve(m_currentProfile.size());
+    for (int i(0); i < m_currentProfile.size(); ++i) {
+        //i must be transformed to video ms
+        //then y is in spline coords, and so is the filter.
+        splineValues.push_back(seq->computeSpline((float)i / m_currentProfile.size() * (float)spline->duration()));
+    }
+
+    //read params
+    int mod = ui->dialMod->value();
+    float fit = ((float)ui->dialFit->value() + 1.f) / (float)ui->dialFit->maximum();
+    if (!ui->chkPlus->isChecked()) {
+        fit *= 2.25f;
+        fit += 1.f;
+    }
+    bool cut = ui->chkCut->isChecked();
+
+    //apply filter
+    filter::applyClocheFilter(splineValues
+                              , test.first * m_currentProfile.size() / vtools.getDurationMs(), test.second, mod, fit, cut);
+    loadMotionProfile(splineValues, 0, false);
+    spline->updatePoints();
+        ui->wTimeline->update();
 }

@@ -97,7 +97,8 @@ public:
         splitter->addWidget(chkwflow);
         chkProfiling = new QCheckBox(splitter);
         chkProfiling->setObjectName(QStringLiteral("chkProfiling"));
-        chkProfiling->setChecked(true);
+        chkProfiling->setEnabled(true);
+        chkProfiling->setChecked(false);
         splitter->addWidget(chkProfiling);
         label_4 = new QLabel(MotionUi);
         label_4->setObjectName(QStringLiteral("label_4"));

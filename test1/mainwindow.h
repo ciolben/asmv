@@ -38,7 +38,7 @@ public slots:
     void handleTimeout();
     void handleNeedSequences(QList<Sequence *> &sequences);
     void initializeNewProfile(const QString& file, std::vector<float> profile);
-    void loadMotionProfile(std::vector<float> profile, double keySimplificationFactor = 0, float ampFactor = 1.f);
+    void loadMotionProfile(std::vector<float> profile, double keySimplificationFactor = 0, bool recomputeAverage = true, float ampFactor = 1.f);
     void handleWindowDestroyed(const QString& windowName);
 
 private slots:
@@ -75,6 +75,8 @@ private slots:
     void on_slOutliers_valueChanged(int value);
 
     void on_spTolerance_valueChanged(double arg1);
+
+    void on_btFilter_clicked();
 
 private:
     Ui::MainWindow *ui;

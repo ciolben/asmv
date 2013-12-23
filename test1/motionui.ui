@@ -114,11 +114,14 @@
     </property>
    </widget>
    <widget class="QCheckBox" name="chkProfiling">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="text">
      <string>3. Motion Estimation</string>
     </property>
     <property name="checked">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
   </widget>

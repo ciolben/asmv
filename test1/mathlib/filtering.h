@@ -189,19 +189,6 @@ public:
              //interpolate the border values
              return (*idx + *(--idx)) / 2.0;
          }
-
-//         int idx = binary_search(sDev, stdDev);
-//         if (idx < 0) {
-//           int i = (-idx) - 1;
-//           if (i == 0) {
-//              return below[0];
-//           } else {
-//              return (below[i] + below[i-1])/2.0;
-//           }
-//         } else {
-//            return below[idx];
-//         }
-
      }
 
     /** Lookup the fraction of the set that is expected to be above this many standard
@@ -210,6 +197,14 @@ public:
         return 1.0 - getBelow(stdDev);
     }
 
+    ///
+    /// \brief reject
+    ///     Apply Chauvenet's criterion to determine if the value is
+    ///     with p probability an outlier.
+    /// \param stdDevDist
+    /// \param count
+    /// \return true if it is considered as an outlier, false otherwise.
+    ///
     bool reject(double stdDevDist, int count) {
         return 2.0 * getAbove(stdDevDist) * count < m_cutoff; //p = Chauvenet cutoff
     }
@@ -303,6 +298,119 @@ static QString rescaleExcentricValues(vector<float>& array
         }
     }
  return dbg;
+}
+
+///
+/// \brief cloche
+///     Cloche (~Bell) function
+/// \param x
+/// \param length
+/// \param center
+/// \return
+///
+inline float cloche (float x, int length, float center) {
+    float pi = 3.14159265359;
+    return sin(x * 2.f * pi / length - pi / 2.f) * center / 2.f + (center / 2.f);
+}
+
+///
+/// \brief applyClocheFilter
+///     The value that is right under the center of the filter will be amplify the most.
+///     The farthest it is from the center, the less the amplification it is.
+///     The fit factor adjusts the effect of the filter.
+///     The mods are the following :
+///         - 1 : Amplify the most where there is most motion only.
+///         - 2 : Relative difference from the filter is used to amplify the values.
+///         - 3 : Adaptive amplification with fit factor.
+///     Note : designed for being applied correctly when filter center y is negative.
+/// \param array
+/// \param center_x (index in the array)
+/// \param center_y
+/// \param mod
+/// \param fitFactor
+/// \return hint depending on the mod
+///
+static float applyClocheFilter(vector<float>& array, const int& center_x
+                              , const int& center_y, const int& mod, const float& fitFactor, const bool& highpass) {
+
+    int size(array.size());
+    auto& X = array;
+    auto& Y = array;
+
+    if (center_x <= 0 || center_x >= size) {
+        return 0.f;
+    }
+
+    for (int part(1); part <= 2; ++part) {
+        //range param init
+        int start; // [start, ...
+        int end;   //   ... , end]
+        int length;
+        int offset;
+        switch (part) {
+        //first half
+        /*
+         *       *
+         *     .
+         *    .
+         *   .
+         * .
+         * _____________________
+         */
+        case 1:
+            start = 0;
+            end = center_x;
+            length = (center_x + 1) * 2;
+            offset = 0;
+            break;
+        //second half
+        /*
+         *       *
+         *         .
+         *           .
+         *              .
+         *                  .
+         * _____________________
+         */
+        case 2:
+            start = center_x + 1;
+            end = size - 1;
+            length = (size - center_x - 1) * 2;
+            offset = - center_x + length / 2;
+            break;
+        }
+//        qDebug() << "s : " << start << " e : " << end << " length : " << length << " of : " << offset;
+//        qDebug() << "fit : " << fitFactor << " mod : " << mod;
+        //filter loop
+        for (int i(start); i <= end; ++i) {
+            float Fi = cloche(i + offset, length, center_y);
+            switch (mod) {
+            case 1: //preserve motion
+                Y[i] = X[i] * -Fi;
+                break;
+            case 2: //diff * amp
+                Y[i] = X[i] + (Fi - X[i]) * ((part==1) ? ((float) i / (float) end) : ((float) start / (float) i));
+                break;
+            case 3: //adaptive
+                Y[i] = X[i] + Fi;
+                break;
+            default:
+                return 0.f;
+            }
+
+            Y[i] = Y[i] / fitFactor;
+
+            //if needed, cut values outide the filter
+            if (highpass) {
+                if (Y[i] < Fi) {
+                    Y[i] = Fi;
+                }
+            }
+        }
+    }
+
+    return 0.f;
+
 }
 
 }
