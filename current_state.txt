@@ -22,7 +22,7 @@ Find frames of interest
 		-solution :
 			1. dump wflow -> ok
 			2. compute clusters -> ok (uses multithread for sorting and computing clusters)
-			3. output final result -> (need to prune some results)
+			3. output final result -> (need to prune some results) ok
 			4. add viewer -> matlab -> ok
 Time remapping
 	find the right level of remapping without noise (probably using natural smoothing of splines).
@@ -35,7 +35,7 @@ FIXED : memory leak in FFMPEG decoder (frame's packet were not correctly freed).
 FIXED  : cannot load DImage (from OpticalFlow lib) in QImage (need save 
 to disk then read from disk as a workaround).
 FIXED : need to find correct image import format (jpg gives strange vertical lines when copied into cv::mat)
-BUG : packed QML files into qrc because it's not convenient to put them 
+FIXED : packed QML files into qrc because it's not convenient to put them 
 into a folder when distributing app.
 FIXED : every possible combinations I was able to think of with wrong input/lib loading when computing optical flow is handled. Executable for just computating flow now exists.
 FIXED : cannot use mapreduce for sorting (use Release profile and not Debug with MSVC2010).

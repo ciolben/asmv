@@ -14,7 +14,7 @@
 int main(int argc, char *argv[])
 {
     QFile file ("log.txt");
-    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    file.open(QIODevice::Append | QIODevice::Text);
     QTextStream out(&file);
 
     short mod = -1;
@@ -438,10 +438,10 @@ QImage *interpolate(const QImage &frame1, const QImage &frame2, const float fact
 
     switch (computationMod) {
     case 0: //GPU
-        interpFrames(f1, f2, result, _0_fx, _0_fx, bx, by, factor);
+        interpFrames(f1, f2, result, _0_fx, _0_fy, bx, by, factor);
         break;
     case 1: //CPU
-        interpFramesCPU(f1, f2, result, _0_fx, _0_fx, factor);
+        interpFramesCPU(f1, f2, result, _0_fx, _0_fy, factor);
         break;
     default:
         return NULL;

@@ -291,7 +291,7 @@ public:
 
     void retranslateUi(QDialog *OpticalFlowUI)
     {
-        OpticalFlowUI->setWindowTitle(QApplication::translate("OpticalFlowUI", "Dialog", 0));
+        OpticalFlowUI->setWindowTitle(QApplication::translate("OpticalFlowUI", "Compute Optical Flow", 0));
         label->setText(QApplication::translate("OpticalFlowUI", "Optical Flow", 0));
         groupBox->setTitle(QApplication::translate("OpticalFlowUI", "Computation", 0));
         rdGPU->setText(QApplication::translate("OpticalFlowUI", "GPU", 0));

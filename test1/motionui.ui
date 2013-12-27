@@ -358,33 +358,36 @@
     <string>frames</string>
    </property>
   </widget>
-  <widget class="QSpinBox" name="sbReduction">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>150</y>
-     <width>42</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="maximum">
-    <number>100</number>
-   </property>
-   <property name="value">
-    <number>2</number>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_12">
+  <widget class="QCheckBox" name="chkCorrectErrors">
    <property name="geometry">
     <rect>
      <x>70</x>
      <y>150</y>
-     <width>81</width>
-     <height>20</height>
+     <width>211</width>
+     <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>Reduce keys by </string>
+    <string>Correct possible errors with values &gt; </string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="sbCorrection">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>150</y>
+     <width>42</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>1000</number>
+   </property>
+   <property name="value">
+    <number>200</number>
    </property>
   </widget>
  </widget>

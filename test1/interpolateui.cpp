@@ -107,7 +107,7 @@ void InterpolateUi::on_btInterpolate_clicked() {
             if (log) { *out << "fatal error : residual accf > 1 or < 0 (" << accf << ") !\n"; }
             qDebug() << "fatal error : residual accf > 1 or < 0 (" << accf << ") !";
             break;
-        } else if (accf < 1) {
+        } else if (accf != 0 && accf < 1) {
             //directly interpolate and reset accf
             QString interpNameFull = interpName + QString::number(count) + ext;
             QImage* interpolatedFrame;
@@ -153,7 +153,7 @@ void InterpolateUi::on_btInterpolate_clicked() {
             if (accf > 1) {
                 //we have either an acceleration, or we need to interpolate
                 //part of the next frame
-                int offset(-1);
+                int offset(0);
                 do {
                     accf -= 1.f;
                     ++offset; //jump to next frames
@@ -173,6 +173,7 @@ void InterpolateUi::on_btInterpolate_clicked() {
             } else if (accf == 1) {
                 frame2.save(interpNameFull);
                 if (log) {*out << " -> frame2 saved : " << interpNameFull << "\n"; }
+                accf = 0;
             } else {
                 QImage* interpolatedFrame;
                 interpolatedFrame = m_optflowtools.interpolate(&frame1, &frame2

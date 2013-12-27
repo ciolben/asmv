@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qRegisterMetaType<std::vector<float> >("std::vector<float>");
 
+    ui->txtFit->setText(QString::number(1));
 }
 
 MainWindow::~MainWindow()
@@ -262,7 +263,7 @@ void MainWindow::on_btClose_clicked()
 void MainWindow::on_btOpen_clicked()
 {
     dc = 0;
-    QString res = QFileDialog::getOpenFileName(this, "Open video file", QDir::homePath());
+    QString res = QFileDialog::getOpenFileName(this, "Open video file", QDir::currentPath());
     ui->txtFile->setText(res); 
 }
 
@@ -456,7 +457,7 @@ void MainWindow::on_sbReduction_valueChanged(double arg1)
 {
     if (vtools.getFilename().isEmpty()) { return; }
     if (m_currentProfile.empty()) { return; }
-    loadMotionProfile(m_currentProfile, arg1);
+    loadMotionProfile(m_currentProfile, arg1, ui->txtFit->text().toFloat());
 }
 
 void MainWindow::on_pbResetSpline_clicked()
@@ -469,7 +470,7 @@ void MainWindow::on_pbRemoveOutliers_clicked()
     qDebug() << filter::rescaleExcentricValues(m_currentProfile
                                                , (float) ui->spTolerance->value()
                                                , (double) ui->slOutliers->value() / 100.0);
-    loadMotionProfile(m_currentProfile, ui->sbReduction->value());
+    loadMotionProfile(m_currentProfile, ui->sbReduction->value(), ui->txtFit->text().toFloat());
 }
 
 void MainWindow::on_slOutliers_valueChanged(int value)
@@ -521,4 +522,9 @@ void MainWindow::on_btFilter_clicked()
     loadMotionProfile(splineValues, 0, false);
     spline->updatePoints();
         ui->wTimeline->update();
+}
+
+void MainWindow::on_btFit_clicked()
+{
+    loadMotionProfile(m_currentProfile, ui->sbReduction->value(), true, ui->txtFit->text().toFloat());
 }

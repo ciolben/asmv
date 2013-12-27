@@ -82,15 +82,18 @@ Item {
         function computeTime(pos) {
             var time
             var p = pos / container.width
-            var h, m, s
-            s = splineDrawer.duration * p / 1000
+            var h, m, s, ms
+            ms = splineDrawer.duration * p
+            s = ms / 1000
             m = s / 60
+            ms = Math.floor(ms % 1000)
             s = Math.floor(s % 60)
-            h = Math.floor(m / 60)
+            //h = Math.floor(m / 60)
             m = Math.floor(m % 60)
-            time = h < 10 ? "0" + h : h
-            time += ":" + (m < 10 ? "0" + m : m)
+            //time = h < 10 ? "0" + h : h
+            time = (m < 10 ? "0" + m : m)
             time += ":" + (s < 10 ? "0" + s : s)
+            time += ":" + (ms < 10 ? "00" : ms < 100 ? "0" : "") + ms
             return " " + time
         }
 
@@ -100,6 +103,7 @@ Item {
             color: "#ece914"
             text: parent.computeTime(playpos)
             x: container.width - playpos < 50 ? playpos - 43 : playpos
+            z: 2
         }
 
         Text {

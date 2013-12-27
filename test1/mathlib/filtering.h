@@ -34,7 +34,7 @@ inline float sum(const vector<float>& input, int from = 0, int to = -1) {
 /// window size).
 ///
 static void movingAverage(const vector<float>& input, vector<float>& output, float ws) {
-    if (input.size() < ws) { std::cout << "ws too big" << std::endl; return; }
+    if (input.size() < ws) { cout << "ws too big" << endl; return; }
 
     int hws = floor(ws / 2.f);
     int bindex = hws;
@@ -48,7 +48,7 @@ static void movingAverage(const vector<float>& input, vector<float>& output, flo
         csum += input.at(i);
     }
 
-    for(int i = bindex; i < ws; ++i) {
+    for(int i = bindex; i <= ws; ++i) {
         csum += input.at(i);
     }
 
@@ -56,7 +56,7 @@ static void movingAverage(const vector<float>& input, vector<float>& output, flo
         output.push_back(csum / ws);
         if (i == eindex) { break; }
         csum += input.at(i + hws + 1);
-        csum -= input.at(i - hws);
+        csum -= input.at(i - hws + 1);
     }
 
     for(int i = eindex + 1; i < size - 1; ++i) {
@@ -249,8 +249,8 @@ static QString rescaleExcentricValues(vector<float>& array
     vector<int> rejected;
     int count = array.size();
     QString dbg;
-    dbg += "size " + QString::number(array.size());
-    dbg += " , p = " + QString::number(p) + "\n";
+//    dbg += "size " + QString::number(array.size());
+//    dbg += " , p = " + QString::number(p) + "\n";
     //avoid borders
     for (int i(0); i < count; ++i) {
         double distance (mean - array[i]);
@@ -259,9 +259,9 @@ static QString rescaleExcentricValues(vector<float>& array
         if (rejectTest.reject(stdDevDist, count)) {
             rejected.push_back(i);
 
-           dbg += "rejected : " + QString::number(i) + "(" + QString::number(array[i]) + ")\n";
+//           dbg += "rejected : " + QString::number(i) + "(" + QString::number(array[i]) + ")\n";
         } else {
-            dbg += "keep : " + QString::number(i) + "(" + QString::number(array[i]) + ")\n";
+//            dbg += "keep : " + QString::number(i) + "(" + QString::number(array[i]) + ")\n";
         }
     }
 

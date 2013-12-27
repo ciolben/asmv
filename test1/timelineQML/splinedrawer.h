@@ -43,6 +43,11 @@ public:
     int addSequence(ulong start, ulong end);
     void removeSequence(int sequenceId);
 
+    bool isModified() { return m_modified; }
+
+    float getYScalingFactor() { return m_curheight / (m_maxDiff - m_minDiff); }
+    float getXScalingFactor() { return m_curwidth / m_duration; }
+
 signals:
     void durationChanged(int);
     void playpositionChanged(int);
@@ -69,6 +74,7 @@ private:
 
     bool m_editing;
     bool m_dragging;
+    bool m_modified; //true when user add/rm/move a keypoint at least one time
 
     Sequence* m_currentSequence;
     QList<Sequence*> m_sequences;

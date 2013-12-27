@@ -52,7 +52,8 @@ public:
     ulong getBeginning() const { return m_begin; }
     ulong getEnding() const { return m_end; }
 
-    QList<pair> getControlPointsList() { return m_controlPoints; }
+    QList<pair> getControlPointsList() const { return m_controlPoints; }
+    QList<pair> extraPointsList; //for filter centers
 
     double computeSpline(ulong x) {
         if (m_controlPoints.isEmpty()) { return 0.0; }

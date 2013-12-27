@@ -30,6 +30,10 @@ MotionUi::MotionUi(QWidget *parent) :
     } else {
        logText("Fix the problem and launch again this dialog.");
     }
+
+    ui->txtMaxDist->setText(QString::number(_maxDistInsideCluster));
+    ui->txtMinClustSize->setText(QString::number(_minClusterSize));
+    ui->txtMinValue->setText(QString::number(_minThreshold));
 }
 
 MotionUi::~MotionUi()
@@ -45,8 +49,8 @@ MotionUi::~MotionUi()
 
 void MotionUi::setVideoSource(const QString &source)
 {
-    //ui->txtSource->setText(source);
-    ui->txtSource->setText("C:/Users/Loic/Coding_Main/ADM/test1/snow1.mp4");
+    ui->txtSource->setText(source);
+//    ui->txtSource->setText("C:/Users/Loic/Coding_Main/ADM/test1/snow1.mp4");
 }
 
 void MotionUi::logText(const QString &text, const QString &color, bool bold, bool italic)
@@ -83,11 +87,18 @@ void MotionUi::on_btStart_clicked()
     if (ui->rdWflow->isChecked()) { m_thread->addFilesFilters("wflow"); }
     if (ui->rdBoth->isChecked()) { m_thread->addFilesFilters("afflow"); m_thread->addFilesFilters("wflow"); }
     m_thread->setSmootingIntensity(ui->slSmooth->value());
+    m_thread->setErrorThreshold( ui->chkCorrectErrors->isChecked()? ui->sbCorrection->value() : -1.f );
     connect(m_thread, &MotionThread::logText, this, &MotionUi::logText);
 
     //forward signal
     connect(m_thread, &MotionThread::motionProfileComputed, this, &MotionUi::motionProfileComputed);
 
+    //params
+    _minThreshold = ui->txtMinValue->text().toFloat();
+    _maxDistInsideCluster = ui->txtMaxDist->text().toFloat();
+    _minClusterSize = ui->txtMinClustSize->text().toFloat();
+
+    //start
     m_thread->start();
 }
 

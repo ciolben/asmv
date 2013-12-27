@@ -125,4 +125,5 @@ OTHER_FILES += \
     opticalflowUI.qml
 
 RESOURCES += \
-    icons.qrc
+    icons.qrc \
+    qmls.qrc

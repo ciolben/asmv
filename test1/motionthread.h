@@ -14,32 +14,37 @@ Q_DECLARE_METATYPE(std::vector<float>)
 ///
 /// \brief _minThreshold
 ///     The min value for which the displacement is saved.
+///     Default : 0.5
 ///
-const float _minThreshold = 0.5f;
+static float _minThreshold = 0.5f;
 
 ///
 /// \brief _maxDistInsideCluster
 ///     Maximum distance allowed between points in one cluster.
+///     Default : 0.5
 ///
-const float _maxDistInsideCluster = 0.5f;
+static float _maxDistInsideCluster = 0.5f;
 
 ///
 /// \brief _minClusterSize
 ///     Minimum cluster size.
+///     Default : 10
 ///
-const float _minClusterSize = 10;
+static float _minClusterSize = 10;
 
 ///
 /// \brief _windowSizeFirstPass
 ///     First pass window size for the running average
+///     Default : 24
 ///
-const float _windowSizeFirstPass = 24;
+static float _windowSizeFirstPass = 24;
 
 ///
 /// \brief _windowSizeSecondPass
 ///     Second pass window size for the running average
+///     Default : 23
 ///
-const float _windowSizeSecondPass = 23;
+static float _windowSizeSecondPass = 23;
 
 //***************
 
@@ -64,6 +69,7 @@ public:
     void setOthers(OtherFlags flags);
     void addFilesFilters(QString filter);
     void setSmootingIntensity(int smoothing);
+    void setErrorThreshold(float value);
 
     void close();
 
@@ -84,6 +90,9 @@ private:
     OtherFlags m_others;
     bool m_continue;
     int m_smoothingIntensity;
+    int m_errorThreshold;
+
+    void initParameters();
 
     struct cluster {
         float start;

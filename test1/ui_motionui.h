@@ -57,8 +57,8 @@ public:
     QLabel *label_10;
     QLabel *lblSmooth;
     QLabel *label_11;
-    QSpinBox *sbReduction;
-    QLabel *label_12;
+    QCheckBox *chkCorrectErrors;
+    QSpinBox *sbCorrection;
 
     void setupUi(QDialog *MotionUi)
     {
@@ -156,14 +156,15 @@ public:
         label_11 = new QLabel(MotionUi);
         label_11->setObjectName(QStringLiteral("label_11"));
         label_11->setGeometry(QRect(320, 100, 41, 16));
-        sbReduction = new QSpinBox(MotionUi);
-        sbReduction->setObjectName(QStringLiteral("sbReduction"));
-        sbReduction->setGeometry(QRect(150, 150, 42, 21));
-        sbReduction->setMaximum(100);
-        sbReduction->setValue(2);
-        label_12 = new QLabel(MotionUi);
-        label_12->setObjectName(QStringLiteral("label_12"));
-        label_12->setGeometry(QRect(70, 150, 81, 20));
+        chkCorrectErrors = new QCheckBox(MotionUi);
+        chkCorrectErrors->setObjectName(QStringLiteral("chkCorrectErrors"));
+        chkCorrectErrors->setGeometry(QRect(70, 150, 211, 21));
+        chkCorrectErrors->setChecked(true);
+        sbCorrection = new QSpinBox(MotionUi);
+        sbCorrection->setObjectName(QStringLiteral("sbCorrection"));
+        sbCorrection->setGeometry(QRect(290, 150, 42, 22));
+        sbCorrection->setMaximum(1000);
+        sbCorrection->setValue(200);
 
         retranslateUi(MotionUi);
         QObject::connect(slSmooth, SIGNAL(valueChanged(int)), lblSmooth, SLOT(setNum(int)));
@@ -197,7 +198,7 @@ public:
         label_10->setText(QApplication::translate("MotionUi", "Smoothing :", 0));
         lblSmooth->setText(QApplication::translate("MotionUi", "24", 0));
         label_11->setText(QApplication::translate("MotionUi", "frames", 0));
-        label_12->setText(QApplication::translate("MotionUi", "Reduce keys by ", 0));
+        chkCorrectErrors->setText(QApplication::translate("MotionUi", "Correct possible errors with values > ", 0));
     } // retranslateUi
 
 };

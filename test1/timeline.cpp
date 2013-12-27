@@ -13,7 +13,7 @@ Timeline::Timeline(QWidget *parent) :
     QQuickView *view = new QQuickView();
     QWidget *container = QWidget::createWindowContainer(view, this);
     container->setFocusPolicy(Qt::TabFocus);
-    view->setSource(QUrl("timelineQML/timeline.qml"));
+    view->setSource(QUrl("qrc:/timelineQML/timeline.qml"));
     view->setResizeMode(QQuickView::SizeRootObjectToView);
     ui->gridLayout->addWidget(container);
 

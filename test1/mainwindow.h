@@ -78,6 +78,8 @@ private slots:
 
     void on_btFilter_clicked();
 
+    void on_btFit_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString filename;

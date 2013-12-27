@@ -9,13 +9,15 @@
 #include "mathlib/filtering.h"
 
 MotionThread::MotionThread(QObject *parent) :
-    QThread(parent), m_continue(true), m_smoothingIntensity(_windowSizeFirstPass)
+    QThread(parent), m_continue(true)
 {
+    initParameters();
 }
 
 MotionThread::MotionThread(const QString& filename, QObject *parent) :
-    QThread(parent), m_filename(filename), m_continue(true), m_smoothingIntensity(_windowSizeFirstPass)
+    QThread(parent), m_filename(filename), m_continue(true)
 {
+    initParameters();
 }
 
 void MotionThread::setSteps(Steps steps)
@@ -39,6 +41,11 @@ void MotionThread::setSmootingIntensity(int smoothing)
     if (smoothing >= 0) {
         m_smoothingIntensity = smoothing;
     }
+}
+
+void MotionThread::setErrorThreshold(float value)
+{
+    m_errorThreshold = value;
 }
 
 void MotionThread::close()
@@ -351,7 +358,18 @@ void MotionThread::run()
 //                        out.close();
 //                    }
 
-                    values.push_back(sum / size);
+                    float value(sum / size);
+                    if (m_errorThreshold != -1 && value > m_errorThreshold) {
+                        //try to smooth the change (important for the running average filters)
+                        QString info("error " + QString::number(value));
+                        if (values.size() == 0) {
+                            value = 0.f;
+                        } else {
+                            value = values.back() + (m_errorThreshold - values.back()) / 2.f;
+                        }
+                        emit logText(info + " corrected -> " + QString::number(value), "gray");
+                    }
+                    values.push_back(value);
 
                     //debug
 //                    count++;
@@ -361,6 +379,7 @@ void MotionThread::run()
             //we have the values, apply filters
 
             emit logText("finalizing...");
+
             std::vector<float> filtered2;
             if (m_smoothingIntensity != 0) {
                 std::vector<float> filtered;
@@ -413,4 +432,14 @@ void MotionThread::run()
     }
 
     emit logText("Ended", "green", false, true);
+}
+
+void MotionThread::initParameters()
+{
+//    _minThreshold = 0.5f;
+//    _maxDistInsideCluster = 0.5f;
+//    _minClusterSize = 10;
+//    _windowSizeFirstPass = 24;
+//    _windowSizeSecondPass = 23;
+    m_smoothingIntensity = _windowSizeFirstPass;
 }

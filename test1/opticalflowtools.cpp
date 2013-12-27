@@ -88,10 +88,14 @@ QImage *OpticalFlowTools::interpolate(const QImage *frame1, const QImage *frame2
                                       , const QString& outFolderCst
                                       , const QString& suffix, const bool compressedFormat)
 {
+//    qDebug() << "im1 : " << frame1->depth() << " im2 : " << frame2->depth() << " factor : " << factor
+//             << " f1 : " << f1 << " f2 : " << f2 << " outfolder : " << outFolderCst << " suffix : "
+//             << suffix << " comp : " << compressedFormat;
     if (frame1 == NULL || frame2 == NULL) {
+//        qDebug() << "null";
         return NULL;
     }
-
+//return NULL;
     if (m_process == NULL && m_optflowLib == NULL) {
         QString libpath = "";
         QLibrary* library = new QLibrary(libpath + "opticalflowCV.dll");
