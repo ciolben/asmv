@@ -34,6 +34,8 @@ public:
     void addKey(int seqId, ulong time, double map);
     void modifyKey(ulong time, long new_map);
     void beginAddSequence() { m_editing = true; }
+    void beginAddExtraPoint() { m_editingExtra = true; }
+    bool isAddExtraPointEnded() { return !m_editingExtra; }
 
     QList<float> getInterpolationFactors(int tpf, ulong time);
 
@@ -73,6 +75,7 @@ private:
     long m_minDiff;
 
     bool m_editing;
+    bool m_editingExtra;
     bool m_dragging;
     bool m_modified; //true when user add/rm/move a keypoint at least one time
 

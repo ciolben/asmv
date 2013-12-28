@@ -80,6 +80,14 @@ private slots:
 
     void on_btFit_clicked();
 
+    void on_btUp_clicked();
+
+    void on_btDown_clicked();
+
+    void on_btHighLow_clicked();
+
+    void on_btApplyFilter_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString filename;
@@ -98,10 +106,13 @@ private:
     void logText(const char* text) {
         logText(&QString(text));
     }
+    void readSplineValues(std::vector<float>& dest, Sequence *seq = NULL) const;
+    void writeSplineValues(const std::vector<float>& src) const;
 
     int dc;
     std::vector<float> m_currentProfile;
     std::vector<float> m_profile;
+
 };
 
 #endif // MAINWINDOW_H

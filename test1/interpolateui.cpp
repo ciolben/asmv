@@ -124,19 +124,19 @@ void InterpolateUi::on_btInterpolate_clicked() {
             if (log) { *out << "interpolation : residual accf : " << accf
                             << " -> " << interpNameFull << "\n"; }
             ++count;
-            accf = 0;
 
         } else if (accf == 1){
             QString interpNameFull = interpName + QString::number(count) + ext;
             frame1.save(interpNameFull);
             if (log) {*out << "residual acc -> frame1 saved : " << interpNameFull << "\n"; }
             ++count;
-            accf = 0;
         }
 
         //get interpolation factor
         QList<float> ratios;
-        ratios = m_spline->getInterpolationFactors(tps, currentTime);
+        ratios = m_spline->getInterpolationFactors(tps, tps * i + tps * accf);
+
+        accf = 0;
 
         if (log) {*out << "***image number " << i << " (ratios size : " << ratios.size() << ")" << "\n"; }
         if (log) {*out << "interpname " << interpName << " Loop through ratios : \n"; }
@@ -153,7 +153,7 @@ void InterpolateUi::on_btInterpolate_clicked() {
             if (accf > 1) {
                 //we have either an acceleration, or we need to interpolate
                 //part of the next frame
-                int offset(0);
+                int offset(-1);
                 do {
                     accf -= 1.f;
                     ++offset; //jump to next frames

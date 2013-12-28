@@ -143,6 +143,15 @@ Item {
                 color: colorRed
             }
 
+            Line {
+                id: zero
+                orientation: "h"
+                y: parent.height / 2
+                z: 4
+                width: parent.width
+                color: colorLightWhite
+            }
+
             Column {
                 property int space: parent.height / numHLine;
                 y: space

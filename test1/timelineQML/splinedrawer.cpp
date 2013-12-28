@@ -10,6 +10,7 @@ SplineDrawer::SplineDrawer(QQuickItem *parent) :
     QQuickPaintedItem(parent)
     , m_sequences(QList<Sequence*>())
     , m_editing(false)
+    , m_editingExtra(false)
     , m_dragging(false)
     , m_modified(false)
     , m_currentSequence(NULL)
@@ -461,14 +462,24 @@ void SplineDrawer::mouseOnClick(int x, int y) {
         if (!found) {
             m_currentSequence = NULL;
         }
+
+
         //add point if we have to, else return
         if (m_currentSequence != NULL && !m_dragging) {
-            //add point to current Sequence if not outside
-            if (!(nx <= m_currentSequence->getBeginning() || ny >= m_currentSequence->getEnding())) {
-                m_currentSequence->addPoint(nx, ny);
-                m_modified = true;
+            if (m_editingExtra) {
+                //add extra point where the user click
+                m_editingExtra = false;
+
+                m_currentSequence->extraPointsList.append(pair(nx, ny));
+            } else {
+                //add point to current Sequence if not outside
+                if (!(nx <= m_currentSequence->getBeginning() || ny >= m_currentSequence->getEnding())) {
+                    m_currentSequence->addPoint(nx, ny);
+                    m_modified = true;
+                }
             }
         }
+
     }
     this->update();
 }

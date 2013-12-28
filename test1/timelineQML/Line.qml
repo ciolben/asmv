@@ -4,6 +4,7 @@ Rectangle {
     property string orientation : "h"
     property string colorGreen: "#22881b"
     property string colorRed: "#882020"
+    property string colorLightWhite: "#80FFFFFF"
 
     property int rwidth: 1
     property int rheight: 1

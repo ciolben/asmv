@@ -124,7 +124,8 @@ void MainWindow::initializeNewProfile(const QString &file, std::vector<float> pr
     }
 
     //set spTolerance to max value (so user have an idea)
-    ui->spTolerance->setValue(filter::findAbsMax<float>(profile));
+    float max(filter::findAbsMax<float>(profile));
+    ui->spTolerance->setValue(max / 2.f);
 
     loadMotionProfile(profile);
 }
@@ -138,10 +139,8 @@ void MainWindow::loadMotionProfile(std::vector<float> profile
 
     //get duration and sample the space
     int duration = vtools.getDurationMs();
-    qDebug() << "duration : " << duration;
-    qDebug() << "size : " << profile.size();
     double sampling = duration / profile.size();
-    qDebug() << "sample space : " << sampling;
+    qDebug() << "duration : " << duration << ", nb keys : " << profile.size() << "time bw frames : " << sampling;
 
     //compute the main motion tendency
     float varianceCenter(0);
@@ -176,6 +175,7 @@ void MainWindow::loadMotionProfile(std::vector<float> profile
 
     //create raw spline
     int count(0);
+    float max(-10000), min(10000);
     foreach (float f, profile) {
         if (recomputeAverage) {
             float ratio = f / varianceCenter;
@@ -186,17 +186,29 @@ void MainWindow::loadMotionProfile(std::vector<float> profile
                 ratio = varianceCenter / f;
                 sign = 1.f;
             }
-            spline->addKey(seqId, count * sampling,
-                           (sign * (ratio - 1.0) * ampFactor));
+
+            ratio = sign * (ratio - 1.0) * ampFactor;
+            if (ratio > max) { max = ratio; }
+            if (ratio < min) { min = ratio; }
+
+            spline->addKey(seqId, count * sampling, ratio);
+
         } else {
+            float famp(f * ampFactor);
+            if (famp > max) { max = famp; }
+            if (famp < min) { min = famp; }
             spline->addKey(seqId, count * sampling,
-                           (f * ampFactor));
+                           famp);
         }
         count++;
     }
 
+    //give curve hints
+    ui->sbHigh->setValue(-min);
+    ui->sbLow->setValue(max);
+
     //simplify curve
-    if (keySimplificationFactor > 0 && profile.size() / keySimplificationFactor > 4) {
+    if (keySimplificationFactor > 1 && profile.size() / keySimplificationFactor > 4) {
         float reductionFactor = keySimplificationFactor;
         int dimension = 2;
         int numSamples = profile.size();
@@ -493,19 +505,31 @@ void MainWindow::on_btFilter_clicked()
 {
     if (spline == NULL) { return; }
     if (spline->getSequences().isEmpty()) { return; }
+
+    if (spline->isAddExtraPointEnded()) {
+        spline->beginAddExtraPoint();
+        return;
+    }
+}
+
+void MainWindow::on_btApplyFilter_clicked()
+{
+    if (spline == NULL) { return; }
+    if (spline->getSequences().isEmpty()) { return; }
+
+    if (!spline->isAddExtraPointEnded()) {
+        return;
+    }
+
     Sequence* seq = spline->getSequences().first();
-    pair<ulong, float> test(vtools.getDurationMs() / 2, -2.f);
+    pair<ulong, float> point(seq->extraPointsList.last());
 
     seq->extraPointsList.clear();
-    seq->extraPointsList.append(test);
+    seq->extraPointsList.append(point);
 
     //dump spline values to array for applying fitler on them
     vector<float> splineValues; splineValues.reserve(m_currentProfile.size());
-    for (int i(0); i < m_currentProfile.size(); ++i) {
-        //i must be transformed to video ms
-        //then y is in spline coords, and so is the filter.
-        splineValues.push_back(seq->computeSpline((float)i / m_currentProfile.size() * (float)spline->duration()));
-    }
+    readSplineValues(splineValues, seq);
 
     //read params
     int mod = ui->dialMod->value();
@@ -518,13 +542,79 @@ void MainWindow::on_btFilter_clicked()
 
     //apply filter
     filter::applyClocheFilter(splineValues
-                              , test.first * m_currentProfile.size() / vtools.getDurationMs(), test.second, mod, fit, cut);
+                              , point.first * m_currentProfile.size() / vtools.getDurationMs(), point.second, mod, fit, cut);
     loadMotionProfile(splineValues, 0, false);
     spline->updatePoints();
-        ui->wTimeline->update();
+    ui->wTimeline->update();
 }
 
 void MainWindow::on_btFit_clicked()
 {
     loadMotionProfile(m_currentProfile, ui->sbReduction->value(), true, ui->txtFit->text().toFloat());
+}
+
+void MainWindow::on_btUp_clicked()
+{
+    //move up the curve
+    std::vector<float> splineValues; splineValues.reserve(m_currentProfile.size());
+    readSplineValues(splineValues);
+    for (auto it(splineValues.begin()); it != splineValues.end(); ++it) {
+        *it -= 0.25f;
+    }
+    loadMotionProfile(splineValues, 0, false);
+}
+
+void MainWindow::on_btDown_clicked()
+{
+    //move down the curve
+    std::vector<float> splineValues; splineValues.reserve(m_currentProfile.size());
+    readSplineValues(splineValues);
+    for (auto it(splineValues.begin()); it != splineValues.end(); ++it) {
+        *it += 0.25f;
+    }
+    loadMotionProfile(splineValues, 0, false);
+}
+
+void MainWindow::readSplineValues(std::vector<float>& dest,  Sequence* seq) const {
+    if (seq == NULL) { seq = spline->getSequences().first(); }
+    if (seq == NULL) { return; }
+    for (int i(0); i < m_currentProfile.size(); ++i) {
+        //i must be transformed to video ms
+        //then y is in spline coords
+        dest.push_back(seq->computeSpline(i * (spline->duration() / m_currentProfile.size())));
+    }
+}
+
+void writeSplineValues(const std::vector<float>& src) {
+    /* can be useful */
+}
+
+void MainWindow::on_btHighLow_clicked()
+{
+    //values are inversed : high is lowest value, and repsectively low is highest value.
+    float high(-ui->sbHigh->value());
+    float low(ui->sbLow->value());
+
+    int size(m_currentProfile.size());
+    std::vector<float> splineValues; splineValues.reserve(size);
+    readSplineValues(splineValues);
+
+    if (size < 3) { return; }
+    for (auto it(splineValues.begin()); it != splineValues.end(); ++it) {
+        if (*it < high) {
+            if (it != splineValues.begin()) {
+                *it = (*(it - 1) + *(it + 1)) / 2.f;
+            } else {
+                *it = *(it + 1);
+            }
+        } else if (*it > low) {
+            if (it != splineValues.end() - 1) {
+                *it = (*(it - 1) + *(it + 1)) / 2.f;
+            } else {
+                *it = *(it - 1);
+            }
+        }
+    }
+
+    loadMotionProfile(splineValues, 0, false);
 }
