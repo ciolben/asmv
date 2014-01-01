@@ -5,25 +5,77 @@
 #define M_PI 3.14159265359
 
 #include "opencv2/opencv.hpp"
-#include <dirent.h>
+#include "dirent.h"
 
 using namespace cv;
 void drawColorField(Mat &imgU, Mat &imgV, Mat &imgColor);
+void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step, const Scalar& color);
 std::vector<String> listOfFiles();
-Mat *convertFlowToImage(String filename, bool save = true);
+Mat *convertFlowToImage(String filename, bool save = true, bool color = false, const Scalar &rgb = NULL, const int step = 0, String origImg = "");
 
+/*
+ * Usage :
+ *  colorflow input flow/or '.' [options] [--arrow_color r g b] [--step n] [--src filename]
+ *
+ *  no options : current folder as input, no -v, no -c, arrow color : green, step : 12, src : inputname.jpg
+ *
+ *  options :
+ *  -v  encode the color map in an mp4 video (not fixed)
+ *  -c  output will use rgb colors to express direction of flow instead of arrows
+ *
+ */
 int main(int argc, char *argv[]) {
-    if (argc < 1 || argc > 2) { return 0; }
-    bool modeVideo = false;
-    if (argc == 2) {
-        String opt(argv[1]);
-        if (opt.compare("-v") == 0) {
-            modeVideo = true;
+    if (argc < 1 || argc > 11) { return 0; }
+
+    String input(".");
+    String src("");
+    bool modeVideo(false);
+    bool modeColor(false);
+    int r(0), g(255), b(0);
+    int step(12);
+
+    if (argc != 1) {
+        input = argv[1];
+        int mode(0); //1-3 : rgb, 4, step
+        for (int i(2); i < argc; ++i) {
+            String param(argv[i]);
+            if (param.compare("-v") == 0) {
+                modeVideo = true;
+            } else if (param.compare("-c") == 0) {
+                modeColor = true;
+            } else if (param.compare("--arrow_color") == 0) {
+                mode = 1;
+            } else if (param.compare("--step") == 0) {
+                mode = 4;
+            } else if (param.compare("--src") == 0) {
+                mode = 5;
+            } else if (mode != 0){
+                switch(mode) {
+                case 1:
+                    r = atoi(param.c_str());
+                    break;
+                case 2:
+                    g = atoi(param.c_str());
+                    break;
+                case 3:
+                    b = atoi(param.c_str());
+                    mode = 6;
+                    break;
+                case 4:
+                    step = atoi(param.c_str());
+                    mode = 6;
+                    break;
+                case 5:
+                    src = param;
+                    break;
+                }
+                ++mode;
+            }
         }
     }
 
     if (!modeVideo && argc == 2) {
-        convertFlowToImage(argv[1]);
+        convertFlowToImage(input);
     } else {
         VideoWriter writer;
         bool initialized = false;
@@ -35,11 +87,25 @@ int main(int argc, char *argv[]) {
             if (id == String::npos) {
                 continue; //file with no extension
             }
+
             if (filename.substr(id).compare(".gz") == 0
                     || filename.substr(id).compare(".yml") == 0) {
                 std::cout << "Processing " << filename << "..." << std::endl;
 
-                Mat* colored = convertFlowToImage(filename, !modeVideo);
+                if (!modeColor) {
+                    int id_b = filename.find_first_of('/');
+                    if (id_b == String::npos) {
+                        id_b = filename.find_first_of('\\');
+                        if (id_b == String::npos) {
+                            id_b = 0;
+                        }
+                    }
+                    src = filename.substr(id_b, filename.find_first_of('.', id_b) - id_b);
+                    src = filename.substr(0, id_b) + src + ".jpg";
+                    std::cout << "-> src : " << src << std::endl;
+                }
+
+                Mat* colored = convertFlowToImage(filename, !modeVideo, modeColor, CV_RGB(r, g, b), step, src);
                 if (modeVideo && !initialized) {
                     Size size(colored->rows, colored->cols);
                     //CV_FOURCC('D', 'I', 'V', 'X');
@@ -61,9 +127,8 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-Mat* convertFlowToImage(String filename, bool save) {
+Mat* convertFlowToImage(String filename, bool save, bool color, const Scalar &rgb, const int step, String origImg) {
     //load the optical flow
-    String filter;
     FileStorage file(filename, FileStorage::READ);
     size_t oc = filename.find_last_of('\\');
     if (oc == String::npos) {
@@ -78,34 +143,56 @@ Mat* convertFlowToImage(String filename, bool save) {
     }
     filename = filename.substr(oc, filename.find_first_of('.', oc) - oc);
 
+    Mat flow;
     if (filename.front() == 'a') { //affine flow
-        filter = "afflow";
-    } else { //w-flow
-        filter = "wflow";
+        file["afflow"] >> flow;
+    } else if (filename.front() == 'w') { //w-flow
+        file["wflow"] >> flow;
+    } else { //optflow
+        file["flowF"] >> flow; //FlowF (Farneback)
+        if (flow.empty()) {
+            Mat xf, yf;
+            file["xf"] >> xf; //xf (Brox)
+            file["yf"] >> yf; //yf (Brox)
+            std::vector<Mat> array;
+            array.push_back(xf);
+            array.push_back(yf);
+
+            merge(array, flow);
+        }
     }
 
-    Mat flow;
-    file[filter] >> flow;
 
-    //apply coloring
-    Mat flowU;
-    Mat flowV;
+    Mat* outputImg = new Mat(flow.rows, flow.cols, CV_8UC3);;
 
-    Mat mats[2];
-    split(flow, mats);
-    flowU = mats[0];
-    flowV = mats[1];
+    if (color) {
+        //apply coloring
+        Mat flowU;
+        Mat flowV;
 
-    Mat* colorImg = new Mat(flow.rows, flow.cols, CV_8UC3);
-    drawColorField(flowU, flowV, *colorImg);
+        Mat mats[2];
+        split(flow, mats);
+        flowU = mats[0];
+        flowV = mats[1];
+
+        drawColorField(flowU, flowV, *outputImg);
+
+    } else {
+        //apply drawing
+        Mat origMat = imread(origImg);
+        origMat.copyTo(*outputImg);
+        drawOptFlowMap(flow, *outputImg, step, rgb);
+
+    }
 
     if (save) {
         //save the optical flow
-        imwrite(filename.append(".png"), *colorImg);
+        std::cout << "saved to : " << filename + "_flow.png" << std::endl;
+        imwrite(filename.append("_flow.png"), *outputImg);
     }
     file.release();
 
-    return colorImg;
+    return outputImg;
 }
 
 /** This function calculates rgb values from hsv color space                     */
@@ -252,5 +339,21 @@ std::vector<String> listOfFiles() {
 
     return out;
 }
+
+void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step, const Scalar& color) {
+    for(int y = step / 2; y < cflowmap.rows; y += step)
+        for(int x = step / 2; x < cflowmap.cols; x += step)
+        {
+            const Point2f& fxy = flow.at<Point2f>(y, x);
+//            line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)),
+//                 color);
+//            circle(cflowmap, Point(x,y), 1, color, -1);
+            Point p(cvRound(x+fxy.x), cvRound(y+fxy.y));
+            line(cflowmap, Point(x,y), p,
+                 color);
+            circle(cflowmap, p, 1, color, -1);
+        }
+}
+
 
 #endif // MAIN_HPP
