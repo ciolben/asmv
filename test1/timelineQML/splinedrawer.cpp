@@ -245,7 +245,7 @@ void SplineDrawer::addKey(int seqId, ulong time, double map) {
 
         //adjust the height to fit the curve
         if (map > m_maxDiff) { m_maxDiff = ceil(map + 1); }
-        else if (map < m_minDiff) { m_minDiff = floor(map - 1); }
+        else if (map < m_minDiff) { m_minDiff = ceil(map - 2); }
 
         seq->addPoint(time, map);
     }

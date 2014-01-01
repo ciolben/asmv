@@ -204,8 +204,8 @@ void MainWindow::loadMotionProfile(std::vector<float> profile
     }
 
     //give curve hints
-    ui->sbHigh->setValue(-min);
-    ui->sbLow->setValue(max);
+    ui->sbHigh->setValue(-min + 0.5);
+    ui->sbLow->setValue(max + 0.5);
 
     //simplify curve
     if (keySimplificationFactor > 1 && profile.size() / keySimplificationFactor > 4) {
@@ -479,10 +479,10 @@ void MainWindow::on_pbResetSpline_clicked()
 
 void MainWindow::on_pbRemoveOutliers_clicked()
 {
-    qDebug() << filter::rescaleExcentricValues(m_currentProfile
+    filter::rescaleExcentricValues(m_currentProfile
                                                , (float) ui->spTolerance->value()
                                                , (double) ui->slOutliers->value() / 100.0);
-    loadMotionProfile(m_currentProfile, ui->sbReduction->value(), ui->txtFit->text().toFloat());
+    loadMotionProfile(m_currentProfile, ui->sbReduction->value(), true, ui->txtFit->text().toFloat());
 }
 
 void MainWindow::on_slOutliers_valueChanged(int value)
@@ -578,10 +578,11 @@ void MainWindow::on_btDown_clicked()
 void MainWindow::readSplineValues(std::vector<float>& dest,  Sequence* seq) const {
     if (seq == NULL) { seq = spline->getSequences().first(); }
     if (seq == NULL) { return; }
+    float sampling(spline->duration() / m_currentProfile.size());
     for (int i(0); i < m_currentProfile.size(); ++i) {
         //i must be transformed to video ms
         //then y is in spline coords
-        dest.push_back(seq->computeSpline(i * (spline->duration() / m_currentProfile.size())));
+        dest.push_back(seq->computeSpline(i * sampling));
     }
 }
 
@@ -602,19 +603,21 @@ void MainWindow::on_btHighLow_clicked()
     if (size < 3) { return; }
     for (auto it(splineValues.begin()); it != splineValues.end(); ++it) {
         if (*it < high) {
-            if (it != splineValues.begin()) {
-                *it = (*(it - 1) + *(it + 1)) / 2.f;
-            } else {
-                *it = *(it + 1);
-            }
+//            if (it != splineValues.begin()) {
+//                *it = (*(it - 1) + *(it + 1)) / 2.f;
+//            } else {
+//                *it = *(it + 1);
+//            }
+            *it = high;
         } else if (*it > low) {
-            if (it != splineValues.end() - 1) {
-                *it = (*(it - 1) + *(it + 1)) / 2.f;
-            } else {
-                *it = *(it - 1);
-            }
+//            if (it != splineValues.end() - 1) {
+//                *it = (*(it - 1) + *(it + 1)) / 2.f;
+//            } else {
+//                *it = *(it - 1);
+//            }
+            *it = low;
         }
     }
 
-    loadMotionProfile(splineValues, 0, false);
+    loadMotionProfile(splineValues, ui->sbReduction->value(), false);
 }

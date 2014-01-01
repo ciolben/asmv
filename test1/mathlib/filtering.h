@@ -254,7 +254,8 @@ static QString rescaleExcentricValues(vector<float>& array
     //avoid borders
     for (int i(0); i < count; ++i) {
         double distance (mean - array[i]);
-        if (abs(distance) < tolerance) { continue; } //we tolerate values below that distance
+        distance = abs(distance);
+        if (distance < tolerance) { continue; } //we tolerate values below that distance
         double stdDevDist(distance / stdDev);
         if (rejectTest.reject(stdDevDist, count)) {
             rejected.push_back(i);
