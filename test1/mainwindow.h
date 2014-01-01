@@ -88,6 +88,8 @@ private slots:
 
     void on_btApplyFilter_clicked();
 
+    void on_sbDuration_valueChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
     QString filename;

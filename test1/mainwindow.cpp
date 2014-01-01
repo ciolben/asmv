@@ -122,6 +122,7 @@ void MainWindow::initializeNewProfile(const QString &file, std::vector<float> pr
     if (vtools.getFilename().compare(file) != 0) {
         vtools.initFfmpeg(file);
     }
+    ui->sbDuration->setValue(vtools.getDurationMs());
 
     //set spTolerance to max value (so user have an idea)
     float max(filter::findAbsMax<float>(profile));
@@ -138,9 +139,10 @@ void MainWindow::loadMotionProfile(std::vector<float> profile
     if (profile.empty()) { return; }
 
     //get duration and sample the space
-    int duration = vtools.getDurationMs();
-    double sampling = duration / profile.size();
+    int duration = ui->sbDuration->value();
+    double sampling = (double) duration / (double) profile.size();
     qDebug() << "duration : " << duration << ", nb keys : " << profile.size() << "time bw frames : " << sampling;
+    ui->lblSplineInfo->setText("ctrl points : " + QString::number(profile.size()));
 
     //compute the main motion tendency
     float varianceCenter(0);
@@ -433,6 +435,9 @@ void MainWindow::on_btInterpolate_clicked()
     if (m_interpUi != NULL) { return; }
     m_interpUi = new InterpolateUi(spline, this);
     m_interpUi->addBaseName(getNameOfFile(ui->txtFile->text()));
+    if (ui->sbDuration->value() != 0) {
+        m_interpUi->setTpf( QString::number( ui->sbDuration->text().toFloat() / m_currentProfile.size() ));
+    }
     connect(m_interpUi, &InterpolateUi::windowClosed, this, &MainWindow::handleWindowDestroyed);
     connect(m_interpUi, &InterpolateUi::needSequences, this, &MainWindow::handleNeedSequences
             , Qt::DirectConnection);
@@ -620,4 +625,10 @@ void MainWindow::on_btHighLow_clicked()
     }
 
     loadMotionProfile(splineValues, ui->sbReduction->value(), false);
+}
+
+void MainWindow::on_sbDuration_valueChanged(int arg1)
+{
+    //adjust the spline
+    loadMotionProfile(m_currentProfile, ui->sbReduction->value(), true, ui->txtFit->text().toFloat());
 }

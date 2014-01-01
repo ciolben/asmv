@@ -21,6 +21,7 @@ public:
     ~InterpolateUi();
 
     void addBaseName(const QString& basename);
+    void setTpf(const QString& tpf);
 
 private slots:
     void on_btInterpolate_clicked();

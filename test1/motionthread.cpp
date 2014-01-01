@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QProcess>
 #include <QtConcurrent/QtConcurrent>
+#include <QImage>
 
 #include "utils/iocompression.h"
 #include "utils/filesutils.h"
@@ -80,7 +81,10 @@ MotionThread::motions parse(const QByteArray& piece)
                 float sqrtnorm = dx*dx + dy*dy;
                 //exclude too small values
                 if (sqrtnorm >= _minThreshold) {
-                    m[sqrtnorm] += 1;
+                    //exclude values too big values
+                    if (sqrtnorm < _maxThreshold) {
+                        m[sqrtnorm] += 1;
+                    }
                 }
             }
             pairFound = !pairFound;
@@ -199,6 +203,7 @@ void MotionThread::run()
             //filter and order the files (the default Name ordering is wrong)
             QFileInfoList flowFiles;
             flowFiles.reserve(files.size());
+            bool needDimension(true);
             for (int fpos = 0; fpos < files.size(); ++fpos){
                 QFileInfo file = files.at(fpos);
                 if (file.suffix().compare("gz") != 0) { continue; }
@@ -209,7 +214,15 @@ void MotionThread::run()
                     }
                 }
 
-                if (found) { flowFiles.append(file); }
+                if (found) { flowFiles.append(file);
+                    if (needDimension) {
+                        needDimension = false;
+                        QImage im(file.baseName() + ".jpg");
+                        if (!im.isNull()) {
+                            _maxThreshold = (float)(im.height() * im.height() + im.width() * im.width()) / 2.f;
+                        }
+                    }
+                }
             }
 
             sortFiles(flowFiles);
@@ -303,7 +316,8 @@ void MotionThread::run()
 //                    foreach (float f, keystest) {
 //                        out2.write(QString(QString::number(f) + "\n").toLocal8Bit().constData());
 //                    }
-//                    out2.close();
+//                    out2.write("--------------------------------------------------------------------");
+//                    out2.write("result size : " + results.size());
 
                     //merge clusters
                     QList<cluster> result;
@@ -326,6 +340,7 @@ void MotionThread::run()
                         }
                     }
 
+//                    out2.close();
                     //release rsrces
                     foreach (Clusterizer* cer, clusterizers) {
                         delete cer;
@@ -358,7 +373,13 @@ void MotionThread::run()
 //                        out.close();
 //                    }
 
-                    float value(sum / size);
+                    float value;
+                    if (size == 0) {
+                        value = 0;
+                    } else {
+                        value = sum / size;
+                    }
+
                     if (m_errorThreshold != -1 && value > m_errorThreshold) {
                         //try to smooth the change (important for the running average filters)
                         QString info("error " + QString::number(value));

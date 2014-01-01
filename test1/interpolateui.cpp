@@ -26,6 +26,12 @@ void InterpolateUi::addBaseName(const QString &basename)
     ui->txtOut->setText(basename + "_InterpFrames/");
 }
 
+void InterpolateUi::setTpf(const QString &tpf)
+{
+    if (tpf.isEmpty()) { return; }
+    ui->txtRate->setText(tpf);
+}
+
 void InterpolateUi::on_btInterpolate_clicked() {
     ui->btInterpolate->setEnabled(false);
 
@@ -44,9 +50,9 @@ void InterpolateUi::on_btInterpolate_clicked() {
     if (strSrcdir.isEmpty()) {
         return;
     }
-    int tps = 0;
+    unsigned float tpf = 0;
     try {
-        tps = ui->txtRate->text().toInt();
+        tpf = ui->txtRate->text().toFloat();
     } catch (...) {
         return;
     }
@@ -134,7 +140,7 @@ void InterpolateUi::on_btInterpolate_clicked() {
 
         //get interpolation factor
         QList<float> ratios;
-        ratios = m_spline->getInterpolationFactors(tps, tps * i + tps * accf);
+        ratios = m_spline->getInterpolationFactors(tpf, tpf * i + tpf * accf);
 
         accf = 0;
 
@@ -144,7 +150,7 @@ void InterpolateUi::on_btInterpolate_clicked() {
         foreach (float f, ratios) {
 
             //update currentTime
-            currentTime += tps * f;
+            currentTime += tpf * f;
             accf += f;
 
             if (log) {*out << "cur f : " << f << " , currentTime : "

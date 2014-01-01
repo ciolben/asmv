@@ -19,6 +19,12 @@ Q_DECLARE_METATYPE(std::vector<float>)
 static float _minThreshold = 0.5f;
 
 ///
+/// \brief _maxThreshold
+///     Maximum allowed squared norm of displacement vector
+///     Default : 1000
+static float _maxThreshold = 1000;
+
+///
 /// \brief _maxDistInsideCluster
 ///     Maximum distance allowed between points in one cluster.
 ///     Default : 0.5

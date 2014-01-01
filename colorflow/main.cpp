@@ -187,8 +187,8 @@ Mat* convertFlowToImage(String filename, bool save, bool color, const Scalar &rg
 
     if (save) {
         //save the optical flow
-        std::cout << "saved to : " << filename + "_flow.png" << std::endl;
-        imwrite(filename.append("_flow.png"), *outputImg);
+        std::cout << "saved to : " << filename + "_flow.jpg" << std::endl;
+        imwrite(filename.append("_flow.jpg"), *outputImg);
     }
     file.release();
 
