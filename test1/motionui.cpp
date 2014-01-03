@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QDir>
 #include <QProcess>
+#include <QInputDialog>
 
 MotionUi::MotionUi(QWidget *parent) :
     QDialog(parent),
@@ -89,6 +90,7 @@ void MotionUi::on_btStart_clicked()
     m_thread->setSmootingIntensity(ui->slSmooth->value());
     m_thread->setErrorThreshold( ui->chkCorrectErrors->isChecked()? ui->sbCorrection->value() : -1.f );
     connect(m_thread, &MotionThread::logText, this, &MotionUi::logText);
+    connect(m_thread, &MotionThread::dialogGetItems, this,  &MotionUi::showDialogGetItems, Qt::BlockingQueuedConnection);
 
     //forward signal
     connect(m_thread, &MotionThread::motionProfileComputed, this, &MotionUi::motionProfileComputed);
@@ -97,6 +99,7 @@ void MotionUi::on_btStart_clicked()
     _minThreshold = ui->txtMinValue->text().toFloat();
     _maxDistInsideCluster = ui->txtMaxDist->text().toFloat();
     _minClusterSize = ui->txtMinClustSize->text().toFloat();
+    _adaptive = ui->chkAdaptive->isChecked();
 
     //start
     m_thread->start();
@@ -105,4 +108,11 @@ void MotionUi::on_btStart_clicked()
 void MotionUi::closeEvent(QCloseEvent*)
 {
     emit windowClosed("motion");
+}
+
+void MotionUi::showDialogGetItems(QStringList* list, QString* out, bool *ok)
+{
+    QString item = QInputDialog::getItem(this, "Choose clust version",
+                                         "Files : ", *list, 0, false, ok);
+    *out = item;
 }

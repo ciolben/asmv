@@ -29,6 +29,8 @@ private slots:
 
     virtual void closeEvent(QCloseEvent*);
 
+    void showDialogGetItems(QStringList *list, QString *out, bool* ok);
+
 private:
     Ui::MotionUi *ui;
     MotionThread* m_thread;

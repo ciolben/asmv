@@ -123,7 +123,7 @@ void arg_parse(int argc, char** argv)
 {
 	int c;
     char* executable = argv[0];//basename(argv[0]);
-    while((c = getopt (argc, argv, "hS:E:L:W:N:s:t:T:C:M:")) != -1)
+    while((c = getopt (argc, argv, "hS:E:L:W:N:s:t:T:C:M:f:A:")) != -1)
     switch(c) {
         case 'S':
         start_frame = atoi(optarg);
@@ -155,6 +155,12 @@ void arg_parse(int argc, char** argv)
         break;
         case 'M':
         compute_models = atoi(optarg);
+        break;
+        case 'f':
+        saveWflow = false;
+        break;
+        case 'A':
+        saveAflow = true;
         break;
 
         case 'h':

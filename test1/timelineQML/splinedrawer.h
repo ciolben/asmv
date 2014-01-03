@@ -37,7 +37,7 @@ public:
     void beginAddExtraPoint() { m_editingExtra = true; }
     bool isAddExtraPointEnded() { return !m_editingExtra; }
 
-    QList<float> getInterpolationFactors(int tpf, ulong time);
+    QList<float> getInterpolationFactors(unsigned float tpf, ulong time);
 
     void initView(const ulong& duration = 0);
     void updatePoints();

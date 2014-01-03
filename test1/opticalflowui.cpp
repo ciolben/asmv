@@ -4,6 +4,8 @@
 #include "opticalflowthread.h"
 
 #include <QDebug>
+#include <QMessageBox>
+#include <QDir>
 
 OpticalFlowUI::OpticalFlowUI(QWidget *parent) :
     QDialog(parent),
@@ -47,10 +49,9 @@ void OpticalFlowUI::handleNewFlow(QImage *img1, QImage *img2, QImage *flow, int 
 void OpticalFlowUI::on_btStart_clicked()
 {
 
-    ui->btPause->setEnabled(true);
-
     if (m_thread != NULL) {
         //wake it up or do nothing
+        ui->btPause->setEnabled(true);
         m_thread->resume();
         return;
     }
@@ -58,6 +59,14 @@ void OpticalFlowUI::on_btStart_clicked()
     //check folder
     if (ui->txtInput->text().isEmpty() || ui->txtOutput->text().isEmpty()) {
         qDebug() << "input or output directory";
+        QMessageBox::information(this, "Start", "Cannot start, input folder empty.");
+        return;
+    }
+
+    QDir dirin(m_inputDir);
+    if (!dirin.exists()) {
+        qDebug() << "Input dir does not exist.";
+        QMessageBox::information(this, "Start", "Extract the video frames first.");
         return;
     }
 
@@ -83,6 +92,8 @@ void OpticalFlowUI::on_btStart_clicked()
     m_thread->setOutputDir(m_outputDir);
     connect(m_thread, &OpticalFlowThread::flowComputed, this, &OpticalFlowUI::handleNewFlow);
     m_thread->start();
+
+    ui->btPause->setEnabled(true);
 }
 
 void OpticalFlowUI::on_btClose_clicked()

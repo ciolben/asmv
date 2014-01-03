@@ -74,8 +74,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (!modeVideo && argc == 2) {
-        convertFlowToImage(input);
+    if (!modeVideo && input.compare(".") != 0) {
+        convertFlowToImage(input, true, modeColor, CV_RGB(r, g, b), step, src);
     } else {
         VideoWriter writer;
         bool initialized = false;
@@ -144,24 +144,28 @@ Mat* convertFlowToImage(String filename, bool save, bool color, const Scalar &rg
     filename = filename.substr(oc, filename.find_first_of('.', oc) - oc);
 
     Mat flow;
-    if (filename.front() == 'a') { //affine flow
-        file["afflow"] >> flow;
-    } else if (filename.front() == 'w') { //w-flow
+    file["afflow"] >> flow; //affine flow
+    if (flow.empty()) { //w-flow
         file["wflow"] >> flow;
-    } else { //optflow
-        file["flowF"] >> flow; //FlowF (Farneback)
-        if (flow.empty()) {
-            Mat xf, yf;
-            file["xf"] >> xf; //xf (Brox)
-            file["yf"] >> yf; //yf (Brox)
-            std::vector<Mat> array;
-            array.push_back(xf);
-            array.push_back(yf);
+        if (flow.empty()) { //optflow
+            file["flowF"] >> flow; //FlowF (Farneback)
+            if (flow.empty()) {
+                Mat xf, yf;
+                file["xf"] >> xf; //xf (Brox)
+                file["yf"] >> yf; //yf (Brox)
+                std::vector<Mat> array;
+                array.push_back(xf);
+                array.push_back(yf);
 
-            merge(array, flow);
+                merge(array, flow);
+            }
         }
     }
 
+    if (flow.empty()) {
+        std::cout << "No compatible flow found." << std::endl;
+        return NULL;
+    }
 
     Mat* outputImg = new Mat(flow.rows, flow.cols, CV_8UC3);;
 

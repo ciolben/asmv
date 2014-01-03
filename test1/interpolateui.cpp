@@ -94,6 +94,7 @@ void InterpolateUi::on_btInterpolate_clicked() {
     }
     /************/
 
+    int outnumber(0);
     for (int i = 0; i < images.size() - 1; ++i) {
         //extract frame number from filename
         const QFileInfo qfile1 = images.at(i);
@@ -104,8 +105,11 @@ void InterpolateUi::on_btInterpolate_clicked() {
         //interpolate
         QImage frame1(qfile1.absoluteFilePath());
         QImage frame2(qfile2.absoluteFilePath());
-        QString interpName(strOutdir + "img" + QString::number(frameNumber) + "_");
+        //QString interpName(strOutdir + "img" + QString::number(frameNumber) + "_");
+        ++outnumber;
         QString ext = "." + qfile1.completeSuffix();
+        QString outnumberString((outnumber < 10 ? "000" : outnumber < 100 ? "00" : outnumber < 1000 ? "0" : "") + QString::number(outnumber));
+        QString interpName(strOutdir + "img" + outnumberString + ext);
         int count(0);
 
         //interpolate residual accumaltor
@@ -115,7 +119,8 @@ void InterpolateUi::on_btInterpolate_clicked() {
             break;
         } else if (accf != 0 && accf < 1) {
             //directly interpolate and reset accf
-            QString interpNameFull = interpName + QString::number(count) + ext;
+            //QString interpNameFull = interpName + QString::number(count) + ext;
+            QString interpNameFull(interpName);
             QImage* interpolatedFrame;
             interpolatedFrame = m_optflowtools.interpolate(&frame1, &frame2
                                                            , accf
@@ -132,7 +137,8 @@ void InterpolateUi::on_btInterpolate_clicked() {
             ++count;
 
         } else if (accf == 1){
-            QString interpNameFull = interpName + QString::number(count) + ext;
+            //QString interpNameFull = interpName + QString::number(count) + ext;
+            QString interpNameFull(interpName);
             frame1.save(interpNameFull);
             if (log) {*out << "residual acc -> frame1 saved : " << interpNameFull << "\n"; }
             ++count;
@@ -172,7 +178,10 @@ void InterpolateUi::on_btInterpolate_clicked() {
                 break;
             }
 
-            QString interpNameFull = interpName + QString::number(count) + ext;
+            QString outnumberString((outnumber < 10 ? "000" : outnumber < 100 ? "00" : outnumber < 1000 ? "0" : "") + QString::number(outnumber));
+            QString interpName(strOutdir + "img" + outnumberString + ext);
+            //QString interpNameFull = interpName + QString::number(count) + ext;
+            QString interpNameFull(interpName);
             if (accf == 0) {
                 frame1.save(interpNameFull);
                 if (log) {*out << " -> frame1 saved : " << interpNameFull << "\n"; }
@@ -197,6 +206,7 @@ void InterpolateUi::on_btInterpolate_clicked() {
             }
 
             ++count;
+            ++outnumber;
 
             QCoreApplication::processEvents();
         }

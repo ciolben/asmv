@@ -180,19 +180,23 @@ void MainWindow::loadMotionProfile(std::vector<float> profile
     float max(-10000), min(10000);
     foreach (float f, profile) {
         if (recomputeAverage) {
-            float ratio = f / varianceCenter;
-            float sign = -1.f;
-            //check if range is 1 to inf
-            if (ratio < 1) {
-                //if not, need to convert from [0,1[ space to [1, inf] space
-                ratio = varianceCenter / f;
-                sign = 1.f;
+            float ratio;
+            if (f != 0) {
+                ratio = f / varianceCenter;
+                float sign = -1.f;
+                //check if range is 1 to inf
+                if (ratio < 1) {
+                    //if not, need to convert from [0,1[ space to [1, inf] space
+                    ratio = varianceCenter / f;
+                    sign = 1.f;
+                }
+
+                ratio = sign * (ratio - 1.0) * ampFactor;
+                if (ratio > max) { max = ratio; }
+                if (ratio < min) { min = ratio; }
+            } else {
+                ratio = 0;
             }
-
-            ratio = sign * (ratio - 1.0) * ampFactor;
-            if (ratio > max) { max = ratio; }
-            if (ratio < min) { min = ratio; }
-
             spline->addKey(seqId, count * sampling, ratio);
 
         } else {

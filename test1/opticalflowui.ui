@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
+    <width>616</width>
     <height>516</height>
    </rect>
   </property>
@@ -474,6 +474,9 @@
       </item>
       <item>
        <widget class="QRadioButton" name="rdMatlab">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Matlab</string>
         </property>
@@ -509,7 +512,7 @@
             </size>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -537,7 +540,7 @@
             </size>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -565,7 +568,7 @@
             </size>
            </property>
            <property name="text">
-            <string>TextLabel</string>
+            <string/>
            </property>
           </widget>
          </item>

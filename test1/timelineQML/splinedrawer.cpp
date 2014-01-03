@@ -263,7 +263,7 @@ void SplineDrawer::modifyKey(ulong time, long new_map) {
 /// \param time when the frame wants to be played in original time
 /// \return set of interpolation factors
 ///
-QList<float> SplineDrawer::getInterpolationFactors(int tpf, ulong time)
+QList<float> SplineDrawer::getInterpolationFactors(unsigned float tpf, ulong time)
 {
     auto ratios = QList<float>();
 

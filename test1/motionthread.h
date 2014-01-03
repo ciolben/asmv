@@ -11,49 +11,16 @@ Q_DECLARE_METATYPE(std::vector<float>)
 
 //PARAMETERS
 //***************
-///
-/// \brief _minThreshold
-///     The min value for which the displacement is saved.
-///     Default : 0.5
-///
-static float _minThreshold = 0.5f;
-
-///
-/// \brief _maxThreshold
-///     Maximum allowed squared norm of displacement vector
-///     Default : 1000
-static float _maxThreshold = 1000;
-
-///
-/// \brief _maxDistInsideCluster
-///     Maximum distance allowed between points in one cluster.
-///     Default : 0.5
-///
-static float _maxDistInsideCluster = 0.5f;
-
-///
-/// \brief _minClusterSize
-///     Minimum cluster size.
-///     Default : 10
-///
-static float _minClusterSize = 10;
-
-///
-/// \brief _windowSizeFirstPass
-///     First pass window size for the running average
-///     Default : 24
-///
-static float _windowSizeFirstPass = 24;
-
-///
-/// \brief _windowSizeSecondPass
-///     Second pass window size for the running average
-///     Default : 23
-///
-static float _windowSizeSecondPass = 23;
+extern float _minThreshold;
+extern float _maxThreshold;
+extern float _maxDistInsideCluster;
+extern float _minClusterSize;
+extern float _windowSizeFirstPass;
+extern float _windowSizeSecondPass;
+extern bool _adaptive;
 
 //***************
-
+#include <QFile>
 class MotionThread : public QThread
 {
     Q_OBJECT
@@ -86,6 +53,7 @@ public:
 signals:
     void logText(const QString& info, const QString& color = "", bool bold = false, bool italic = false);
     void motionProfileComputed(const QString& filename, std::vector<float> data);
+    void dialogGetItems(QStringList* list, QString* out, bool* ok);
 
 public slots:
 
@@ -133,10 +101,19 @@ private:
             currentCluster.start = lastKey;
             currentClusterValues.append(lastKey);
 
+//            QFile out2(QString("debug%1_%2.txt").arg(lastKey).arg(m_keys.size()));
+//            out2.open(QFile::WriteOnly);
+//            out2.write("begin\r\n");
+//            out2.flush();
+//            out2.write(QString("b : %1, e : %2, results : %3, keys : %4").arg(m_begin).arg(m_end).arg(m_result.size()).arg(m_keys.size()).toLocal8Bit().constData());
+//            out2.flush();
+
             for (int i = m_begin + 1; i < m_end; i++) {
                 currentKey = m_keys.at(i);
                 //test if they are in the same cluster
-                if (lastKey - currentKey <= _maxDistInsideCluster) {
+            //    out2.write((QString("%1 - %2 < %3 : %4").arg(lastKey).arg(currentKey)
+            //                .arg(_maxDistInsideCluster).arg((lastKey - currentKey <= _maxDistInsideCluster))).toLocal8Bit().constData());
+                if (currentKey - lastKey <= _maxDistInsideCluster) {
                     currentClusterValues.append(currentKey);
                 } else {
                     //validate this cluster
@@ -148,20 +125,18 @@ private:
                         currentCluster.size = currentClusterValues.size();
                         currentCluster.avg = sum / currentClusterValues.size();
                         currentCluster.end = currentKey;
-
                         m_result.append(currentCluster);
                     }
 
                     currentClusterValues.clear();
-                    if (i + 1 > m_end) {
+                    if (i + 1 >= m_end) {
                         break;
                     }
                     currentCluster.start = m_keys.at(i + 1);
                     currentClusterValues.append(currentKey);
-
                 }
 
-                lastKey = currentKey;
+                if (_adaptive) { lastKey = currentKey; }
             }
             //validate last cluster
             if (currentClusterValues.size() > _minClusterSize) {
@@ -175,6 +150,7 @@ private:
                 m_result.append(currentCluster);
             }
         }
+
     };
 };
 

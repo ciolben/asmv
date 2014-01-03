@@ -454,12 +454,15 @@ int main( int argc, char** argv )
             //cvReleaseImage( &flowDiff );
 
             //save wflow
-            if (ixyScale == 0) {
+            if (saveWflow && ixyScale == 0) {
                 char buff[256];
                 sprintf(buff, "%s/wflow%d.yml.gz", model_path, frameNum);
                 cv::FileStorage file1(buff, cv::FileStorage::WRITE);
                 file1 << "wflow" << flowDiff;
                 file1.release();
+            }
+            if (saveAflow && ixyScale == 0) {
+                char buff[256];
                 sprintf(buff, "%s/afflow%d.yml.gz", model_path, frameNum);
                 cv::FileStorage file2(buff, cv::FileStorage::WRITE);
                 file2 << "afflow" << flowAff;

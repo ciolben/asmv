@@ -40,9 +40,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>210</y>
+     <y>220</y>
      <width>351</width>
-     <height>181</height>
+     <height>171</height>
     </rect>
    </property>
    <property name="readOnly">
@@ -53,7 +53,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>180</y>
+     <y>200</y>
      <width>46</width>
      <height>13</height>
     </rect>
@@ -129,7 +129,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>150</y>
+     <y>170</y>
      <width>46</width>
      <height>20</height>
     </rect>
@@ -233,7 +233,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>130</y>
+     <y>150</y>
      <width>46</width>
      <height>13</height>
     </rect>
@@ -246,7 +246,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>130</y>
+     <y>150</y>
      <width>111</width>
      <height>17</height>
     </rect>
@@ -262,7 +262,7 @@
    <property name="geometry">
     <rect>
      <x>190</x>
-     <y>130</y>
+     <y>150</y>
      <width>51</width>
      <height>17</height>
     </rect>
@@ -278,7 +278,7 @@
    <property name="geometry">
     <rect>
      <x>250</x>
-     <y>130</y>
+     <y>150</y>
      <width>51</width>
      <height>17</height>
     </rect>
@@ -291,7 +291,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>130</y>
+     <y>150</y>
      <width>82</width>
      <height>17</height>
     </rect>
@@ -362,7 +362,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>150</y>
+     <y>170</y>
      <width>211</width>
      <height>21</height>
     </rect>
@@ -378,8 +378,8 @@
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>150</y>
-     <width>42</width>
+     <y>170</y>
+     <width>71</width>
      <height>22</height>
     </rect>
    </property>
@@ -387,7 +387,23 @@
     <number>1000</number>
    </property>
    <property name="value">
-    <number>200</number>
+    <number>900</number>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="chkAdaptive">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>120</y>
+     <width>161</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Use adaptive clustering</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

@@ -9,6 +9,56 @@
 #include "utils/filesutils.h"
 #include "mathlib/filtering.h"
 
+//PARAMETERS DEFINITIONS
+//***************
+///
+/// \brief _minThreshold
+///     The min value for which the displacement is saved.
+///     Default : 0.5
+///
+float _minThreshold = 0.5f;
+
+///
+/// \brief _maxThreshold
+///     Maximum allowed squared norm of displacement vector
+///     Default : 1000
+float _maxThreshold = 1000;
+
+///
+/// \brief _maxDistInsideCluster
+///     Maximum distance allowed between points in one cluster.
+///     Default : 0.5
+///
+float _maxDistInsideCluster = 0.5f;
+
+///
+/// \brief _minClusterSize
+///     Minimum cluster size.
+///     Default : 10
+///
+float _minClusterSize = 10;
+
+///
+/// \brief _windowSizeFirstPass
+///     First pass window size for the running average
+///     Default : 24
+///
+float _windowSizeFirstPass = 24;
+
+///
+/// \brief _windowSizeSecondPass
+///     Second pass window size for the running average
+///     Default : 23
+///
+float _windowSizeSecondPass = 23;
+
+///
+/// \brief _adaptive
+///     Use adaptive clustering instead of traditional clustering
+///     Default : true
+///
+bool _adaptive = true;
+
 MotionThread::MotionThread(QObject *parent) :
     QThread(parent), m_continue(true)
 {
@@ -227,6 +277,10 @@ void MotionThread::run()
 
             sortFiles(flowFiles);
 
+            emit logText(QString("Params : minT(%1), maxD(%2), minC(%3), ad(%4)")
+                    .arg(_minThreshold).arg(_maxDistInsideCluster).arg(_minClusterSize).arg(_adaptive) );
+
+
             //curve container
             std::vector<float> values;
             values.reserve(files.size());
@@ -318,6 +372,7 @@ void MotionThread::run()
 //                    }
 //                    out2.write("--------------------------------------------------------------------");
 //                    out2.write("result size : " + results.size());
+//                    out2.flush();
 
                     //merge clusters
                     QList<cluster> result;
@@ -326,7 +381,12 @@ void MotionThread::run()
                             if (i == 0 && result.size() != 0) {
                                 cluster c1 = result.last(); result.removeLast(); //pop
                                 cluster c2 = clustList->at(i);
-                                if (c2.start - c1.end < _maxDistInsideCluster) {
+
+                                //ensure the order of the comparison (c1 < c2)
+                                if (c1.start > c2.start) { c2 = c1; c1 = clustList->at(i); }
+
+                                if ((_adaptive && c2.start - c1.end < _maxDistInsideCluster)
+                                        || (!_adaptive && c2.start - c1.start < _maxDistInsideCluster)) {
                                     cluster c12;
                                     c12.start = c1.start;
                                     c12.end = c2.end;
@@ -340,7 +400,6 @@ void MotionThread::run()
                         }
                     }
 
-//                    out2.close();
                     //release rsrces
                     foreach (Clusterizer* cer, clusterizers) {
                         delete cer;
@@ -414,7 +473,9 @@ void MotionThread::run()
 
             //save filtered values
             if ((m_others & WriteMotion) == WriteMotion) {
-                QFile out(QString("%1/motion.clust").arg(clusterPath));
+                QFile out(QString("%1/motion_%2_%3_%4.clust")
+                          .arg(clusterPath).arg(_maxDistInsideCluster)
+                          .arg(_minClusterSize).arg(_minThreshold));
                 out.open(QFile::WriteOnly);
                 foreach (float f, filtered2) {
                     out.write(QString(QString::number(f) + "\n").toLocal8Bit().constData());
@@ -432,24 +493,54 @@ void MotionThread::run()
     if (m_continue && (m_steps == None)) {
         emit logText("Searching for existing data...");
 
-        QFile filec(clusterPath + "/motion.clust");
-        if (!filec.open(QFile::ReadOnly)) {
-            emit logText("Could not find motion.clust under " + clusterPath, "red");
-        } else {
-            QByteArray buff = filec.readLine();
-            std::vector<float> profile;
-
-            while (!buff.isEmpty()) {
-                profile.push_back(QString(buff).toFloat());
-                buff = filec.readLine();
+        QDir cdir(clusterPath);
+        QStringList clustFilesTmp = cdir.entryList(QDir::Files);
+        QStringList clustFiles;
+        foreach (QString s, clustFilesTmp) {
+            if (s.endsWith(".clust", Qt::CaseInsensitive)) {
+                clustFiles << s;
             }
-
-            filec.close();
-
-            emit motionProfileComputed(m_filename, profile);
-            emit logText("Motion profile loaded into main window.");
         }
 
+        if (!clustFiles.isEmpty()) {
+            QString name("");
+            if (clustFiles.size() > 1) {
+                bool ok;
+
+                QString item;
+                emit dialogGetItems(&clustFiles, &item, &ok);
+
+                if (ok && !item.isEmpty()) {
+                    name = item;
+                }
+            } else {
+                name = clustFiles.first();
+            }
+
+            if (!name.isEmpty()) {
+                QFile filec(clusterPath + "/" + name);
+                if (!filec.open(QFile::ReadOnly)) {
+                    emit logText("Cannot load " + name, "red");
+                } else {
+                    QByteArray buff = filec.readLine();
+                    std::vector<float> profile;
+
+                    while (!buff.isEmpty()) {
+                        profile.push_back(QString(buff).toFloat());
+                        buff = filec.readLine();
+                    }
+
+                    filec.close();
+
+                    emit motionProfileComputed(m_filename, profile);
+                    emit logText("Motion profile loaded into main window.");
+                }
+            } else {
+                emit logText("Loading canceled.", "red");
+            }
+        } else {
+            emit logText("Could not find motion.clust under " + clusterPath, "red");
+        }
     }
 
     emit logText("Ended", "green", false, true);

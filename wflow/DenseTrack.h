@@ -61,6 +61,10 @@ const float max_dis = 20;
 int scale_num = 8;  
 const float scale_stride = sqrt(2.f);
 
+// parameters for saving flows
+bool saveWflow = true;
+bool saveAflow = false;
+
 typedef struct TrackerInfo
 {
     int trackLength; // length of the trajectory
