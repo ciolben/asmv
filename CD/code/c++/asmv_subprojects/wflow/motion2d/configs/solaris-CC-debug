@@ -1,0 +1,8 @@
+# Compiling
+CONF_CXX		= CONF_CXX
+CONF_CXX_VERSION	= CONF_CXX-5.1
+CONF_CXXFLAGS		= -w -g
+
+# Linking
+RANLIB			= ranlib
+AR			= $(CONF_CXX) -xar -o

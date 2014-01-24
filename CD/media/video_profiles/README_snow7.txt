@@ -1,0 +1,1 @@
+Only a subset (frames 90 to 100) is put on the CD (because of the size). At least, it is enough to understand the format of the frames and the flows.

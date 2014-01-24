@@ -1,0 +1,76 @@
+
+This package is an implementation of the camera motion compensation introduced in our paper. This is built over dense trajectories code (v1.1) by Heng Wang.
+Following files have been modified for adding motion compensation and DCS descriptor:
+* DenseTrack.cpp  
+* DenseTrack.h  
+* Descriptors.h  
+* Initialize.h
+
+
+### Compiling ###
+
+- Prerequisites:
+* OpenCV library (tested with OpenCV-2.4.2)
+* ffmpeg library (tested with ffmpeg-0.11.1)
+* boost libraries (tested with boost_1_49_0)
+* Motion2D
+  - Download motion2D from http://www.irisa.fr/vista/Motion2D/ and intall it.
+  - Update in DenseTrack.cpp the variable 'motion2D_path' with the path to 'Motion2D' binary.
+	-> char motion2D_path[] = "~/src/Video/bin/Motion2D";
+
+Simply make to compile the code, if the above libraries are installed correctly it will go smooth. The executable will be in the directory './release/'.
+
+
+### Checking installation ###
+
+Refer to README_Wang to check if:
+* test video decoding is fine; and
+* compute and compare features with those computed by Heng Wang.
+(By default it exactly runs as dense trajectory) 
+
+
+### Using w-flow for compensated features ###
+
+We have added three options related to our contribution: 
+* -T : set to compute w-features.
+* -C : set to compute DCS.
+* -M : set to estimate and save affine motion model.
+
+First, run code with -M 1 passing the path where you wish to save motion model and extracted frames, e.g.
+
+./release/DenseTrack ./test_sequences/person01_boxing_d1_uncomp.avi  person01_boxing_d1_uncomp -M 1
+
+This saves motion model 'AC.mod' and frames in directory 'person01_boxing_d1_uncomp'.
+
+Once the model file is saved w-flow features can be computed as:
+				
+./release/DenseTrack <video>  < model_path>  -T 1  -C 0  |  gzip  >  wFlow_out.features.gz
+For example:
+./release/DenseTrack ./test_sequences/person01_boxing_d1_uncomp.avi  person01_boxing_d1_uncomp  -T 1  -C 0  |  gzip  >  wFlow_out.features.gz
+
+This will compute:  trajectory descriptor, HOG, HOF, HOF from w-Flow, MBH from w-Flow		# note w-HOF := HOF and HOF from w-Flow combined
+You can compare model file person01_boxing_d1_uncomp/AC.mod with test_sequences/person01_boxing_d1_uncomp/AC.mod and wFlow_out.features.gz with test_sequences/wFlow_person01_boxing_d1.gz.
+
+'-C 1' computes DCS decriptor using optical flow (-T 0) or w-Flow (-T 1)
+
+
+
+
+### LICENSE CONDITIONS ###
+
+Copyright (C) 2013 Mihir Jain
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+

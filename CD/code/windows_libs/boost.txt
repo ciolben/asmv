@@ -1,0 +1,5 @@
+Very easy to compile (one command line). It cannot be put into the CD because its size is over 1.6 GB.
+
+Link : http://www.boost.org/
+
+Double click on bootstrap.bat, then run ./b2.exe .

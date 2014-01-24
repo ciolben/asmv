@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/timelineQML">
+        <file alias="Line.qml">timelineQML/Line.qml</file>
+        <file alias="timeline.qml">timelineQML/timeline.qml</file>
+    </qresource>
+</RCC>

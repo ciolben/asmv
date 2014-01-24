@@ -1,0 +1,138 @@
+\form#0:\[ C[i][j] = \left\{ \begin{array}{l} A[i][j] \mbox{\hspace{0.4cm}if\hspace{0.2cm}} B[i][j] = label \\ 0 \mbox{\hspace{1.2cm}} otherwise \end{array} \right. \]
+\form#1:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = B(p_i) A \]
+\form#2:$ A^t = (c_1, c_2, a_1, ..., a_4, q_1, ..., q_6) $
+\form#3:$ p_i = (x_i, y_i) $
+\form#4:$(C, \vec{x}, \vec{y})$
+\form#5:$ \vec{w}_{A}(p_{i}) $
+\form#6:$ p_i$
+\form#7:$ B $
+\form#8:$0,299 r + 0,587 g + 0,114 b$
+\form#9:$ \copyright $
+\form#10:\[ DFD_{\Theta}(p_i) = I_{t+1}(p_i + \vec{w}_{A}(p_{i})) - I_t(p_i) + \zeta \]
+\form#11:$I_t$
+\form#12:$I_{t+1}$
+\form#13:$\Theta^t = (A^t, \zeta)$
+\form#14:$\zeta$
+\form#15:\[ \widehat{\Theta} = \mbox{arg}\!\min_{\Theta}\,\, \sum_{p_i \in R_t} \rho\left(\mbox{DFD}_{\Theta}(p_i), C \right) \mbox{\hspace{1cm}} (1) \]
+\form#16:$\rho(x)$
+\form#17:$x$
+\form#18:$C$
+\form#19:$R_t$
+\form#20:$k$
+\form#21:\[ \Theta=\widehat\Theta_k+\Delta \Theta_k \makebox[1.5cm]{with} \left\{ \begin{array}{l} A = \widehat{A_k} + \Delta A_k \\ \zeta = \widehat{\zeta_k} + \Delta \zeta \end{array} \right. \mbox{\hspace{1cm}} (2) \]
+\form#22:$\widehat\Theta_k$
+\form#23:$\Theta$
+\form#24:$\mbox{DFD}_{\Theta}(p_i)$
+\form#25:$r_{\Delta \Theta_k}(p_i)$
+\form#26:$\Delta \Theta_k$
+\form#27:\[ r_{\Delta \Theta_k}(p_i) = \vec{\nabla} I_{t+1}(p_i+ \vec{w}_{\widehat{A_k}}(p_i)).\vec{w}_{\Delta A_k}(p_i) + \Delta \zeta_k + I_{t+1}(p_i+ \vec{w}_{\widehat{A_k}}(p_i))-I_t(p_i) + \widehat{\zeta_k} \]
+\form#28:$\vec\nabla I_{t+1}(p_i)$
+\form#29:$p_i$
+\form#30:$t+1$
+\form#31:$E(\Theta)$
+\form#32:\[E(\Delta\Theta_k)= \sum_{p_i \in R_t} \rho(r_{\Delta \Theta_k}(p_i), C) \]
+\form#33:\[\sum_{p_i \in R_t} w_i . r_{\Delta \Theta_k}^2 (p_i) \mbox{\hspace{1cm}} (3) \]
+\form#34:\[w_i = \frac{\psi(r_{\Delta \Theta_k}(p_i))}{r_{\Delta \Theta_k}(p_i))} \mbox{\hspace{1cm}} (4) \]
+\form#35:$\psi$
+\form#36:$\rho$
+\form#37:$E(\Delta\Theta_k)$
+\form#38:$w_i$
+\form#39:$(O, \vec{x}, \vec{y})$
+\form#40:$ \zeta $
+\form#41:$ O $
+\form#42:$\vec{w}_{A}(p_{i})$
+\form#43:$ A^t $
+\form#44:$O=(x_c,y_c)$
+\form#45:$p_c=(x_c,y_c)=(col, row)$
+\form#46:\[ \Theta = "\Theta \circ \Theta_2" \makebox[1.5cm]{with} \left\{ \begin{array}{l} A = "A \circ A_2" \\ \zeta = \zeta + \zeta_2 \end{array} \right. \]
+\form#47:$\Theta_2$
+\form#48:$ (O, \vec{x}, \vec{y}) $
+\form#49:$ (O^{'}, \vec{X}, \vec{Y}) $
+\form#50:$ O = (X_c, Y_c) = (col, row) $
+\form#51:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left[ \begin{array}{l} d\_col \\ d\_row \end{array} \right] \]
+\form#52:$ p_i = (col, row) $
+\form#53:$A$
+\form#54:\[ \vec{w}_{A}(p_{i}) = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{l} a_{1} \;\; a_{2}\\ a_{3} \;\; a_{4} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) + \left( \begin{array}{l} q_{1} \;\; q_{2} \;\; q_{3}\\ q_{4} \;\; q_{5} \;\; q_{6} \end{array} \right) \cdot \left( \begin{array}{l} {x_{i}}^2\\ x_{i} y_{i} \\ {y_{i}}^2 \end{array} \right) \]
+\form#55:\[ \begin{tabular}{|l||c|c|c|c|c|c|c|c|c|c|c|c|} \hline n & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9& 10& 11\\ \hline A(n) & $c_1$ & $c_2$ & $a_1$ &$a_2$ &$a_3$ &$a_4$ &$q_1$ &$q_2$ &$q_3$ &$q_4$ & $q_5$ &$q_6$ \\ \hline \end{tabular} \]
+\form#56:\[ \begin{tabular}{|l||c|c|c|c|c|c|c|c|c|c|c|c|} \hline index & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9& 10& 11\\ \hline A(index) & $c_1$ & $c_2$ & $a_1$ &$a_2$ &$a_3$ &$a_4$ &$q_1$ &$q_2$ &$q_3$ &$q_4$ & $q_5$ &$q_6$ \\ \hline \end{tabular} \]
+\form#57:$I_g$
+\form#58:$\nabla I_g^t = ({I_g}_x, {I_g}_y) = (\frac{\partial I_g}{\partial x}, \frac{\partial I_g}{\partial y}) $
+\form#59:$I$
+\form#60:$\nabla I_g$
+\form#61:$L$
+\form#62:$L-1$
+\form#63:$l$
+\form#64:$l+1$
+\form#65:${I_g}_y(level)$
+\form#66:${I_g}_x(level)$
+\form#67:$I_g(level)$
+\form#68:$C_k = 0.9 C_{k-1}$
+\form#69:$C_p$
+\form#70:$C_r$
+\form#71:$r_i$
+\form#72:$\Delta\Theta$
+\form#73:$ \widehat{\Delta \Theta^l}$
+\form#74:$ 0 \leq level < NLEVELS\_MAX $
+\form#75:$\Theta^l$
+\form#76:$\widehat{\Delta \Theta^l}$
+\form#77:$\widehat \Theta^l $
+\form#78:$ w_i $
+\form#79:$\mid r_i \mid < C \makebox[0.3cm]{} w_i = (1-(\frac{r_i}{C})^2)^2$
+\form#80:$w_i=0$
+\form#81:$(\frac{r_i}{C})^2 \leq 1 \makebox[0.3cm]{} w_i = 0 $
+\form#82:$w_i=1$
+\form#83:$ w_i = \frac{1}{1+(\frac{r_i}{C})^2} $
+\form#84:$w_i = exp( - (\frac{r_i}{C})^2) $
+\form#85:$ O = (x_c, y_c) = (col, row) $
+\form#86:$c_1$
+\form#87:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1} \end{array} \right) \]
+\form#88:$y$
+\form#89:$c_2$
+\form#90:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{2} \end{array} \right) \]
+\form#91:$(c_1,c_2)$
+\form#92:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) \]
+\form#93:$(c_1,a_1)$
+\form#94:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ \; \end{array} \right) + \left( \begin{array}{rl} a_{1} & 0\\ 0 & a_{1} \end{array} \right) \cdot \left( \begin{array}{l} x_{i} \\ y_{i} \end{array} \right) \]
+\form#95:$(c_1,c_2,a_1)$
+\form#96:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{rl} a_{1} & 0\\ 0 & a_{1} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) \]
+\form#97:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{rl} 0 & a_{1} \\ -a_{1} & 0 \end{array} \right) \cdot \left( \begin{array}{l} x_{i} \\ y_{i} \end{array} \right) \]
+\form#98:$(c_2,a_1,a_2,a_3,a_4)$
+\form#99:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} \; \\ c_2 \end{array} \right) + \left( \begin{array}{lr} a_{1} & a_{2}\\ a_{3} & a_{4} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) \]
+\form#100:$A^t$
+\form#101:$\phi^t=(c_1,c_2,div,rot,hyp_1,hyp_2)$
+\form#102:$div=\frac{1}{2}(a_1+a_4)$
+\form#103:$rot=\frac{1}{2}(a_3-a_2)$
+\form#104:$hyp1=\frac{1}{2}(a_1-a_4)$
+\form#105:$hyp2=\frac{1}{2}(a_2+a_3)$
+\form#106:$c_1=0$
+\form#107:$(c_1,a_1,a_2,a_3,a_4)$
+\form#108:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_1\\ \; \end{array} \right) + \left( \begin{array}{lr} a_{1} & a_{2}\\ a_{3} & a_{4} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) \]
+\form#109:$c_2=0$
+\form#110:$(c_1,c_2,a_1,a_2,a_3)$
+\form#111:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{lr} a_{1} & a_{2}\\ a_{3} & -a_{1} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) \]
+\form#112:$div=0$
+\form#113:$(c_1,c_2,a_1,a_2,a_4)$
+\form#114:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{r} a_{1} \;\; a_{2}\\ a_{2} \;\; a_{4} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) \]
+\form#115:$rot=0$
+\form#116:$(c_1,c_2,a_1,a_2, a_3)$
+\form#117:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{r} a_{1} \;\; a_{2}\\ a_{3} \;\; a_{1} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) \]
+\form#118:$hyp_1=0$
+\form#119:$(c_1,c_2,a_1, a_2, a_4)$
+\form#120:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{r} a_{1} \;\; a_{2}\\ -a_{2} \;\; a_{4} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) \]
+\form#121:$hyp_2=0$
+\form#122:$(c_1,c_2,a_1,a_2)$
+\form#123:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{rl} a_{1} & a_{2}\\ - a_{2} & a_{1} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) \]
+\form#124:$hyp_1=hyp_2=0$
+\form#125:$(c_1,c_2,a_1,...,a_2)$
+\form#126:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{l} a_{1} \;\; a_{2}\\ a_{3} \;\; a_{4} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) \]
+\form#127:$(c_1,a_1,q_1,q_2)$
+\form#128:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ \; \end{array} \right) + \left( \begin{array}{l} a_{1} \;\; 0\\ 0 \;\; a_{1} \end{array} \right) \cdot \left( \begin{array}{l} x_{i} \\ y_{i} \end{array} \right) + \left( \begin{array}{lll} q_{1} & q_{2} & 0\\ 0 & q_{1} & q_{2} \end{array} \right) \cdot \left( \begin{array}{l} {x_{i}}^2\\ x_{i} y_{i} \\ {y_{i} }^2 \end{array} \right) \]
+\form#129:$(c_1, c_2, q_1,q_2)$
+\form#130:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{lll} q_{1} & q_{2} & 0\\ 0 & q_{1} & q_{2} \end{array} \right) \cdot \left( \begin{array}{l} {x_{i}}^2\\ x_{i} y_{i} \\ {y_{i}}^2 \end{array} \right) \]
+\form#131:$(c_1,c_2,a_1,q_1,q_2)$
+\form#132:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{l} a_{1} \;\; 0\\ 0 \;\; a_{1} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) + \left( \begin{array}{lll} q_{1} & q_{2} & 0\\ 0 & q_{1} & q_{2} \end{array} \right) \cdot \left( \begin{array}{l} {x_{i}}^2\\ x_{i} y_{i} \\ {y_{i}}^2 \end{array} \right) \]
+\form#133:$(c_1,c_2,a_1,...,a_4,q_1,q_2)$
+\form#134:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{l} a_{1} \;\; a_{2}\\ a_{3} \;\; a_{4} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) + \left( \begin{array}{lll} q_{1} & q_{2} & 0\\ 0 & q_{1} & q_{2} \end{array} \right) \cdot \left( \begin{array}{l} {x_{i}}^2\\ x_{i} y_{i} \\ {y_{i}}^2 \end{array} \right) \]
+\form#135:$(c_1,c_2,a_1,...,a_4,q_1,...,q_6)$
+\form#136:\[ \vec{w}_{A}(p_{i}) = \left[ \begin{array}{l} u(p_{i}) \\ v(p_{i}) \end{array} \right] = \left( \begin{array}{l} c_{1}\\ c_{2} \end{array} \right) + \left( \begin{array}{l} a_{1} \;\; a_{2}\\ a_{3} \;\; a_{4} \end{array} \right) \cdot \left( \begin{array}{l} x_{i}\\ y_{i} \end{array} \right) + \left( \begin{array}{l} q_{1} \;\; q_{2} \;\; q_{3}\\ q_{4} \;\; q_{5} \;\; q_{6} \end{array} \right) \cdot \left( \begin{array}{l} {x_{i}}^2\\ x_{i} y_{i} \\ {y_{i}}^2 \end{array} \right) \]
+\form#137:$ I = 0.299 R + 0.587 G + 0.114 B$

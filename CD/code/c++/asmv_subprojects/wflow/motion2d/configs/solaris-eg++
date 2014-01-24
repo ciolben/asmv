@@ -1,0 +1,8 @@
+# Compiling
+CONF_CXX		= eg++
+CONF_CXX_VERSION	= $(shell $(CONF_CXX) -dumpversion)
+CONF_CXXFLAGS		= -Wall -O2
+
+# Linking
+RANLIB			= ranlib
+AR			= ar r

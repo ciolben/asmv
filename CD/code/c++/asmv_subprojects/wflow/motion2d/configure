@@ -1,0 +1,420 @@
+#!/bin/sh
+#
+# Configures to build the Motion2D software
+#
+# Copyright 1995-2005 Inria.  All rights reserved.
+#
+
+
+relpath=`dirname $0`
+relpath=`(cd $relpath; pwd)`
+HELP=
+
+
+if [ "$1" = -h -o "$1" = -help -o "$1" = --help -o "$1" = -? ]
+then
+    HELP=yes
+else
+
+
+# Find a make command
+if ( gmake /dev/null ) >/dev/null 2>/dev/null
+then
+    MAKE=gmake
+else
+    if ( make /dev/null ) >/dev/null 2>/dev/null
+    then
+	MAKE=make
+    else
+	echo "You don't seem to have 'make' or 'gmake' in your PATH."
+	echo "Cannot proceed."
+	exit 1
+    fi
+fi
+
+
+# Free edition - may only be used under the terms of the QPL.
+if [ -f LICENSE.QPL ]
+then
+    while true
+    do
+	echo
+	echo "This is the Motion2D Free Edition."
+	echo
+	echo "You are licensed to use this software under the terms of "
+	echo "the Q Public License (QPL)."
+	echo
+	echo "Type 'Q' to view the Q Public License."
+	echo "Type 'yes' to accept this license offer."
+	echo "Type 'no' to decline this license offer."
+	echo
+	echo "Do you accept the terms of the license?"
+	read acceptance
+	if [ "$acceptance" = yes ]
+	then
+	    break
+	else
+	    if [ "$acceptance" = no ]
+	    then
+		echo
+		echo "You are not licensed to use this software."
+		echo
+		exit 0
+	    elif [ "$acceptance" = Q -o "$acceptance" = q ]
+	    then
+		more LICENSE.QPL
+	    fi
+	fi
+    done
+else
+    echo
+    echo "The LICENSE.QPL file shipped with this software has disappeared."
+    echo
+    echo "Sorry, you are not licensed to use this software."
+    echo "Try re-installing."
+    echo
+    exit 0
+fi
+
+
+# Remove the build options file
+[ -f .buildpath ] && rm .buildpath
+[ -f .buildname ] && rm .buildname
+
+fi # help
+
+# Defaults
+DEBUG=off
+INSURE=off
+PLATFORM=
+VERBOSE=
+PNG=yes
+LDSTATIC=no
+
+# Parse the arguments, setting things to "yes" or "no".
+
+while [ -n "$1" ]; do
+   case $1 in
+   -platform)
+       shift; PLATFORM=$1
+	;;
+   -release)
+       DEBUG=off
+	;;
+   -debug)
+       DEBUG=on
+	;;
+   -insure)
+       INSURE=on
+	;;
+   -v | -verbose)
+       VERBOSE=yes
+        ;;
+   -no-png)
+       PNG=no
+        ;;
+   -png)
+       PNG=yes
+        ;;
+   -static)
+       LDSTATIC=yes
+        ;;
+   -h | -help | --help | -?)
+       HELP=yes
+	;;
+   *)
+       echo $1: unknown argument1
+       HELP=yes;
+       ERROR=yes
+	;;
+   esac
+   shift
+done
+
+UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
+UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+UNAME_SYSTEM=`(uname -s) 2>/dev/null` || UNAME_SYSTEM=unknown
+UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
+
+if [ -z "$PLATFORM" ]
+then
+
+    PLATFORMS="irix64-g++ linux-g++ solaris-CC solaris-g++ sunos-g++ cygwin-g++ darwin-g++"
+
+    case "$UNAME_SYSTEM:$UNAME_RELEASE" in
+     Darwin:*)
+	PLATFORM=darwin-g++
+	;;
+     IRIX64:*)
+	PLATFORM=irix64-g++
+	;;
+     Linux:*)
+	PLATFORM=linux-g++
+	;;
+     SunOS:5*)
+	PLATFORM=solaris-g++
+	;;
+     SunOS:4*)
+	PLATFORM=sunos-g++
+	;;
+     CYGWIN_NT-?.?:*)
+	PLATFORM=cygwin-g++
+	;;
+     *)
+	if [ "$HELP" != "yes" ]; then
+	    echo
+	    for p in $PLATFORMS
+	    do
+		echo "    $0 $* -platform $p"
+	    done
+	    echo
+	    echo "The build script does not currently recognize all platforms"
+	    echo "supported by Motion2D."
+	    echo "Rerun this script with a -platform option listed to"
+	    echo "set the operating system / compiler combination you use."
+	    echo
+	    exit 2
+	fi
+    esac
+fi
+
+
+TARGET=$PLATFORM
+
+
+if [ '!' -f $relpath/configs/$TARGET ]; then
+    echo
+    echo
+    echo '    The platform/compiler' $TARGET 'is not supported.'
+    echo '    Please see the PLATFORMS file for more information.'
+    echo
+    echo
+    exit 2
+fi
+
+SUFFIX=""
+if [ "x$DEBUG" = "xon" -a "x$INSURE" = "xon" ]; then
+    TARGET="${TARGET}-insure"
+    SUFFIX="_insure"
+elif [ "x$INSURE" = "xon" ]; then
+    TARGET="${TARGET}-insure"
+    SUFFIX="_insure"
+elif [ "x$DEBUG" = "xon" ]; then
+    TARGET="${TARGET}-debug"
+    SUFFIX="_g"
+fi
+
+CONFIG="$relpath/configs/${TARGET}"
+
+if [ -z "$TARGET" -o '!' -f "$CONFIG" ];
+then
+    echo
+    echo
+    echo '   The specified platform/compiler not supported: ' $TARGET
+    echo '   Please see the PLATFORMS file for a complete list.'
+    echo
+    echo
+    exit 2
+fi
+
+# Next, emit a usage message if something failed.
+
+if [ "$HELP" = "yes" ]; then
+   [ "x$ERROR" = "xyes" ] && echo
+
+    cat <<EOF
+Usage: $0 [-debug] [-release] [-no-png] [-png] [-static] [-verbose] [-platform <target>] 
+
+The defaults options are marked by (*).  Here is a short explanation of
+each option:
+
+ *  -release ........... Compile and link Motion2D with debugging turned off.
+    -debug ............. Compile and link Motion2D with debugging turned on.
+    -insure ............ Compile and link Motion2D with Insure++ debugging tool.
+
+    -no-png ............ Do not compile with the PNG image I/O support.
+ *  -png ............... Use a libpng from the operating system.
+                         See http://www.libpng.org/pub/png.
+
+    -static ............ During the examples building (binary code), this 
+                         option prevents linking with shared libraries.
+
+    -verbose ........... Add extra information.
+
+    -platform target ... The platform you are building on ($PLATFORM)
+
+EOF
+
+   [ "x$ERROR" = "xyes" ] && exit 1
+   exit 0;
+fi
+
+# Create the .buildpath file
+MOTION2D_HOME=`pwd`
+
+cat > .buildpath <<EOF
+OS			= $UNAME_SYSTEM
+
+MOTION2D_HOME		= $MOTION2D_HOME
+MOTION2D_DIR_SRC	= \$(MOTION2D_HOME)/src
+
+EOF
+
+# Create the .builddir file
+cat > .builddir <<EOF
+
+MOTION2D_DIR_COMPENSE         = \$(MOTION2D_DIR_SRC)/compense
+MOTION2D_DIR_CPRIM            = \$(MOTION2D_DIR_SRC)/cprim
+MOTION2D_DIR_ESTIMATION       = \$(MOTION2D_DIR_SRC)/estimation
+MOTION2D_DIR_IMAGE            = \$(MOTION2D_DIR_SRC)/image
+MOTION2D_DIR_INC              = \$(MOTION2D_DIR_SRC)/inc
+MOTION2D_DIR_INTERFACE        = \$(MOTION2D_DIR_SRC)/interface
+MOTION2D_DIR_MATSYM           = \$(MOTION2D_DIR_SRC)/mat_sym
+MOTION2D_DIR_MEMOIRE          = \$(MOTION2D_DIR_SRC)/memoire
+MOTION2D_DIR_PYRAMIDE         = \$(MOTION2D_DIR_SRC)/pyramide
+MOTION2D_DIR_CONTRIB          = \$(MOTION2D_DIR_SRC)/contrib
+MOTION2D_DIR_CONTRIB_MPEG2DEC = \$(MOTION2D_DIR_CONTRIB)/mpeg2dec
+MOTION2D_DIR_CONTRIB_LOCALPNG = \$(MOTION2D_DIR_CONTRIB)/localpng
+
+EOF
+
+# Create the .buildoutput file
+CXXFLAGS_OPT=""
+MOTION2D_LIBS=""
+LOCALPNG_LIBNAME=""
+[ "x$PNG" = "xno" ] && CXXFLAGS_OPT="-D__NO_IMAGEIO_PNG_"
+[ "x$PNG" = "xyes" ] && MOTION2D_LIBS="-llocalpng\$(SUFFIX) -lpng -lz"
+[ "x$PNG" = "xyes" ] && LOCALPNG_LIBNAME="liblocalpng\$(SUFFIX).a"
+
+LDFLAGS_OPT=""
+[ "x$LDSTATIC" = "xyes" ] && LDFLAGS_OPT="-static"
+
+cat > .buildoutput <<EOF
+
+CXXFLAGS_OPT		= $CXXFLAGS_OPT
+LDFLAGS_OPT		= $LDFLAGS_OPT
+SUFFIX                  = $SUFFIX
+
+MOTION2D_DIR_INCLUDE	= \$(MOTION2D_HOME)/include
+MOTION2D_DIR_LIB	= \$(MOTION2D_HOME)/lib
+MOTION2D_DIR_BIN	= \$(MOTION2D_HOME)/bin
+
+MOTION2D_BINPATH	= \$(MOTION2D_DIR_BIN)/\$(OS)
+MOTION2D_LIBPATH	= \$(MOTION2D_DIR_LIB)/\$(OS)/\$(CONF_CXX_VERSION)
+
+MOTION2D_LIBNAME	= libMotion2D\$(SUFFIX).a
+MPEG2DEC_LIBNAME	= libmpeg2dec\$(SUFFIX).a
+LOCALPNG_LIBNAME	= $LOCALPNG_LIBNAME
+MOTION2D_LIBS           = $MOTION2D_LIBS
+
+EOF
+
+
+ 
+
+# Give feedback...
+
+echo
+if [ -n "$TARGET" ]
+then
+    echo "Build config file      : configs/$TARGET"
+    echo ""
+fi
+
+
+#echo "contenu de target:"
+#CC=`grep CC $CONFIG | sed  -e 's/CC//' | sed -e 's/=//1'`
+#CC=`sed 's/^[^ ][^ ]* \([^ ][^ ]*\).*/\1/;q' $CONFIG`;`
+#CFLAGS=`grep CFLAGS $CONFIG | sed -e 's/CFLAGS//' | sed -e 's/=//'`
+#TEST1=`echo "$TEST" | sed -e "s;$sepath;.;g"`
+#TEST=`echo $TEST;
+#TEST=`echo $TARGET | sed -e "s/-/_/g"`;
+#cat configs/$TARGET | sed -e 's/CC//' "/tmp/linux-g++" >> "/tmp/test"
+#echo $CC $CFLAGS
+#exit 0
+
+
+if [ -n "$VERBOSE" ]
+then
+    echo "Platform               : $UNAME_SYSTEM"
+    echo "Debugging turned       : $DEBUG"
+    echo "PNG image I/O support  : $PNG"
+    if [ "$LDSTATIC" = "yes" ]; then
+        echo "Examples link eddition : static"
+    else
+        echo "Examples link eddition : dynamic"
+    fi
+    echo ""
+fi
+
+echo Creating makefiles...
+
+
+sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
+#echo "relpath:" $relpath
+#echo "sepath:" $sepath
+
+count=0
+for a in `/bin/find $relpath -name Makefile.in -print | sort` ; do
+    dir=`dirname $a`
+    buildpath=`echo "$dir" | sed -e "s;$sepath;.;g"`
+    test -d $buildpath || mkdir $buildpath
+    N=$buildpath/Makefile
+    M=$a
+
+    cat > $N <<EOF
+#############################################################################
+# Automatically generated from M
+#############################################################################
+
+EOF
+echo "---------"
+echo "N:" $N
+echo "M:" $M
+echo "dir:"  $dir
+echo "buildpath:" $buildpath
+echo "buildname:" $buildname
+echo "CONFIG:" $CONFIG
+echo "relpath:" $relpath
+echo "pwd:" `pwd`
+echo "---------"
+
+count=$(expr $count + 1)
+if [ $count = 1 ]; then
+	MM="/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/examples/Makefile.in"
+	cat .buildpath $CONFIG .buildoutput $MM >> $N
+elif [ $count == 2 ]; then
+	MM="/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/contrib/localpng/Makefile.in"
+	cat .buildpath .builddir $CONFIG .buildoutput $MM >> $N
+elif [ $count == 3 ]; then
+	MM="/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/contrib/mpeg2dec/Makefile.in"
+	cat .buildpath .builddir $CONFIG .buildoutput $MM >> $N
+elif [ $count == 4 ]; then
+	MM="/cygdrive/c/Users/Loic/Coding_Main/ADM/Motion2D-1.3.11.1/src/Makefile.in"
+	cat .buildpath .builddir $CONFIG .buildoutput $MM >> $N
+else
+	echo "Error in count"
+fi
+    # suppress the "examples" string at the end of the $buildpath string
+    #tmpvar=`echo "$buildpath" | sed 's/examples\$//'`
+    #if [ "$tmpvar" = "$buildpath" ]; then
+      #cat .buildpath .builddir $CONFIG .buildoutput $M >> $N
+	#echo "noexamplecase : " $tempv
+    #else
+      # for the examples, the Makefile is simpler
+      #cat .buildpath $CONFIG .buildoutput >> $N
+      #cat $M >> $N
+    #fi
+
+    if [ "$VERBOSE" = "yes" ]; then
+	echo '  Created' $N
+    fi
+    
+done
+
+echo
+echo Motion2D is now configured for building. Just run $MAKE.
+echo To see configure options, run configure -help.
+echo To reconfigure, run $MAKE clean and configure.
+echo To uninstall, run $MAKE uninstall.
+echo

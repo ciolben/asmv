@@ -1,0 +1,77 @@
+IFLAGS		=
+
+CXX		= $(CONF_CXX)
+CXXFLAGS	= $(CONF_CXXFLAGS) $(CXXFLAGS_OPT) $(IFLAGS)
+
+
+INC		=
+
+LOCALPNG_LIB	= $(MOTION2D_LIBPATH)/$(LOCALPNG_LIBNAME)
+
+.KEEP_STATE	:
+.PRECIOUS	: $(LOCALPNG_LIBNAME)
+
+all install	: directory $(LOCALPNG_LIBNAME)
+	@echo
+	@echo "The png library is now built in $(MOTION2D_LIBPATH)"
+	@echo
+
+directory:
+	@if [ ! -d $(MOTION2D_DIR_LIB)/$(OS) ] ;\
+	then \
+		echo "*" ; \
+		echo "* Creation of the $(MOTION2D_DIR_LIB)/$(OS) directory..." ; \
+		echo "*" ; \
+		mkdir $(MOTION2D_DIR_LIB)/$(OS) ; \
+	fi ;
+	@if [ ! -d $(MOTION2D_LIBPATH) ] ;\
+	then \
+		echo "*" ; \
+		echo "* Creation of the $(MOTION2D_LIBPATH) directory..." ; \
+		echo "*" ; \
+		mkdir $(MOTION2D_LIBPATH) ; \
+	fi ;
+
+checkup:
+	@if [ ! -d $(MOTION2D_LIBPATH) ] ;\
+	then \
+		echo "*" ; \
+		echo "* Error lib: make install before" ; \
+		echo "*" ; \
+		exit 1; \
+	fi ;
+
+
+LOCALPNG_OBJ	= readpng.o writepng.o
+
+
+$(LOCALPNG_LIBNAME) :\
+	$(LOCALPNG_LIB)($(LOCALPNG_OBJ))
+	$(RANLIB) $(LOCALPNG_LIB)
+
+$(LOCALPNG_LIB)(%.o): %.c
+	@echo "*"
+	@echo "* Add $*.c in library $@ "
+	@echo "*"
+	$(CXX) $(CXXFLAGS) -c $*.c -o $*.o
+	($(AR) $@ $%; rm $%)
+
+clean:
+	rm -f *~
+	rm -f *%
+	rm -f *.o
+	rm -f -r SunWS_cache
+	rm -f -r ii_files
+	rm -f -r ti_files
+
+uninstall:
+	rm -f $(LOCALPNG_LIB)
+	rm -f -r ../*/SunWS_cache ../*/*/SunWS_cache
+	rm -f -r ../*/ii_files ../*/*/ii_files
+	rm -f -r ../*/ti_files ../*/*/ti_files
+
+
+# Update the dependencies
+$(LOCALPNG_LIB)(writepng.o): writepng.c writepng.h
+$(LOCALPNG_LIB)(readpng.o): readpng.c readpng.h
+
